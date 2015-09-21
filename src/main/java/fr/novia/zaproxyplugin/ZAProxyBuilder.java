@@ -76,15 +76,22 @@ public class ZAProxyBuilder extends Builder {
 	/** Port configured when ZAProxy is used as proxy */
 	private final int zapProxyPort;
 	
+	/** API Key configured when ZAProxy is used as proxy */
+	private final String zapProxyKey;
+	
+	
+	
 	// Fields in fr/novia/zaproxyplugin/ZAProxyBuilder/config.jelly must match the parameter names in the "DataBoundConstructor"
 	@DataBoundConstructor
-	public ZAProxyBuilder(boolean startZAPFirst, String zapProxyHost, int zapProxyPort, ZAProxy zaproxy) {
+	public ZAProxyBuilder(boolean startZAPFirst, String zapProxyHost, int zapProxyPort, String zapProxyKey, ZAProxy zaproxy) {
 		this.startZAPFirst = startZAPFirst;
 		this.zaproxy = zaproxy;
 		this.zapProxyHost = zapProxyHost;
 		this.zapProxyPort = zapProxyPort;
+		this.zapProxyKey=zapProxyKey;
 		this.zaproxy.setZapProxyHost(zapProxyHost);
 		this.zaproxy.setZapProxyPort(zapProxyPort);
+		this.zaproxy.setZapProxyApiKey(zapProxyKey);
 	}
 
 	/*
@@ -104,6 +111,10 @@ public class ZAProxyBuilder extends Builder {
 
 	public int getZapProxyPort() {
 		return zapProxyPort;
+	}
+	
+	public String getZapProxyKey() {
+		return zapProxyKey;
 	}
 
 	// Overridden for better type safety.
@@ -137,7 +148,8 @@ public class ZAProxyBuilder extends Builder {
 					}
 					launcher = new RemoteLauncher(listener, build.getWorkspace().getChannel(), isUnix);
 				}		
-				zaproxy.startZAP(build, listener, launcher);
+				//commented by abdellah 
+			//	zaproxy.startZAP(build, listener, launcher);
 			} catch (Exception e) {
 				e.printStackTrace();
 				listener.error(ExceptionUtils.getStackTrace(e));
@@ -152,18 +164,20 @@ public class ZAProxyBuilder extends Builder {
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
 		
-		listener.getLogger().println("Perform ZAProxy");
+		//commented bu abdellah
 		
-		if(!startZAPFirst) {
-			try {
-				zaproxy.startZAP(build, listener, launcher);
-			} catch (Exception e) {
-				e.printStackTrace();
-				listener.error(ExceptionUtils.getStackTrace(e));
-				return false;
-			}
-		}
-		
+//		listener.getLogger().println("Perform ZAProxy");
+//		
+//		if(!startZAPFirst) {
+//			try {
+//				zaproxy.startZAP(build, listener, launcher);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//				listener.error(ExceptionUtils.getStackTrace(e));
+//				return false;
+//			}
+//		}
+//		
 		boolean res;
 		try {
 			//copyPolicyFile(build.getWorkspace(), listener); // TODO maybe in future version
@@ -174,6 +188,8 @@ public class ZAProxyBuilder extends Builder {
 			return false;
 		}
 		return res;
+		
+		 
 	}
 	
 	/**
@@ -256,6 +272,8 @@ public class ZAProxyBuilder extends Builder {
 		 */
 		private String zapProxyDefaultHost;
 		private int zapProxyDefaultPort;
+		/** API Key configured when ZAProxy is used as proxy */
+		private  String zapProxyDefaultApiKey;
 
 		/**
 		 * In order to load the persisted global configuration, you have to
@@ -276,7 +294,7 @@ public class ZAProxyBuilder extends Builder {
 		 */
 		@Override
 		public String getDisplayName() {
-			return "Execute customed ZAProxy";
+			return "Lancer ZAProxy";
 		}
 
 		@Override
@@ -285,6 +303,7 @@ public class ZAProxyBuilder extends Builder {
 			// set that to properties and call save().
 			zapProxyDefaultHost = formData.getString("zapProxyDefaultHost");
 			zapProxyDefaultPort = formData.getInt("zapProxyDefaultPort");
+			zapProxyDefaultApiKey=formData.getString("zapProxyDefaultApiKey");;
 			// ^Can also use req.bindJSON(this, formData);
 			//  (easier when there are many fields; need set* methods for this, like setUseFrench)
 			save();
@@ -297,6 +316,10 @@ public class ZAProxyBuilder extends Builder {
 
 		public int getZapProxyDefaultPort() {
 			return zapProxyDefaultPort;
+		}
+		
+		public String getZapProxyDefaultApiKey() {
+			return zapProxyDefaultApiKey;
 		}
 
 	}

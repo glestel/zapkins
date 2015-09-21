@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<fr.novia.zaproxyplugin.ZAProxyBuilder_-ZAProxyBuilderDescriptorImpl plugin="zaproxy@1.1.8-SNAPSHOT">
+  <zapProxyDefaultHost>localhost</zapProxyDefaultHost>
+  <zapProxyDefaultPort>8089</zapProxyDefaultPort>
+  <zapProxyDefaultApiKey>2ec2s1qh8fu1303jar3us1msb4</zapProxyDefaultApiKey>
+</fr.novia.zaproxyplugin.ZAProxyBuilder_-ZAProxyBuilderDescriptorImpl>

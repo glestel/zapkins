@@ -38,11 +38,16 @@ SOFTWARE.
 	-->
 	<f:section title="ZAProxy">
 		<f:entry title="${%ZAProxy Default Host}" field="zapProxyDefaultHost">
-			<f:textbox default="localhost" clazz="required" />
+			<f:textbox default="10.107.2.102" clazz="required" />
 		</f:entry>
 
 		<f:entry title="${%ZAProxy Default Port}" field="zapProxyDefaultPort">
-			<f:number default="8090" clazz="required positive-number" />
+			<f:number default="8080" clazz="required positive-number" />
 		</f:entry>
+		
+		<f:entry title="${%ZAProxy Default API Key}" field="zapProxyDefaultApiKey">
+			<f:textbox default="2q0ap4er4dhnlauq165mv43cht" clazz="required" />
+		</f:entry>
+		
 	</f:section>
 </j:jelly>

@@ -46,8 +46,8 @@ SOFTWARE.
 		</f:entry>
 		
 		<f:entry title="${%Override ZAProxy APi KEY}" field="zapProxyKey"
-		description="Default API Key is : ${descriptor.zapProxyKey} (${%Configured in admin mode})">
-			<f:textbox default="${descriptor.zapProxyKey}" clazz="required" />
+		description="Default API Key is : ${descriptor.zapProxyDefaultApiKey} (${%Configured in admin mode})">
+			<f:textbox default="${descriptor.zapProxyDefaultApiKey}" clazz="required" />
 		</f:entry>
 		
 	</f:section>

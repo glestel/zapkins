@@ -312,6 +312,35 @@ public class CustomZapApi {
 	}
 	
 	/**
+	 * Save the session with the given name. If a relative path is specified it will be resolved against the "session" directory in ZAP "home" dir.
+	 */
+	
+	public ApiResponse saveSession(String apikey, String name, String overwrite) throws ClientApiException {
+        Map<String, String> map = null;
+        map = new HashMap<String, String>();
+        if (apikey != null) {
+                map.put("apikey", apikey);
+        }
+        map.put("name", name);
+        map.put("overwrite", overwrite);
+        return callApi("core", "action", "saveSession", map);
+}
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
 	 * Creates a new context in the current session
 	 */
 	public ApiResponse newContext(String apikey, String contextname) throws ClientApiException {

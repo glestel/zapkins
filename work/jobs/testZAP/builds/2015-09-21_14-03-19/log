@@ -1,0 +1,11 @@
+Démarré par l'utilisateur [8mha:AAAAlh+LCAAAAAAAAP9b85aBtbiIQTGjNKU4P08vOT+vOD8nVc83PyU1x6OyILUoJzMv2y+/JJUBAhiZGBgqihhk0NSjKDWzXb3RdlLBUSYGJk8GtpzUvPSSDB8G5tKinBIGIZ+sxLJE/ZzEvHT94JKizLx0a6BxUmjGOUNodHsLgAzOEgYu/dLi1CL9vNKcHACFIKlWvwAAAA==[0manonymous
+Building in workspace C:\Users\GDRB6297\Documents\Livrables\ZAP_DEV\workspace\ZAP_JENKINS_SVN\work\workspace\testZAP
+Skip loadSession
+Skip spidering the site [http://localhost:8080]
+Ajax Spider the site [http://localhost:8080] without credentials
+Skip scanning the site [http://localhost:8080]
+Skip spidering the site [http://localhost:8080] as user []
+Skip Ajax spidering the site [http://localhost:8080] As User
+Skip scanning the site [http://localhost:8080]
+Skip saveSession
+Finished: SUCCESS

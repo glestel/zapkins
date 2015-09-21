@@ -31,21 +31,21 @@ public class CustomZapClientApi {
 
 	 
 	 
-	private String ZAP_ADDRESS = ""; 
-	private  String ZAP_PORT = "8080"; 
-	private  String ZAP_API_KEY =""; 
+	private String zapProxyHost = ""; 
+	private  int zapProxyPort = 8080; 
+	private  String zapProxyKey =""; 
 	private CustomZapApi api;
  
 	
 	 
-	public CustomZapClientApi(String ZAP_ADDRESS,String ZAP_PORT, String ZAP_API_KEY ) {
+	public CustomZapClientApi(String ZAP_ADDRESS,int zapProxyPort, String ZAP_API_KEY ) {
 		super();
 		
 		
-		this.ZAP_ADDRESS = ZAP_ADDRESS ;
-		this.ZAP_PORT = ZAP_PORT;
-		this.ZAP_API_KEY =ZAP_API_KEY;
-		this.api = new CustomZapApi(ZAP_ADDRESS,""+ZAP_PORT+"");
+		this.zapProxyHost = ZAP_ADDRESS ;
+		this.zapProxyPort = zapProxyPort;
+		this.zapProxyKey =ZAP_API_KEY;
+		this.api = new CustomZapApi(ZAP_ADDRESS,""+zapProxyPort+"");
 	}
 	
 	
@@ -122,7 +122,7 @@ public class CustomZapClientApi {
 			//System.out.println("Context dose not exist\nIt will be created...");
 			listener.getLogger().println("Context dose not exist\nIt will be created...");
 			try {
-				api.newContext(ZAP_API_KEY, contextname);
+				api.newContext(zapProxyKey, contextname);
 				//System.out.println("Context created...");
 				listener.getLogger().println("Context created...");
 				return getContextId(contextname, listener);
@@ -157,7 +157,7 @@ public class CustomZapClientApi {
 		/************************************************************************************************************/
 		//api.setLoggedInIndicator(ZAP_API_KEY, contextId, java.util.regex.Pattern.quote(loggedInIndicator));
 		try {
-			api.setLoggedInIndicator(ZAP_API_KEY, contextId, loggedInIndicator);
+			api.setLoggedInIndicator(zapProxyKey, contextId, loggedInIndicator);
 		} catch (ClientApiException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -193,7 +193,7 @@ public class CustomZapClientApi {
 		/************************************************************************************************************/
 		//api.setLoggedOutIndicator(ZAP_API_KEY, contextId, java.util.regex.Pattern.quote(loggedOutIndicator));
 		try {
-			api.setLoggedOutIndicator(ZAP_API_KEY, contextId,  loggedOutIndicator);
+			api.setLoggedOutIndicator(zapProxyKey, contextId,  loggedOutIndicator);
 			/************************************************************************************************************/
 
 			// Check out the logged in indicator that is set
@@ -234,7 +234,7 @@ public class CustomZapClientApi {
 			listener.getLogger().println("Setting form based authentication configuration as: "+ formBasedConfig.toString());
 			
 			/************************************************************************************************************/
-			api.setAuthenticationMethod(ZAP_API_KEY, contextId, "formBasedAuthentication",formBasedConfig.toString());
+			api.setAuthenticationMethod(zapProxyKey, contextId, "formBasedAuthentication",formBasedConfig.toString());
 			/************************************************************************************************************/
 			
 
@@ -274,7 +274,7 @@ try {
 	listener.getLogger().println("Setting Script based authentication configuration as: "+ scriptBasedConfig .toString());
 	/************************************************************************************************************/
 	//http://10.107.2.102:8080/JSON/authentication/action/setAuthenticationMethod/?zapapiformat=JSON&apikey=2q0ap4er4dhnlauq165mv43cht&contextId=1&authMethodName=scriptBasedAuthentication&authMethodConfigParams=scriptName%3Db.espaceclientv3.orange.fr.js
-	api.setAuthenticationMethod(ZAP_API_KEY, contextId, "scriptBasedAuthentication",scriptBasedConfig .toString());
+	api.setAuthenticationMethod(zapProxyKey, contextId, "scriptBasedAuthentication",scriptBasedConfig .toString());
 	/************************************************************************************************************/
 
 
@@ -399,7 +399,7 @@ public String  setUserAuthConfig(String contextId, String user, String username,
 	// Make sure we have at least one user
 	String userId = null;
 	try {
-		userId = extractUserId(api.newUser(ZAP_API_KEY, contextId, user));
+		userId = extractUserId(api.newUser(zapProxyKey, contextId, user));
 		/************************************************************************************************************/
 
 		// Prepare the configuration in a format similar to how URL parameters are formed. This
@@ -412,7 +412,7 @@ public String  setUserAuthConfig(String contextId, String user, String username,
 		listener.getLogger().println("Setting user authentication configuration as: " + userAuthConfig.toString());
 		
 		/************************************************************************************************************/
-		api.setAuthenticationCredentials(ZAP_API_KEY, contextId, userId, userAuthConfig.toString());
+		api.setAuthenticationCredentials(zapProxyKey, contextId, userId, userAuthConfig.toString());
 		/************************************************************************************************************/
 
 		// Check if everything is set up ok
@@ -439,7 +439,7 @@ public void includeInContext(String url, String contextname, BuildListener liste
 		//String contextname=PropertyLoader.getValueFromKey("CONTEXTNAME", "", authenticationProperties);
 		try {
 			 
-			ApiResponse status=api.includeInContext(ZAP_API_KEY, contextname, url);
+			ApiResponse status=api.includeInContext(zapProxyKey, contextname, url);
 			//System.out.println(((ApiResponseElement) status).getValue());
 			listener.getLogger().println(((ApiResponseElement) status).getValue());
 			
@@ -481,7 +481,7 @@ public void excludeFromContext(String url, String contextname, BuildListener lis
 		//String contextname=PropertyLoader.getValueFromKey("CONTEXTNAME", "", authenticationProperties);
 		try {
 			 
-			ApiResponse status=api.excludeFromContext(ZAP_API_KEY, contextname, url);
+			ApiResponse status=api.excludeFromContext(zapProxyKey, contextname, url);
 			//System.out.println(((ApiResponseElement) status).getValue());
 			listener.getLogger().println(((ApiResponseElement) status).getValue());
 			
@@ -499,7 +499,7 @@ public void excludeFromContext(String url, String contextname, BuildListener lis
 public void enableUser(String contextid, String userid, BuildListener listener){
 	
 	try {
-		ApiResponse status=api.setUserEnabled(ZAP_API_KEY, contextid, userid, "true");
+		ApiResponse status=api.setUserEnabled(zapProxyKey, contextid, userid, "true");
 		//System.out.println(((ApiResponseElement) status).getValue());
 		listener.getLogger().println(((ApiResponseElement) status).getValue());
 		
@@ -523,7 +523,7 @@ public  void setWebProxyDetails(String webProxyPropertiesPath) {
 public ApiResponse setPolicyAttackStrength( String id, String attackstrength, String scanpolicyname)  {
 	
 	try {
-		return api.setPolicyAttackStrength(ZAP_API_KEY, id, attackstrength, scanpolicyname);
+		return api.setPolicyAttackStrength(zapProxyKey, id, attackstrength, scanpolicyname);
 	} catch (ClientApiException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -537,7 +537,7 @@ public ApiResponse setPolicyAlertThreshold( String id, String attackstrength, St
 	
 	
 	try {
-		api.setPolicyAlertThreshold(ZAP_API_KEY, id, attackstrength, scanpolicyname);
+		api.setPolicyAlertThreshold(zapProxyKey, id, attackstrength, scanpolicyname);
 	} catch (ClientApiException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -545,7 +545,7 @@ public ApiResponse setPolicyAlertThreshold( String id, String attackstrength, St
 	 
 	return null;
 }
-
+/**************************** SESSION *******************************/
 /**
  * Loads the session with the given name. If a relative path is specified it will be resolved against the "session" directory in ZAP "home" dir.
  */
@@ -553,7 +553,7 @@ public ApiResponse loadSession(String name)  {
 	
 	
 	try {
-		return api.loadSession(ZAP_API_KEY, name);
+		return api.loadSession(zapProxyKey, name);
 	} catch (ClientApiException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -561,10 +561,29 @@ public ApiResponse loadSession(String name)  {
 	 return null;
 }
 
+
+public void saveSession( String name, String overwrite, BuildListener listener )   {
+	
+	
+	try {
+		ApiResponse status = api.saveSession("+apikey+", name, overwrite);
+		listener.getLogger().println(((ApiResponseElement) status).getValue());
+		
+		
+		
+	} catch (ClientApiException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+ 
+}
+/**************************************************************************/
+
+
 public ApiResponse setOptionPostForm(boolean bool)   {
 	
 	try {
-		return api.setOptionPostForm(ZAP_API_KEY, bool);
+		return api.setOptionPostForm(zapProxyKey, bool);
 	} catch (ClientApiException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -575,7 +594,7 @@ public ApiResponse setOptionPostForm(boolean bool)   {
 public ApiResponse setOptionProcessForm(boolean bool)   {
 	
 	try {
-		return api.setOptionProcessForm(ZAP_API_KEY, bool);
+		return api.setOptionProcessForm(zapProxyKey, bool);
 	} catch (ClientApiException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -586,7 +605,7 @@ public ApiResponse setOptionProcessForm(boolean bool)   {
 public ApiResponse setOptionHandleODataParametersVisited(  boolean bool)   {
 	
 	try {
-		return api.setOptionHandleODataParametersVisited(ZAP_API_KEY, bool);
+		return api.setOptionHandleODataParametersVisited(zapProxyKey, bool);
 	} catch (ClientApiException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -597,7 +616,7 @@ public ApiResponse setOptionHandleODataParametersVisited(  boolean bool)   {
 public ApiResponse setOptionShowAdvancedDialog(  boolean bool)   {
 	
 	try {
-		return api.setOptionShowAdvancedDialog(ZAP_API_KEY, bool);
+		return api.setOptionShowAdvancedDialog(zapProxyKey, bool);
 	} catch (ClientApiException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -608,7 +627,7 @@ public ApiResponse setOptionShowAdvancedDialog(  boolean bool)   {
 public ApiResponse setOptionParseComments(boolean bool)  {
 	
 	try {
-		return api.setOptionParseComments(ZAP_API_KEY, bool);
+		return api.setOptionParseComments(zapProxyKey, bool);
 	} catch (ClientApiException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -619,7 +638,7 @@ public ApiResponse setOptionParseComments(boolean bool)  {
 public ApiResponse setOptionParseRobotsTxt(boolean bool)  {
 	
 	try {
-		return api.setOptionParseRobotsTxt(ZAP_API_KEY, bool);
+		return api.setOptionParseRobotsTxt(zapProxyKey, bool);
 	} catch (ClientApiException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -629,7 +648,7 @@ public ApiResponse setOptionParseRobotsTxt(boolean bool)  {
 
 public ApiResponse setOptionParseSitemapXml(boolean bool){
 	 try {
-		return api.setOptionParseSitemapXml(ZAP_API_KEY, bool);
+		return api.setOptionParseSitemapXml(zapProxyKey, bool);
 	} catch (ClientApiException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -681,7 +700,7 @@ public String spiderAsUserURL( String url, String contextid, String userid, Stri
 			ApiResponse status;
 			String  scanid = null;
 			try {
-				status = api.spiderAsUser(ZAP_API_KEY, url, contextid, userid, maxchildren);
+				status = api.spiderAsUser(zapProxyKey, url, contextid, userid, maxchildren);
 				//ETAPE2 : chaque scan est identifié par un id 
 				scanid = ((ApiResponseElement) status).getValue();
 	 
@@ -743,7 +762,7 @@ public String spiderURL( String url, String maxchildren , BuildListener listener
 			ApiResponse status;
 			String  scanid=null;
 			try {
-				status = api.spider(ZAP_API_KEY, url, maxchildren);
+				status = api.spider(zapProxyKey, url, maxchildren);
 				//ETAPE2 : chaque scan est identifié par un id 
 				scanid = ((ApiResponseElement) status).getValue();
 	 
@@ -800,7 +819,7 @@ public String ajaxSpiderURL(String url,String inscope, BuildListener listener ) 
 		ApiResponse status;
 		String  scanid=null;
 		try {
-			status = api.ajaxScan(ZAP_API_KEY, url, inscope);
+			status = api.ajaxScan(zapProxyKey, url, inscope);
 			
 			//ETAPE2 : chaque scan est identifié par un id 
 			scanid = ((ApiResponseElement) status).getValue();
@@ -950,7 +969,7 @@ public void scanURL( String url, String scanid, String scanPolicyName, BuildList
 	
 		//ETAPE1 : On construit la requête
 		Map<String, String> params = new HashMap<String, String>();
-		params.put("apikey", ZAP_API_KEY);
+		params.put("apikey", zapProxyKey);
 		params.put("recurse", "true");
 		//params.put("scanPolicyName", PropertyLoader.getValueFromKey("SCANPOLICYNAME", "", authenticationProperties));
 		params.put("scanPolicyName", scanPolicyName);
@@ -1006,7 +1025,7 @@ public void scanURLAsUser(String url, String scanid, String contextid,String use
 	//ETAPE1 : On construit la requête	
  	ApiResponse status;
 	try {
-		status = api.scanAsUser(ZAP_API_KEY, url, contextid, userid, recurse, ScanPolicyName);
+		status = api.scanAsUser(zapProxyKey, url, contextid, userid, recurse, ScanPolicyName);
 		
 		//ETAPE2 :  Poll the status until it completes
 		int progress;
@@ -1049,12 +1068,12 @@ public void scanURLAsUser(String url, String scanid, String contextid,String use
 
 
 /*************************************************** Reporting ******************************************************************/
-public void saveReport(CustomZapApi api , String xmlReportPath, BuildListener listener) {
+public void saveReport(String xmlReportPath, BuildListener listener) {
 		 
 
 		byte[] xmlReportBytes;
 		try {
-			xmlReportBytes =  api.xmlreport(ZAP_API_KEY);
+			xmlReportBytes =  api.xmlreport(zapProxyKey);
 			Files.write(Paths.get(xmlReportPath), xmlReportBytes);
 			//System.out.println("File [" + new File(xmlReportPath).getAbsolutePath() + "] saved");
 			listener.getLogger().println("File [" + new File(xmlReportPath).getAbsolutePath() + "] saved");
@@ -1069,6 +1088,7 @@ public void saveReport(CustomZapApi api , String xmlReportPath, BuildListener li
 		}
 
 	}
+
 
 
 /**************************** ForcedUser.java ****************************************************/
@@ -1108,7 +1128,7 @@ public void  setForcedUser(String contextid, String userid, BuildListener listen
 	
 	ApiResponse status;
 	try {
-		status = api.setForcedUser(ZAP_API_KEY,contextid,userid);
+		status = api.setForcedUser(zapProxyKey,contextid,userid);
 		//System.out.println(((ApiResponseElement) status).getValue());
 		listener.getLogger().println(((ApiResponseElement) status).getValue());
 	} catch (ClientApiException e) {
@@ -1122,7 +1142,7 @@ public void setForcedUserModeEnabled( boolean bool, BuildListener listener)  {
 	
 	ApiResponse status;
 	try {
-		status = api.setForcedUserModeEnabled(ZAP_API_KEY,bool);
+		status = api.setForcedUserModeEnabled(zapProxyKey,bool);
 		//System.out.println(((ApiResponseElement) status).getValue());
 		listener.getLogger().println(((ApiResponseElement) status).getValue());
 	} catch (ClientApiException e) {
@@ -1140,7 +1160,7 @@ public void setForcedUserModeEnabled( boolean bool, BuildListener listener)  {
 	public void enableAllScanner(String scanpolicyname, BuildListener listener ){
 		//String scanpolicyname=PropertyLoader.getValueFromKey("SCANPOLICYNAME", "", authenticationProperties);
 		try {
-			ApiResponse status= api.enableAllScanners(ZAP_API_KEY, scanpolicyname);
+			ApiResponse status= api.enableAllScanners(zapProxyKey, scanpolicyname);
 			
 			//System.out.println(((ApiResponseElement) status).getValue());
 			listener.getLogger().println(((ApiResponseElement) status).getValue());
@@ -1156,7 +1176,7 @@ public void setForcedUserModeEnabled( boolean bool, BuildListener listener)  {
 	public void PassiveScanEnableAllScanner( BuildListener listener){
 		
 		try {
-			ApiResponse status= api.PsEnableAllScanners(ZAP_API_KEY);
+			ApiResponse status= api.PsEnableAllScanners(zapProxyKey);
 			
 			//System.out.println(((ApiResponseElement) status).getValue());
 			listener.getLogger().println(((ApiResponseElement) status).getValue());
@@ -1172,7 +1192,7 @@ public void setForcedUserModeEnabled( boolean bool, BuildListener listener)  {
 	public void PassiveScanDisableAllScanner( BuildListener listener ){
 		 
 		try {
-			ApiResponse status= api.PsDisableAllScanners(ZAP_API_KEY);
+			ApiResponse status= api.PsDisableAllScanners(zapProxyKey);
 			
 			//System.out.println(((ApiResponseElement) status).getValue());
 			listener.getLogger().println(((ApiResponseElement) status).getValue());
@@ -1204,7 +1224,7 @@ public void setForcedUserModeEnabled( boolean bool, BuildListener listener)  {
 				// saveReport
 				System.out.println("######################### Sauvegarde du rapport ######################### ");
 				//textAreaLog.append("######################### Sauvegarde du rapport brute (XML) ######################### "+ "\n");
-				saveReport(api,"templates/test.xml", listener);
+				saveReport("templates/test.xml", listener);
 
 				// stop ZAProxy
 				System.out.println("######################### Arrêt du daemon ZAP ######################### ");
@@ -1230,7 +1250,7 @@ public void setForcedUserModeEnabled( boolean bool, BuildListener listener)  {
 			 
 			// saveReport
 			System.out.println("######################### Sauvegarde du rapport ######################### ");			 
-			saveReport(api,"test.xml", listener);
+			saveReport("test.xml", listener);
 
 			// stop ZAProxy
 			System.out.println("######################### Arrêt du daemon ZAP ######################### ");
@@ -1243,7 +1263,21 @@ public void setForcedUserModeEnabled( boolean bool, BuildListener listener)  {
 	
 	
 	
-	
+	/**
+	 * Shuts down ZAP
+	 */
+	public void  stopZap(String apikey, BuildListener listener )   {
+		
+		try {
+			ApiResponse status = api.shutdown(zapProxyKey);
+			listener.getLogger().println(((ApiResponseElement) status).getValue());
+			
+		} catch (ClientApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}	
 	
 
 }
