@@ -65,7 +65,7 @@ import java.io.IOException;
 public class ZAProxyBuilder extends Builder {
 	
 	/** To start ZAP as a prebuild step */
-	private final boolean startZAPFirst;
+	//private final boolean startZAPFirst;
 	
 	/** The objet to start and call ZAProxy methods */
 	private final ZAProxy zaproxy;
@@ -83,8 +83,9 @@ public class ZAProxyBuilder extends Builder {
 	
 	// Fields in fr/novia/zaproxyplugin/ZAProxyBuilder/config.jelly must match the parameter names in the "DataBoundConstructor"
 	@DataBoundConstructor
-	public ZAProxyBuilder(boolean startZAPFirst, String zapProxyHost, int zapProxyPort, String zapProxyKey, ZAProxy zaproxy) {
-		this.startZAPFirst = startZAPFirst;
+	//public ZAProxyBuilder(boolean startZAPFirst, String zapProxyHost, int zapProxyPort, String zapProxyKey, ZAProxy zaproxy) {
+	public ZAProxyBuilder(String zapProxyHost, int zapProxyPort, String zapProxyKey, ZAProxy zaproxy) {
+		//this.startZAPFirst = startZAPFirst;
 		this.zaproxy = zaproxy;
 		this.zapProxyHost = zapProxyHost;
 		this.zapProxyPort = zapProxyPort;
@@ -97,9 +98,9 @@ public class ZAProxyBuilder extends Builder {
 	/*
 	 * Getters allows to access member via UI (config.jelly)
 	 */
-	public boolean getStartZAPFirst() {
-		return startZAPFirst;
-	}
+//	public boolean getStartZAPFirst() {
+//		return startZAPFirst;
+//	}
 	
 	public ZAProxy getZaproxy() {
 		return zaproxy;
@@ -128,35 +129,35 @@ public class ZAProxyBuilder extends Builder {
 	// Method called before launching the build
 	public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {
 		
-		if(startZAPFirst) {
-			listener.getLogger().println("------- START Prebuild -------");
-			
-			try {
-				Launcher launcher = null;
-				Node node = build.getBuiltOn();
-				
-				// Create launcher according to the build's location (Master or Slave) and the build's OS
-				
-				if("".equals(node.getNodeName())) { // Build on master 
-					launcher = new LocalLauncher(listener, build.getWorkspace().getChannel());
-				} else { // Build on slave
-					boolean isUnix;
-					if( "Unix".equals(((SlaveComputer)node.toComputer()).getOSDescription()) ) {
-						isUnix = true;
-					} else {
-						isUnix = false;
-					}
-					launcher = new RemoteLauncher(listener, build.getWorkspace().getChannel(), isUnix);
-				}		
-				//commented by abdellah 
-			//	zaproxy.startZAP(build, listener, launcher);
-			} catch (Exception e) {
-				e.printStackTrace();
-				listener.error(ExceptionUtils.getStackTrace(e));
-				return false;
-			}
-			listener.getLogger().println("------- END Prebuild -------");
-		}
+//		if(startZAPFirst) {
+//			listener.getLogger().println("------- START Prebuild -------");
+//			
+//			try {
+//				Launcher launcher = null;
+//				Node node = build.getBuiltOn();
+//				
+//				// Create launcher according to the build's location (Master or Slave) and the build's OS
+//				
+//				if("".equals(node.getNodeName())) { // Build on master 
+//					launcher = new LocalLauncher(listener, build.getWorkspace().getChannel());
+//				} else { // Build on slave
+//					boolean isUnix;
+//					if( "Unix".equals(((SlaveComputer)node.toComputer()).getOSDescription()) ) {
+//						isUnix = true;
+//					} else {
+//						isUnix = false;
+//					}
+//					launcher = new RemoteLauncher(listener, build.getWorkspace().getChannel(), isUnix);
+//				}		
+//				//commented by abdellah 
+//			//	zaproxy.startZAP(build, listener, launcher);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//				listener.error(ExceptionUtils.getStackTrace(e));
+//				return false;
+//			}
+//			listener.getLogger().println("------- END Prebuild -------");
+//		}
 		return true;
 	}
 
@@ -192,64 +193,64 @@ public class ZAProxyBuilder extends Builder {
 		 
 	}
 	
-	/**
-	 * Copy local policy file to slave in policies directory of ZAP default directory.
-	 * 
-	 * @param workspace the workspace of the build
-	 * @param listener
-	 * @throws IOException
-	 * @throws InterruptedException
-	 */
-	private void copyPolicyFile(FilePath workspace, BuildListener listener) throws IOException, InterruptedException {
-		//if(zaproxy.getScanURL() && zaproxy.pathToLocalPolicy != null && !zaproxy.pathToLocalPolicy.isEmpty())
-		// TODO a recup via un champ
-		// File fileToCopy = new File(zaproxy.pathToLocalPolicy);
-		File fileToCopy = new File("C:\\Users\\ludovic.roucoux\\OWASP ZAP\\policies\\OnlySQLInjection.policy");
-		
-		String stringForLogger = "Copy [" + fileToCopy.getAbsolutePath() + "] to ";
-		
-		String data = FileUtils.readFileToString(fileToCopy, (String)null);
-		
-		stringForLogger = workspace.act(new CopyFileCallable(data, zaproxy.getZapDefaultDir(),
-				fileToCopy.getName(), stringForLogger));
-		listener.getLogger().println(stringForLogger);
-	}
+//	/**
+//	 * Copy local policy file to slave in policies directory of ZAP default directory.
+//	 * 
+//	 * @param workspace the workspace of the build
+//	 * @param listener
+//	 * @throws IOException
+//	 * @throws InterruptedException
+//	 */
+//	private void copyPolicyFile(FilePath workspace, BuildListener listener) throws IOException, InterruptedException {
+//		//if(zaproxy.getScanURL() && zaproxy.pathToLocalPolicy != null && !zaproxy.pathToLocalPolicy.isEmpty())
+//		// TODO a recup via un champ
+//		// File fileToCopy = new File(zaproxy.pathToLocalPolicy);
+//		File fileToCopy = new File("C:\\Users\\ludovic.roucoux\\OWASP ZAP\\policies\\OnlySQLInjection.policy");
+//		
+//		String stringForLogger = "Copy [" + fileToCopy.getAbsolutePath() + "] to ";
+//		
+//		String data = FileUtils.readFileToString(fileToCopy, (String)null);
+//		
+//		stringForLogger = workspace.act(new CopyFileCallable(data, zaproxy.getZapDefaultDir(),
+//				fileToCopy.getName(), stringForLogger));
+//		listener.getLogger().println(stringForLogger);
+//	}
 	
-	/**
-	 * Allows to copy local policy file to the default ZAP policies directory in slave.
-	 * 
-	 * @author ludovic.roucoux
-	 *
-	 */
-	private static class CopyFileCallable implements FileCallable<String> {
-		private static final long serialVersionUID = -3375349701206827354L;
-		private String data;
-		private String zapDefaultDir;
-		private String copyFilename;
-		private String stringForLogger;
-		
-		public CopyFileCallable(String data, String zapDefaultDir,
-				String copyFilename, String stringForLogger) {
-			this.data = data;
-			this.zapDefaultDir = zapDefaultDir;
-			this.copyFilename = copyFilename;
-			this.stringForLogger = stringForLogger;
-		}
-
-		public String invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
-			File fileCopiedDir = new File(zapDefaultDir, ZAProxy.NAME_POLICIES_DIR_ZAP);
-			File fileCopied = new File(fileCopiedDir, copyFilename);
-			
-			FileUtils.writeStringToFile(fileCopied, data);
-			stringForLogger += "[" + fileCopied.getAbsolutePath() + "]";
-			return stringForLogger;
-		}
-
-		@Override
-		public void checkRoles(RoleChecker checker) throws SecurityException {
-			// Nothing to do
-		}
-	}
+//	/**
+//	 * Allows to copy local policy file to the default ZAP policies directory in slave.
+//	 * 
+//	 * @author ludovic.roucoux
+//	 *
+//	 */
+//	private static class CopyFileCallable implements FileCallable<String> {
+//		private static final long serialVersionUID = -3375349701206827354L;
+//		private String data;
+//		private String zapDefaultDir;
+//		private String copyFilename;
+//		private String stringForLogger;
+//		
+//		public CopyFileCallable(String data, String zapDefaultDir,
+//				String copyFilename, String stringForLogger) {
+//			this.data = data;
+//			this.zapDefaultDir = zapDefaultDir;
+//			this.copyFilename = copyFilename;
+//			this.stringForLogger = stringForLogger;
+//		}
+//
+//		public String invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
+//			File fileCopiedDir = new File(zapDefaultDir, ZAProxy.NAME_POLICIES_DIR_ZAP);
+//			File fileCopied = new File(fileCopiedDir, copyFilename);
+//			
+//			FileUtils.writeStringToFile(fileCopied, data);
+//			stringForLogger += "[" + fileCopied.getAbsolutePath() + "]";
+//			return stringForLogger;
+//		}
+//
+//		@Override
+//		public void checkRoles(RoleChecker checker) throws SecurityException {
+//			// Nothing to do
+//		}
+//	}
 	
 	
 

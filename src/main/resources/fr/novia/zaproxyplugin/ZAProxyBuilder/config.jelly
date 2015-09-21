@@ -53,7 +53,7 @@ SOFTWARE.
 	</f:section>
 		
 	<f:section title="${%Startup}" />
-		<f:optionalBlock title="${%Start ZAProxy in a pre-build step}" field="startZAPFirst" inline="true" />
+	<!--	<f:optionalBlock title="${%Start ZAProxy in a pre-build step}" field="startZAPFirst" inline="true" />  -->
 		
 		<!-- Load the config.jelly bind to ZAProxy class 
 		This code doesn't work : <st:include page="config.jelly" class="fr.novia.zaproxyplugin.ZAProxy"/>

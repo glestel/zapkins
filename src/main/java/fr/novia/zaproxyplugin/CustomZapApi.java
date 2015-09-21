@@ -25,6 +25,8 @@ import org.zaproxy.clientapi.core.ApiResponseElement;
 import org.zaproxy.clientapi.core.ApiResponseFactory;
 import org.zaproxy.clientapi.core.ClientApiException;
 
+import hudson.model.BuildListener;
+
  
 
 
@@ -33,11 +35,13 @@ public class CustomZapApi {
 	
 	public  String zapProxyHost="";
 	public  String zapProxyPort="";
+	public BuildListener listener;
 	
-	public CustomZapApi(String zapProxyHost, String zapProxyPort) {
+	public CustomZapApi(String zapProxyHost, String zapProxyPort, BuildListener listener) {
 		super();
 		this.zapProxyHost = zapProxyHost;
 		this.zapProxyPort = zapProxyPort;
+		this.listener= listener;
 	}
 	
 	
@@ -176,6 +180,25 @@ public class CustomZapApi {
 		return callApi("ajaxSpider", "view", "status", map);
 	}
 
+	
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse spiderStatus(Map<String, String> map) throws ClientApiException {
+		 		
+		
+		return callApi("spider", "view", "status", map);
+	}
+	
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse scanStatus(Map<String, String> map) throws ClientApiException {
+		 		
+		
+		return callApi("ascan", "view", "status", map);
+	}
+
 	/**
 	 * This component is optional and therefore the API will only work if it is installed
 	 */
@@ -267,6 +290,12 @@ public class CustomZapApi {
 		map.put("ScanPolicyName", ScanPolicyName);
 		return callApi("ascan", "action", "scanAsUser", map);
 	}
+	
+	public ApiResponse scan(Map<String, String> params) throws ClientApiException {
+          return  callApi("ascan", "action", "scan",params);
+	 
+	}
+	
 	public ApiResponse spiderAsUser(String apikey, String url, String contextid, String userid, String maxchildren) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -455,7 +484,8 @@ public class CustomZapApi {
 			}
 		}
 		//debug=true
-        System.out.println(sb.toString());
+        //System.out.println(sb.toString());
+		this.listener.getLogger().println(sb.toString());
 		return new URL(sb.toString());
 	}
 
@@ -548,8 +578,7 @@ public class CustomZapApi {
 		}
 	}
 
-	public ApiResponse callApi (String component, String type, String method,
-			Map<String, String> params) throws ClientApiException {
+	public ApiResponse callApi (String component, String type, String method,Map<String, String> params) throws ClientApiException {
 		Document dom;
 		try {
 			dom = callApiDom(component, type, method, params);

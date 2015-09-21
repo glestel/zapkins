@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<proxy>
-  <name>10.234.168.99</name>
-  <port>8080</port>
-  <userName>aazougarh</userName>
-  <noProxyHost>127.0.0.1
-localhost</noProxyHost>
-  <secretPassword>+T0PEfmSRy3Ei8qQyXX7AHZZuKfhMYcvdxVkhMcX0zU=</secretPassword>
-</proxy>

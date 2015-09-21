@@ -35,17 +35,20 @@ public class CustomZapClientApi {
 	private  int zapProxyPort = 8080; 
 	private  String zapProxyKey =""; 
 	private CustomZapApi api;
+	
+	private BuildListener listener;
  
 	
 	 
-	public CustomZapClientApi(String ZAP_ADDRESS,int zapProxyPort, String ZAP_API_KEY ) {
+	public CustomZapClientApi(String ZAP_ADDRESS,int zapProxyPort, String ZAP_API_KEY , BuildListener listener) {
 		super();
 		
 		
 		this.zapProxyHost = ZAP_ADDRESS ;
 		this.zapProxyPort = zapProxyPort;
 		this.zapProxyKey =ZAP_API_KEY;
-		this.api = new CustomZapApi(ZAP_ADDRESS,""+zapProxyPort+"");
+		this.listener=listener;
+		this.api = new CustomZapApi(ZAP_ADDRESS,""+zapProxyPort+"", listener);
 	}
 	
 	
@@ -713,7 +716,7 @@ public String spiderAsUserURL( String url, String contextid, String userid, Stri
 				while (true) {
 					Thread.sleep(1000);
 					//http://zap/xml/spider/view/status/?scanId=XXX 
-					status =api.callApi("spider", "view", "status",params2);  
+					status =api.spiderStatus(params2);
 					progress = Integer.parseInt(((ApiResponseElement) status).getValue());
 					//progressBar.setValue(progress);
 					//System.out.println("Spider progress : " + progress + "%");
@@ -775,7 +778,7 @@ public String spiderURL( String url, String maxchildren , BuildListener listener
 				while (true) {
 					Thread.sleep(1000);
 					//http://zap/xml/spider/view/status/?scanId=XXX 
-					status =api.callApi("spider", "view", "status",params2);  
+					status =api.spiderStatus(params2);
 					progress = Integer.parseInt(((ApiResponseElement) status).getValue());
 					//progressBar.setValue(progress);
 					//System.out.println("Spider progress : " + progress + "%");
@@ -980,7 +983,7 @@ public void scanURL( String url, String scanid, String scanPolicyName, BuildList
 		//http://zap/xml/ascan/action/scan/?scanId=XXX&apikey=XXX&method=XXX&recurse=true&scanPolicyName=XXX&inScopeOnly=false&postdata=&url=target
 		ApiResponse status;
 		try {
-			status = api.callApi("ascan", "action", "scan",params);
+			status = api.scan(params);
 			
 			//ETAPE2 :  Poll the status until it completes
 			int progress;
@@ -989,7 +992,7 @@ public void scanURL( String url, String scanid, String scanPolicyName, BuildList
 			params2.put("scanid", scanid);
 			while (true) {
 				Thread.sleep(5000);			 
-				status =api.callApi("ascan", "view", "status",params2);
+				status =api.scanStatus(params2);
 				progress = Integer.parseInt(((ApiResponseElement) status).getValue());			
 				//System.out.println("Active Scan progress : " + progress + "%");
 				listener.getLogger().println("Active Scan progress : " + progress + "%");
@@ -1034,7 +1037,7 @@ public void scanURLAsUser(String url, String scanid, String contextid,String use
 		params2.put("scanid", scanid);
 		while (true) {
 			Thread.sleep(5000);			 
-			status =api.callApi("ascan", "view", "status",params2);
+			status =api.scanStatus(params2);
 			progress = Integer.parseInt(((ApiResponseElement) status).getValue());			
 			//System.out.println("Active Scan progress : " + progress + "%");
 			listener.getLogger().println("Active Scan progress : " + progress + "%");

@@ -81,7 +81,6 @@ import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
 import fr.novia.zaproxyplugin.CustomZapClientApi;
-import fr.novia.zaproxyplugin.ZAPcmdLine;
 import fr.novia.zaproxyplugin.report.ZAPreport;
 import fr.novia.zaproxyplugin.report.ZAPreportCollection;
 
@@ -100,17 +99,17 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	
 	private static final String user = "ZAPR USER";
 	
-	private static final int MILLISECONDS_IN_SECOND = 1000;
-	public static final String FILE_POLICY_EXTENSION = ".policy";
+//	private static final int MILLISECONDS_IN_SECOND = 1000;
+//	public static final String FILE_POLICY_EXTENSION = ".policy";
 	public static final String FILE_SESSION_EXTENSION = ".session";
-	public static final String NAME_POLICIES_DIR_ZAP = "policies";
+//	public static final String NAME_POLICIES_DIR_ZAP = "policies";
 	
-	public static final String CMD_LINE_DIR = "-dir";
-	public static final String CMD_LINE_HOST = "-host";
-	public static final String CMD_LINE_PORT = "-port";
-	public static final String CMD_LINE_DAEMON = "-daemon";
-	private static final String CMD_LINE_CONFIG = "-config";
-	private static final String CMD_LINE_API_KEY = "api.key";
+//	public static final String CMD_LINE_DIR = "-dir";
+//	public static final String CMD_LINE_HOST = "-host";
+//	public static final String CMD_LINE_PORT = "-port";
+//	public static final String CMD_LINE_DAEMON = "-daemon";
+//	private static final String CMD_LINE_CONFIG = "-config";
+//	private static final String CMD_LINE_API_KEY = "api.key";
 	
 	// TODO Do import when zap-2.4.0.jar will contain the correct API version
 //	public static final String CMD_LINE_DIR = CommandLine.DIR;
@@ -119,8 +118,8 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 //	public static final String CMD_LINE_PORT = CommandLine.PORT;
 //	public static final String CMD_LINE_DAEMON = CommandLine.DAEMON;
 	
-	private static final String ZAP_PROG_NAME_BAT = "zap.bat";
-	private static final String ZAP_PROG_NAME_SH = "zap.sh";
+//	private static final String ZAP_PROG_NAME_BAT = "zap.bat";
+//	private static final String ZAP_PROG_NAME_SH = "zap.sh";
 	
 	/** Host configured when ZAProxy is used as proxy */
 	private String zapProxyHost;
@@ -238,10 +237,10 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	/** The file policy to use for the scan. It contains only the policy name (without extension) */
 	private final String chosenPolicy;
 	
-	/** List of all ZAP command lines specified by the user 
-	 * ArrayList because it needs to be Serializable (whereas List is not Serializable)
-	 */
-	private final ArrayList<ZAPcmdLine> cmdLinesZAP;
+//	/** List of all ZAP command lines specified by the user 
+//	 * ArrayList because it needs to be Serializable (whereas List is not Serializable)
+//	 */
+//	private final ArrayList<ZAPcmdLine> cmdLinesZAP;
 	
 	/** The jdk to use to start ZAProxy */
 	private final String jdk;
@@ -317,7 +316,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	//ce constructeur est ajoute par moi meme
 	@DataBoundConstructor
 	public ZAProxy(String zapDefaultDir, int zapProxyPort,  boolean ajaxSpiderURL, String loggedInIndicator,
-			String loggedOutIndicator, ArrayList<ZAPcmdLine> cmdLinesZAP, boolean spiderAsUser, String password,
+			String loggedOutIndicator,   boolean spiderAsUser, String password,
 			String userId, boolean scanURLAsUser, String filenameLoadSession, String filenameSaveSession,
 			String loginUrl, int timeoutInSec, String postData, boolean saveSession, String zapProgram,
 			boolean ajaxSpiderURLAsUser, String username, String contextId, String usernameParameter,
@@ -329,8 +328,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		this.zapProxyPort = zapProxyPort;
 		this.ajaxSpiderURL = ajaxSpiderURL;
 		this.loggedInIndicator = loggedInIndicator;
-		this.loggedOutIndicator = loggedOutIndicator;
-		this.cmdLinesZAP = cmdLinesZAP;
+		this.loggedOutIndicator = loggedOutIndicator;		 
 		this.spiderAsUser = spiderAsUser;
 		this.password = password;
 		this.userId = userId;
@@ -582,9 +580,9 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		this.zapProxyKey = zapProxyKey;
 	}
 	
-	public List<ZAPcmdLine> getCmdLinesZAP() {
-		return cmdLinesZAP;
-	}
+//	public List<ZAPcmdLine> getCmdLinesZAP() {
+//		return cmdLinesZAP;
+//	}
 
 	public boolean getSpiderAsUser() {
 		return spiderAsUser;
@@ -666,65 +664,65 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		return installPath;
 	}
 	
-	/**
-	 * Return the ZAProxy program name (zap.bat or zap.sh) depending of the build node and the OS.
-	 * 
-	 * @param build
-	 * @return the ZAProxy program name (zap.bat or zap.sh)
-	 * @throws IOException
-	 * @throws InterruptedException
-	 */
-	private String getZAPProgramName(AbstractBuild<?, ?> build) throws IOException, InterruptedException {
-		Node node = build.getBuiltOn();
-		String zapProgramName = "";
-		
-		// Append zap program following Master/Slave and Windows/Unix
-		if( "".equals(node.getNodeName())) { // Master
-			if( File.pathSeparatorChar == ':' ) { // UNIX
-				zapProgramName = ZAP_PROG_NAME_SH;
-			} else { // Windows (pathSeparatorChar == ';')
-				zapProgramName = ZAP_PROG_NAME_BAT;
-			}
-		} 
-		else { // Slave
-			if( "Unix".equals(((SlaveComputer)node.toComputer()).getOSDescription()) ) {
-				zapProgramName = ZAP_PROG_NAME_SH;
-			} else {
-				zapProgramName = ZAP_PROG_NAME_BAT;
-			}
-		}
-		return zapProgramName;
-	}
+//	/**
+//	 * Return the ZAProxy program name (zap.bat or zap.sh) depending of the build node and the OS.
+//	 * 
+//	 * @param build
+//	 * @return the ZAProxy program name (zap.bat or zap.sh)
+//	 * @throws IOException
+//	 * @throws InterruptedException
+//	 */
+//	private String getZAPProgramName(AbstractBuild<?, ?> build) throws IOException, InterruptedException {
+//		Node node = build.getBuiltOn();
+//		String zapProgramName = "";
+//		
+//		// Append zap program following Master/Slave and Windows/Unix
+//		if( "".equals(node.getNodeName())) { // Master
+//			if( File.pathSeparatorChar == ':' ) { // UNIX
+//				zapProgramName = ZAP_PROG_NAME_SH;
+//			} else { // Windows (pathSeparatorChar == ';')
+//				zapProgramName = ZAP_PROG_NAME_BAT;
+//			}
+//		} 
+//		else { // Slave
+//			if( "Unix".equals(((SlaveComputer)node.toComputer()).getOSDescription()) ) {
+//				zapProgramName = ZAP_PROG_NAME_SH;
+//			} else {
+//				zapProgramName = ZAP_PROG_NAME_BAT;
+//			}
+//		}
+//		return zapProgramName;
+//	}
 	
-	/**
-	 * Return the ZAProxy program name with separator prefix (\zap.bat or /zap.sh) depending of the build node and the OS.
-	 * 
-	 * @param build
-	 * @return the ZAProxy program name with separator prefix (\zap.bat or /zap.sh)
-	 * @throws IOException
-	 * @throws InterruptedException
-	 */
-	private String getZAPProgramNameWithSeparator(AbstractBuild<?, ?> build) throws IOException, InterruptedException {
-		Node node = build.getBuiltOn();
-		String zapProgramName = "";
-		
-		// Append zap program following Master/Slave and Windows/Unix
-		if( "".equals(node.getNodeName())) { // Master
-			if( File.pathSeparatorChar == ':' ) { // UNIX
-				zapProgramName = "/" + ZAP_PROG_NAME_SH;
-			} else { // Windows (pathSeparatorChar == ';')
-				zapProgramName = "\\" + ZAP_PROG_NAME_BAT;
-			}
-		} 
-		else { // Slave
-			if( "Unix".equals(((SlaveComputer)node.toComputer()).getOSDescription()) ) {
-				zapProgramName = "/" + ZAP_PROG_NAME_SH;
-			} else {
-				zapProgramName = "\\" + ZAP_PROG_NAME_BAT;
-			}
-		}
-		return zapProgramName;
-	}
+//	/**
+//	 * Return the ZAProxy program name with separator prefix (\zap.bat or /zap.sh) depending of the build node and the OS.
+//	 * 
+//	 * @param build
+//	 * @return the ZAProxy program name with separator prefix (\zap.bat or /zap.sh)
+//	 * @throws IOException
+//	 * @throws InterruptedException
+//	 */
+//	private String getZAPProgramNameWithSeparator(AbstractBuild<?, ?> build) throws IOException, InterruptedException {
+//		Node node = build.getBuiltOn();
+//		String zapProgramName = "";
+//		
+//		// Append zap program following Master/Slave and Windows/Unix
+//		if( "".equals(node.getNodeName())) { // Master
+//			if( File.pathSeparatorChar == ':' ) { // UNIX
+//				zapProgramName = "/" + ZAP_PROG_NAME_SH;
+//			} else { // Windows (pathSeparatorChar == ';')
+//				zapProgramName = "\\" + ZAP_PROG_NAME_BAT;
+//			}
+//		} 
+//		else { // Slave
+//			if( "Unix".equals(((SlaveComputer)node.toComputer()).getOSDescription()) ) {
+//				zapProgramName = "/" + ZAP_PROG_NAME_SH;
+//			} else {
+//				zapProgramName = "\\" + ZAP_PROG_NAME_BAT;
+//			}
+//		}
+//		return zapProgramName;
+//	}
 	
 	/**
 	 * Verify parameters of the build setup are correct (null, empty, negative ...)
@@ -770,218 +768,218 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		
 	}
 		
-	/**
-	 * Start ZAProxy using command line. It uses host and port configured in Jenkins admin mode and
-	 * ZAProxy program is launched in daemon mode (i.e without UI).
-	 * ZAProxy is started on the build's machine (so master machine ou slave machine) thanks to 
-	 * {@link FilePath} object and {@link Launcher} object.
-	 * 
-	 * @param build
-	 * @param listener the listener to display log during the job execution in jenkins
-	 * @param launcher the object to launch a process locally or remotely
-	 * @throws InterruptedException 
-	 * @throws IOException 
-	 * @throws IllegalArgumentException 
-	 */
-	public void startZAP(AbstractBuild<?, ?> build, BuildListener listener, Launcher launcher) 
-			throws IllegalArgumentException, IOException, InterruptedException {
-		checkParams(build, listener);
-		
-		FilePath ws = build.getWorkspace();
-		if (ws == null) {
-			Node node = build.getBuiltOn();
-			if (node == null) {
-				throw new NullPointerException("no such build node: " + build.getBuiltOnStr());
-			}
-			throw new NullPointerException("no workspace from node " + node + " which is computer " + node.toComputer() + " and has channel " + node.getChannel());
-		}
-		
-		// Contains the absolute path to ZAP program
-		FilePath zapPathWithProgName = new FilePath(ws.getChannel(), zapProgram + getZAPProgramNameWithSeparator(build));
-		listener.getLogger().println("Start ZAProxy [" + zapPathWithProgName.getRemote() + "]");
-		
-		// Command to start ZAProxy with parameters
-		List<String> cmd = new ArrayList<String>();
-		cmd.add(zapPathWithProgName.getRemote());
-		cmd.add(CMD_LINE_DAEMON);
-		cmd.add(CMD_LINE_HOST);
-		cmd.add(zapProxyHost);
-		cmd.add(CMD_LINE_PORT);
-		cmd.add(String.valueOf(zapProxyPort));
-		cmd.add(CMD_LINE_CONFIG);
-		cmd.add(CMD_LINE_API_KEY + "=" + zapProxyKey);
-		
-		// Set the default directory used by ZAP if it's defined and if a scan is provided
-		if(scanURL && zapDefaultDir != null && !zapDefaultDir.isEmpty()) {
-			cmd.add(CMD_LINE_DIR);
-			cmd.add(zapDefaultDir);
-		}
-		
-		// Adds command line arguments if it's provided
-		if(!cmdLinesZAP.isEmpty()) {
-			addZapCmdLine(cmd);
-		}
-			
-		EnvVars envVars = build.getEnvironment(listener);
-		// on Windows environment variables are converted to all upper case,
-		// but no such conversions are done on Unix, so to make this cross-platform,
-		// convert variables to all upper cases.
-		for(Map.Entry<String,String> e : build.getBuildVariables().entrySet())
-			envVars.put(e.getKey(),e.getValue());
-		
-		FilePath workDir = new FilePath(ws.getChannel(), zapProgram);
-		
-		// JDK choice
-		computeJdkToUse(build, listener, envVars);
-		
-		// Launch ZAP process on remote machine (on master if no remote machine)
-		launcher.launch().cmds(cmd).envs(envVars).stdout(listener).pwd(workDir).start();
-		
-		// Call waitForSuccessfulConnectionToZap(int, BuildListener) remotely
-		build.getWorkspace().act(new WaitZAProxyInitCallable(this, listener));
-	}
+//	/**
+//	 * Start ZAProxy using command line. It uses host and port configured in Jenkins admin mode and
+//	 * ZAProxy program is launched in daemon mode (i.e without UI).
+//	 * ZAProxy is started on the build's machine (so master machine ou slave machine) thanks to 
+//	 * {@link FilePath} object and {@link Launcher} object.
+//	 * 
+//	 * @param build
+//	 * @param listener the listener to display log during the job execution in jenkins
+//	 * @param launcher the object to launch a process locally or remotely
+//	 * @throws InterruptedException 
+//	 * @throws IOException 
+//	 * @throws IllegalArgumentException 
+//	 */
+//	public void startZAP(AbstractBuild<?, ?> build, BuildListener listener, Launcher launcher) 
+//			throws IllegalArgumentException, IOException, InterruptedException {
+//		checkParams(build, listener);
+//		
+//		FilePath ws = build.getWorkspace();
+//		if (ws == null) {
+//			Node node = build.getBuiltOn();
+//			if (node == null) {
+//				throw new NullPointerException("no such build node: " + build.getBuiltOnStr());
+//			}
+//			throw new NullPointerException("no workspace from node " + node + " which is computer " + node.toComputer() + " and has channel " + node.getChannel());
+//		}
+//		
+//		// Contains the absolute path to ZAP program
+//		FilePath zapPathWithProgName = new FilePath(ws.getChannel(), zapProgram + getZAPProgramNameWithSeparator(build));
+//		listener.getLogger().println("Start ZAProxy [" + zapPathWithProgName.getRemote() + "]");
+//		
+//		// Command to start ZAProxy with parameters
+//		List<String> cmd = new ArrayList<String>();
+//		cmd.add(zapPathWithProgName.getRemote());
+//		cmd.add(CMD_LINE_DAEMON);
+//		cmd.add(CMD_LINE_HOST);
+//		cmd.add(zapProxyHost);
+//		cmd.add(CMD_LINE_PORT);
+//		cmd.add(String.valueOf(zapProxyPort));
+//		cmd.add(CMD_LINE_CONFIG);
+//		cmd.add(CMD_LINE_API_KEY + "=" + zapProxyKey);
+//		
+//		// Set the default directory used by ZAP if it's defined and if a scan is provided
+//		if(scanURL && zapDefaultDir != null && !zapDefaultDir.isEmpty()) {
+//			cmd.add(CMD_LINE_DIR);
+//			cmd.add(zapDefaultDir);
+//		}
+//		
+//		// Adds command line arguments if it's provided
+//		if(!cmdLinesZAP.isEmpty()) {
+//			addZapCmdLine(cmd);
+//		}
+//			
+//		EnvVars envVars = build.getEnvironment(listener);
+//		// on Windows environment variables are converted to all upper case,
+//		// but no such conversions are done on Unix, so to make this cross-platform,
+//		// convert variables to all upper cases.
+//		for(Map.Entry<String,String> e : build.getBuildVariables().entrySet())
+//			envVars.put(e.getKey(),e.getValue());
+//		
+//		FilePath workDir = new FilePath(ws.getChannel(), zapProgram);
+//		
+//		// JDK choice
+//		computeJdkToUse(build, listener, envVars);
+//		
+//		// Launch ZAP process on remote machine (on master if no remote machine)
+//		launcher.launch().cmds(cmd).envs(envVars).stdout(listener).pwd(workDir).start();
+//		
+//		// Call waitForSuccessfulConnectionToZap(int, BuildListener) remotely
+//		build.getWorkspace().act(new WaitZAProxyInitCallable(this, listener));
+//	}
 	
-	/**
-	 * Set the JDK to use to start ZAP.
-	 * 
-	 * @param build
-	 * @param listener the listener to display log during the job execution in jenkins
-	 * @param env list of environment variables. Used to set the path to the JDK
-	 * @throws IOException
-	 * @throws InterruptedException
-	 */
-	private void computeJdkToUse(AbstractBuild<?, ?> build,
-			BuildListener listener, EnvVars env) throws IOException, InterruptedException {
-		JDK jdkToUse = getJdkToUse(build.getProject());
-		if (jdkToUse != null) {
-			Computer computer = Computer.currentComputer();
-			// just in case we are not in a build
-			if (computer != null) {
-				jdkToUse = jdkToUse.forNode(computer.getNode(), listener);
-			}
-			jdkToUse.buildEnvVars(env);
-		}
-	}
+//	/**
+//	 * Set the JDK to use to start ZAP.
+//	 * 
+//	 * @param build
+//	 * @param listener the listener to display log during the job execution in jenkins
+//	 * @param env list of environment variables. Used to set the path to the JDK
+//	 * @throws IOException
+//	 * @throws InterruptedException
+//	 */
+//	private void computeJdkToUse(AbstractBuild<?, ?> build,
+//			BuildListener listener, EnvVars env) throws IOException, InterruptedException {
+//		JDK jdkToUse = getJdkToUse(build.getProject());
+//		if (jdkToUse != null) {
+//			Computer computer = Computer.currentComputer();
+//			// just in case we are not in a build
+//			if (computer != null) {
+//				jdkToUse = jdkToUse.forNode(computer.getNode(), listener);
+//			}
+//			jdkToUse.buildEnvVars(env);
+//		}
+//	}
 
-	/**
-	 * @return JDK to be used with this project.
-	 */
-	private JDK getJdkToUse(AbstractProject<?, ?> project) {
-		JDK jdkToUse = getJDK();
-		if (jdkToUse == null) {
-			jdkToUse = project.getJDK();
-		}
-		return jdkToUse;
-	}
+//	/**
+//	 * @return JDK to be used with this project.
+//	 */
+//	private JDK getJdkToUse(AbstractProject<?, ?> project) {
+//		JDK jdkToUse = getJDK();
+//		if (jdkToUse == null) {
+//			jdkToUse = project.getJDK();
+//		}
+//		return jdkToUse;
+//	}
+//	
+//	/**
+//	 * Add list of command line in the list in param
+//	 * @param l the list to attach ZAP command line
+//	 */
+//	private void addZapCmdLine(List<String> l) {
+//		for(ZAPcmdLine zapCmd : cmdLinesZAP) {
+//			if(zapCmd.getCmdLineOption() != null && !zapCmd.getCmdLineOption().isEmpty()) {
+//				l.add(zapCmd.getCmdLineOption());
+//			}
+//			if(zapCmd.getCmdLineValue() != null && !zapCmd.getCmdLineValue().isEmpty()) {
+//				l.add(zapCmd.getCmdLineValue());
+//			}
+//		}
+//	}
+//	
+//	/**
+//	 * Wait for ZAProxy initialization, so it's ready to use at the end of this method
+//	 * (otherwise, catch exception). This method is launched on the remote machine (if there is one)
+//	 *   
+//	 * @param timeout the time in sec to try to connect at zap proxy. 
+//	 * @param listener the listener to display log during the job execution in jenkins
+//	 * @see <a href="https://groups.google.com/forum/#!topic/zaproxy-develop/gZxYp8Og960">
+//	 * 		https://groups.google.com/forum/#!topic/zaproxy-develop/gZxYp8Og960</a>
+//	 */
+//	private void waitForSuccessfulConnectionToZap(int timeout, BuildListener listener) {
+//		int timeoutInMs = getMilliseconds(timeout);
+//		int connectionTimeoutInMs = timeoutInMs;
+//		int pollingIntervalInMs = getMilliseconds(1);
+//		boolean connectionSuccessful = false;
+//		long startTime = System.currentTimeMillis();
+//		Socket socket = null;
+//		do {
+//			try {
+//				socket = new Socket();
+//				socket.connect(new InetSocketAddress(zapProxyHost, zapProxyPort), connectionTimeoutInMs);
+//				connectionSuccessful = true;
+//			} catch (SocketTimeoutException ignore) {
+//				listener.error(ExceptionUtils.getStackTrace(ignore));
+//				throw new BuildException("Unable to connect to ZAP's proxy after " + timeout + " seconds.");
+//				
+//			} catch (IOException ignore) {
+//				// and keep trying but wait some time first...
+//				try {
+//					Thread.sleep(pollingIntervalInMs);
+//				} catch (InterruptedException e) {
+//					listener.error(ExceptionUtils.getStackTrace(ignore));
+//					throw new BuildException("The task was interrupted while sleeping between connection polling.", e);
+//				}
+//
+//				long ellapsedTime = System.currentTimeMillis() - startTime;
+//				if (ellapsedTime >= timeoutInMs) {
+//					listener.error(ExceptionUtils.getStackTrace(ignore));
+//					throw new BuildException("Unable to connect to ZAP's proxy after " + timeout + " seconds.");
+//				}
+//				connectionTimeoutInMs = (int) (timeoutInMs - ellapsedTime);
+//			} finally {
+//				if(socket != null) {
+//					try {
+//						socket.close();
+//					} catch (IOException e) {
+//						listener.error(ExceptionUtils.getStackTrace(e));
+//					}
+//				}
+//			}
+//		} while (!connectionSuccessful);
+//	}
+//	
+//	/**
+//	 * Converts seconds in milliseconds.
+//	 * @param seconds the time in second to convert
+//	 * @return the time in milliseconds
+//	 */
+//	private static int getMilliseconds(int seconds) {
+//		return seconds * MILLISECONDS_IN_SECOND;
+//	}
 	
-	/**
-	 * Add list of command line in the list in param
-	 * @param l the list to attach ZAP command line
-	 */
-	private void addZapCmdLine(List<String> l) {
-		for(ZAPcmdLine zapCmd : cmdLinesZAP) {
-			if(zapCmd.getCmdLineOption() != null && !zapCmd.getCmdLineOption().isEmpty()) {
-				l.add(zapCmd.getCmdLineOption());
-			}
-			if(zapCmd.getCmdLineValue() != null && !zapCmd.getCmdLineValue().isEmpty()) {
-				l.add(zapCmd.getCmdLineValue());
-			}
-		}
-	}
-	
-	/**
-	 * Wait for ZAProxy initialization, so it's ready to use at the end of this method
-	 * (otherwise, catch exception). This method is launched on the remote machine (if there is one)
-	 *   
-	 * @param timeout the time in sec to try to connect at zap proxy. 
-	 * @param listener the listener to display log during the job execution in jenkins
-	 * @see <a href="https://groups.google.com/forum/#!topic/zaproxy-develop/gZxYp8Og960">
-	 * 		https://groups.google.com/forum/#!topic/zaproxy-develop/gZxYp8Og960</a>
-	 */
-	private void waitForSuccessfulConnectionToZap(int timeout, BuildListener listener) {
-		int timeoutInMs = getMilliseconds(timeout);
-		int connectionTimeoutInMs = timeoutInMs;
-		int pollingIntervalInMs = getMilliseconds(1);
-		boolean connectionSuccessful = false;
-		long startTime = System.currentTimeMillis();
-		Socket socket = null;
-		do {
-			try {
-				socket = new Socket();
-				socket.connect(new InetSocketAddress(zapProxyHost, zapProxyPort), connectionTimeoutInMs);
-				connectionSuccessful = true;
-			} catch (SocketTimeoutException ignore) {
-				listener.error(ExceptionUtils.getStackTrace(ignore));
-				throw new BuildException("Unable to connect to ZAP's proxy after " + timeout + " seconds.");
-				
-			} catch (IOException ignore) {
-				// and keep trying but wait some time first...
-				try {
-					Thread.sleep(pollingIntervalInMs);
-				} catch (InterruptedException e) {
-					listener.error(ExceptionUtils.getStackTrace(ignore));
-					throw new BuildException("The task was interrupted while sleeping between connection polling.", e);
-				}
-
-				long ellapsedTime = System.currentTimeMillis() - startTime;
-				if (ellapsedTime >= timeoutInMs) {
-					listener.error(ExceptionUtils.getStackTrace(ignore));
-					throw new BuildException("Unable to connect to ZAP's proxy after " + timeout + " seconds.");
-				}
-				connectionTimeoutInMs = (int) (timeoutInMs - ellapsedTime);
-			} finally {
-				if(socket != null) {
-					try {
-						socket.close();
-					} catch (IOException e) {
-						listener.error(ExceptionUtils.getStackTrace(e));
-					}
-				}
-			}
-		} while (!connectionSuccessful);
-	}
-	
-	/**
-	 * Converts seconds in milliseconds.
-	 * @param seconds the time in second to convert
-	 * @return the time in milliseconds
-	 */
-	private static int getMilliseconds(int seconds) {
-		return seconds * MILLISECONDS_IN_SECOND;
-	}
-	
-	/**
-	 * Get all security alerts raised by ZAProxy
-	 *
-	 * @param format the report format file
-	 * @param listener the listener to display log during the job execution in jenkins
-	 * @return all alerts from ZAProxy in a string
-	 * @throws IOException 
-	 * @throws Exception
-	 */
-	private String getAllAlerts(final String format, BuildListener listener) throws IOException {
-		URL url;
-		String result = "";
-		Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(zapProxyHost, zapProxyPort));
-		
-		url = new URL("http://zap/" + format + "/core/view/alerts");
-
-		listener.getLogger().println("Open URL: " + url.toString());
-
-		final HttpURLConnection uc = (HttpURLConnection) url.openConnection(proxy);
-		uc.connect();
-
-		final BufferedReader in = new BufferedReader(new InputStreamReader(
-				uc.getInputStream()));
-		String inputLine;
-
-		while ((inputLine = in.readLine()) != null) {
-			result = result + inputLine;
-		}
-
-		in.close();
-		return result;
-	}
+//	/**
+//	 * Get all security alerts raised by ZAProxy
+//	 *
+//	 * @param format the report format file
+//	 * @param listener the listener to display log during the job execution in jenkins
+//	 * @return all alerts from ZAProxy in a string
+//	 * @throws IOException 
+//	 * @throws Exception
+//	 */
+//	private String getAllAlerts(final String format, BuildListener listener) throws IOException {
+//		URL url;
+//		String result = "";
+//		Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(zapProxyHost, zapProxyPort));
+//		
+//		url = new URL("http://zap/" + format + "/core/view/alerts");
+//
+//		listener.getLogger().println("Open URL: " + url.toString());
+//
+//		final HttpURLConnection uc = (HttpURLConnection) url.openConnection(proxy);
+//		uc.connect();
+//
+//		final BufferedReader in = new BufferedReader(new InputStreamReader(
+//				uc.getInputStream()));
+//		String inputLine;
+//
+//		while ((inputLine = in.readLine()) != null) {
+//			result = result + inputLine;
+//		}
+//
+//		in.close();
+//		return result;
+//	}
 	
 	/**
 	 * Generates security report for one format. Reports are saved into build's workspace.
@@ -1133,7 +1131,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	
 	public boolean executeZAP(FilePath workspace, BuildListener listener) {
 		//ClientApi zapClientAPI = new ClientApi(zapProxyHost, zapProxyPort);
-		CustomZapClientApi zapClientAPI =new CustomZapClientApi(zapProxyHost,zapProxyPort, zapProxyKey);
+		CustomZapClientApi zapClientAPI =new CustomZapClientApi(zapProxyHost,zapProxyPort, zapProxyKey, listener);
 		boolean buildSuccess = true;
 		
 		
@@ -1956,177 +1954,177 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			return items;
 		}
 		
-		/**
-		 * List model to choose the policy file to use by ZAProxy scan. It's called on the remote machine (if present)
-		 * to load all policy files in the ZAP default dir of the build's machine.
-		 * 
-		 * @param zapDefaultDir A string that represents an absolute path to the directory that ZAP uses.
-		 * @return a {@link ListBoxModel}. It can be empty if zapDefaultDir doesn't contain any policy file.
-		 */		
-		public ListBoxModel doFillChosenPolicyItems(@QueryParameter String zapDefaultDir) {			
-			ListBoxModel items = new ListBoxModel();
-			
-			// No workspace before the first build, so workspace is null
-			if(workspace != null) {
-				File[] listFiles = {};
-					try {
-						listFiles = workspace.act(new PolicyFileCallable(zapDefaultDir));
-					} catch (IOException e) {
-						// No listener because it's not during a build but it's on the job config page
-						e.printStackTrace();
-					} catch (InterruptedException e) {
-						// No listener because it's not during a build but it's on the job config page
-						e.printStackTrace();
-					}
-					
-				items.add(""); // To not load a policy file, add a blank choice
-				
-				// Add policy files to the list, without their extension
-				for(int i = 0; i < listFiles.length; i++) {
-					items.add(FilenameUtils.getBaseName(listFiles[i].getName()));
-				}
-			}
+//		/**
+//		 * List model to choose the policy file to use by ZAProxy scan. It's called on the remote machine (if present)
+//		 * to load all policy files in the ZAP default dir of the build's machine.
+//		 * 
+//		 * @param zapDefaultDir A string that represents an absolute path to the directory that ZAP uses.
+//		 * @return a {@link ListBoxModel}. It can be empty if zapDefaultDir doesn't contain any policy file.
+//		 */		
+//		public ListBoxModel doFillChosenPolicyItems(@QueryParameter String zapDefaultDir) {			
+//			ListBoxModel items = new ListBoxModel();
+//			
+//			// No workspace before the first build, so workspace is null
+//			if(workspace != null) {
+//				File[] listFiles = {};
+//					try {
+//						listFiles = workspace.act(new PolicyFileCallable(zapDefaultDir));
+//					} catch (IOException e) {
+//						// No listener because it's not during a build but it's on the job config page
+//						e.printStackTrace();
+//					} catch (InterruptedException e) {
+//						// No listener because it's not during a build but it's on the job config page
+//						e.printStackTrace();
+//					}
+//					
+//				items.add(""); // To not load a policy file, add a blank choice
+//				
+//				// Add policy files to the list, without their extension
+//				for(int i = 0; i < listFiles.length; i++) {
+//					items.add(FilenameUtils.getBaseName(listFiles[i].getName()));
+//				}
+//			}
+//		
+//			return items;
+//		}
 		
-			return items;
-		}
-		
-		/**
-		 * List model to choose the ZAP session to use. It's called on the remote machine (if present)
-		 * to load all session files in the build's workspace.
-		 * 
-		 * @return a {@link ListBoxModel}. It can be empty if the workspace doesn't contain any ZAP sessions.
-		 * @throws InterruptedException 
-		 * @throws IOException 
-		 */
-		public ListBoxModel doFillFilenameLoadSessionItems() throws IOException, InterruptedException {
-			ListBoxModel items = new ListBoxModel();
-			
-			// No workspace before the first build, so workspace is null
-			if(workspace != null) {
-				Collection<String> sessionsInString = workspace.act(new FileCallable<Collection<String>>() {
-					private static final long serialVersionUID = 1328740269013881941L;
-	
-					public Collection<String> invoke(File f, VirtualChannel channel) {
-						
-						// List all files with FILE_SESSION_EXTENSION on the machine where the workspace is located
-						Collection<File> colFiles = FileUtils.listFiles(f,
-								FileFilterUtils.suffixFileFilter(FILE_SESSION_EXTENSION),
-								TrueFileFilter.INSTANCE);
-						
-						Collection<String> colString = new ArrayList<String>();
-						
-						// "Transform" File into String
-						for (File file : colFiles) {
-							colString.add(file.getAbsolutePath());
-							// The following line is to remove the full path to the workspace,
-							// keep just the relative path to the session
-							//colString.add(file.getAbsolutePath().replace(workspace.getRemote() + File.separatorChar, ""));
-						}
-						return colString;
-					}
-	
-					@Override
-					public void checkRoles(RoleChecker checker) throws SecurityException {
-						// Nothing to do
-					}
-				});
-			
-				items.add(""); // To not load a session, add a blank choice
-				
-				for (String s : sessionsInString) {
-					items.add(s);
-				}
-			}
-			
-			return items;
-		}
+//		/**
+//		 * List model to choose the ZAP session to use. It's called on the remote machine (if present)
+//		 * to load all session files in the build's workspace.
+//		 * 
+//		 * @return a {@link ListBoxModel}. It can be empty if the workspace doesn't contain any ZAP sessions.
+//		 * @throws InterruptedException 
+//		 * @throws IOException 
+//		 */
+//		public ListBoxModel doFillFilenameLoadSessionItems() throws IOException, InterruptedException {
+//			ListBoxModel items = new ListBoxModel();
+//			
+//			// No workspace before the first build, so workspace is null
+//			if(workspace != null) {
+//				Collection<String> sessionsInString = workspace.act(new FileCallable<Collection<String>>() {
+//					private static final long serialVersionUID = 1328740269013881941L;
+//	
+//					public Collection<String> invoke(File f, VirtualChannel channel) {
+//						
+//						// List all files with FILE_SESSION_EXTENSION on the machine where the workspace is located
+//						Collection<File> colFiles = FileUtils.listFiles(f,
+//								FileFilterUtils.suffixFileFilter(FILE_SESSION_EXTENSION),
+//								TrueFileFilter.INSTANCE);
+//						
+//						Collection<String> colString = new ArrayList<String>();
+//						
+//						// "Transform" File into String
+//						for (File file : colFiles) {
+//							colString.add(file.getAbsolutePath());
+//							// The following line is to remove the full path to the workspace,
+//							// keep just the relative path to the session
+//							//colString.add(file.getAbsolutePath().replace(workspace.getRemote() + File.separatorChar, ""));
+//						}
+//						return colString;
+//					}
+//	
+//					@Override
+//					public void checkRoles(RoleChecker checker) throws SecurityException {
+//						// Nothing to do
+//					}
+//				});
+//			
+//				items.add(""); // To not load a session, add a blank choice
+//				
+//				for (String s : sessionsInString) {
+//					items.add(s);
+//				}
+//			}
+//			
+//			return items;
+//		}
 	}
 	
-	/**
-	 * This class allows to search all ZAP policy files in the ZAP default dir of the remote machine
-	 * (or local machine if there is no remote machine). It's used in the plugin configuration page
-	 * to fill the list of policy files and choose one of them.  
-	 * 
-	 * @author ludovic.roucoux
-	 *
-	 */
-	private static class PolicyFileCallable implements FileCallable<File[]> {
-		private static final long serialVersionUID = 1328740269013881941L;
-		
-		private String zapDefaultDir;
-		
-		public PolicyFileCallable(String zapDefaultDir) {
-			this.zapDefaultDir = zapDefaultDir;
-		}
-
-		public File[] invoke(File f, VirtualChannel channel) {
-			File[] listFiles = {};
-			
-			Path pathPolicyDir = Paths.get(zapDefaultDir, NAME_POLICIES_DIR_ZAP);
-			
-			if(Files.isDirectory(pathPolicyDir)) {
-				File zapPolicyDir = new File(zapDefaultDir, NAME_POLICIES_DIR_ZAP);
-				// create new filename filter (get only file with FILE_POLICY_EXTENSION extension)
-				FilenameFilter policyFilter = new FilenameFilter() {
-
-					@Override
-					public boolean accept(File dir, String name) {
-						if (name.lastIndexOf('.') > 0) {
-							// get last index for '.' char
-							int lastIndex = name.lastIndexOf('.');
-
-							// get extension
-							String str = name.substring(lastIndex);
-
-							// match path name extension
-							if (str.equals(FILE_POLICY_EXTENSION)) {
-								return true;
-							}
-						}
-						return false;
-					}
-				};
-				
-				// returns pathnames for files and directory
-				listFiles = zapPolicyDir.listFiles(policyFilter);
-			}
-			return listFiles;
-		}
-	
-		@Override
-		public void checkRoles(RoleChecker checker) throws SecurityException {
-			// Nothing to do
-		}
-	}
-	
-	/**
-	 * This class allows to launch a method on a remote machine (if there is, otherwise, on a local machine).
-	 * The method launched is to wait the complete initialization of ZAProxy.
-	 * 
-	 * @author ludovic.roucoux
-	 *
-	 */
-	private static class WaitZAProxyInitCallable implements FileCallable<Void> {
-
-		private static final long serialVersionUID = -313398999885177679L;
-		
-		private ZAProxy zaproxy; 
-		private BuildListener listener;
-		
-		public WaitZAProxyInitCallable(ZAProxy zaproxy, BuildListener listener) {
-			this.zaproxy = zaproxy;
-			this.listener = listener;
-		}
-
-		@Override
-		public Void invoke(File f, VirtualChannel channel) {
-			zaproxy.waitForSuccessfulConnectionToZap(zaproxy.timeoutInSec, listener);
-			return null;
-		}
-		
-		@Override
-		public void checkRoles(RoleChecker checker) throws SecurityException {
-			// Nothing to do
-		}
-	}
+//	/**
+//	 * This class allows to search all ZAP policy files in the ZAP default dir of the remote machine
+//	 * (or local machine if there is no remote machine). It's used in the plugin configuration page
+//	 * to fill the list of policy files and choose one of them.  
+//	 * 
+//	 * @author ludovic.roucoux
+//	 *
+//	 */
+//	private static class PolicyFileCallable implements FileCallable<File[]> {
+//		private static final long serialVersionUID = 1328740269013881941L;
+//		
+//		private String zapDefaultDir;
+//		
+//		public PolicyFileCallable(String zapDefaultDir) {
+//			this.zapDefaultDir = zapDefaultDir;
+//		}
+//
+//		public File[] invoke(File f, VirtualChannel channel) {
+//			File[] listFiles = {};
+//			
+//			Path pathPolicyDir = Paths.get(zapDefaultDir, NAME_POLICIES_DIR_ZAP);
+//			
+//			if(Files.isDirectory(pathPolicyDir)) {
+//				File zapPolicyDir = new File(zapDefaultDir, NAME_POLICIES_DIR_ZAP);
+//				// create new filename filter (get only file with FILE_POLICY_EXTENSION extension)
+//				FilenameFilter policyFilter = new FilenameFilter() {
+//
+//					@Override
+//					public boolean accept(File dir, String name) {
+//						if (name.lastIndexOf('.') > 0) {
+//							// get last index for '.' char
+//							int lastIndex = name.lastIndexOf('.');
+//
+//							// get extension
+//							String str = name.substring(lastIndex);
+//
+//							// match path name extension
+//							if (str.equals(FILE_POLICY_EXTENSION)) {
+//								return true;
+//							}
+//						}
+//						return false;
+//					}
+//				};
+//				
+//				// returns pathnames for files and directory
+//				listFiles = zapPolicyDir.listFiles(policyFilter);
+//			}
+//			return listFiles;
+//		}
+//	
+//		@Override
+//		public void checkRoles(RoleChecker checker) throws SecurityException {
+//			// Nothing to do
+//		}
+//	}
+//	
+//	/**
+//	 * This class allows to launch a method on a remote machine (if there is, otherwise, on a local machine).
+//	 * The method launched is to wait the complete initialization of ZAProxy.
+//	 * 
+//	 * @author ludovic.roucoux
+//	 *
+//	 */
+//	private static class WaitZAProxyInitCallable implements FileCallable<Void> {
+//
+//		private static final long serialVersionUID = -313398999885177679L;
+//		
+//		private ZAProxy zaproxy; 
+//		private BuildListener listener;
+//		
+//		public WaitZAProxyInitCallable(ZAProxy zaproxy, BuildListener listener) {
+//			this.zaproxy = zaproxy;
+//			this.listener = listener;
+//		}
+//
+//		@Override
+//		public Void invoke(File f, VirtualChannel channel) {
+//			zaproxy.waitForSuccessfulConnectionToZap(zaproxy.timeoutInSec, listener);
+//			return null;
+//		}
+//		
+//		@Override
+//		public void checkRoles(RoleChecker checker) throws SecurityException {
+//			// Nothing to do
+//		}
+//	}
 }
