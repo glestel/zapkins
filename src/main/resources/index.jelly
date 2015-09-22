@@ -2,6 +2,7 @@
 The MIT License (MIT)
 
 Copyright (c) 2015 ludovicRoucoux
+Copyright (c) 2015 Abdellah AZOUGARH
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,5 +28,6 @@ SOFTWARE.
 This view is used to render the installed plugins page.
 -->
 <div>
-This plugin allow you to launch ZAProxy via Jenkins.
+Ce plugin est une récriture du plugin développé par Ludovic ROUCOUX, il permet de séparer la partie client/serveur (moteur) dont ZAp afin de pouvoir utiliser JENKINS pour intérroger
+le serveur ZAP distant
 </div>

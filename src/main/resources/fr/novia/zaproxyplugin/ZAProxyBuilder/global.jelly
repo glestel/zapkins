@@ -37,15 +37,15 @@ SOFTWARE.
 	so it should be straightforward to find them.
 	-->
 	<f:section title="ZAProxy">
-		<f:entry title="${%ZAProxy Default Host}" field="zapProxyDefaultHost">
+		<f:entry title="${%Adresse par défaut du serveur ZAP}" field="zapProxyDefaultHost">
 			<f:textbox default="10.107.2.102" clazz="required" />
 		</f:entry>
 
-		<f:entry title="${%ZAProxy Default Port}" field="zapProxyDefaultPort">
+		<f:entry title="${%Port par défaut du serveur ZAP}" field="zapProxyDefaultPort">
 			<f:number default="8080" clazz="required positive-number" />
 		</f:entry>
 		
-		<f:entry title="${%ZAProxy Default API Key}" field="zapProxyDefaultApiKey">
+		<f:entry title="${%Clé API par défaut du serveur ZAP}" field="zapProxyDefaultApiKey">
 			<f:textbox default="2q0ap4er4dhnlauq165mv43cht" clazz="required" />
 		</f:entry>
 		

@@ -27,26 +27,20 @@ package fr.novia.zaproxyplugin;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.FilePath.FileCallable;
-import hudson.Launcher;
-import hudson.Launcher.LocalLauncher;
-import hudson.Launcher.RemoteLauncher;
+import hudson.Launcher; 
 import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.Node;
-import hudson.remoting.VirtualChannel;
-import hudson.slaves.SlaveComputer;
+import hudson.model.AbstractProject; 
+import hudson.remoting.VirtualChannel; 
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
-import net.sf.json.JSONObject;
-import org.apache.commons.io.FileUtils;
+import net.sf.json.JSONObject; 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.jenkinsci.remoting.RoleChecker;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
-
 import java.io.File;
-import java.io.IOException;
+ 
 
 /**
  * /!\ 
@@ -64,10 +58,7 @@ import java.io.IOException;
  */
 public class ZAProxyBuilder extends Builder {
 	
-	/** To start ZAP as a prebuild step */
-	//private final boolean startZAPFirst;
-	
-	/** The objet to start and call ZAProxy methods */
+ 	/** The objet to start and call ZAProxy methods */
 	private final ZAProxy zaproxy;
 	
 	/** Host configured when ZAProxy is used as proxy */
@@ -79,29 +70,54 @@ public class ZAProxyBuilder extends Builder {
 	/** API Key configured when ZAProxy is used as proxy */
 	private final String zapProxyKey;
 	
+	/** proxyWeb host */
+	private final String webProxyHost;
+	/** proxyWeb port*/
+	private final int webProxyPort;
+	/** proxyWeb username*/
+	private final String webProxyUser;
+	/** proxyWeb password */
+	private final String webProxyPassword;
+	
+	/** use or not a proxyWeb  */
+	private final boolean useWebProxy;
+	
 	
 	
 	// Fields in fr/novia/zaproxyplugin/ZAProxyBuilder/config.jelly must match the parameter names in the "DataBoundConstructor"
-	@DataBoundConstructor
-	//public ZAProxyBuilder(boolean startZAPFirst, String zapProxyHost, int zapProxyPort, String zapProxyKey, ZAProxy zaproxy) {
-	public ZAProxyBuilder(String zapProxyHost, int zapProxyPort, String zapProxyKey, ZAProxy zaproxy) {
-		//this.startZAPFirst = startZAPFirst;
+	@DataBoundConstructor 
+	public ZAProxyBuilder(ZAProxy zaproxy, String zapProxyHost, int zapProxyPort, boolean useWebProxy,  String zapProxyKey,
+			String webProxyHost, int webProxyPort, String webProxyUser, String webProxyPassword) {
+		super();
 		this.zaproxy = zaproxy;
 		this.zapProxyHost = zapProxyHost;
 		this.zapProxyPort = zapProxyPort;
-		this.zapProxyKey=zapProxyKey;
+		this.zapProxyKey = zapProxyKey;		
+		
 		this.zaproxy.setZapProxyHost(zapProxyHost);
 		this.zaproxy.setZapProxyPort(zapProxyPort);
 		this.zaproxy.setZapProxyApiKey(zapProxyKey);
+		
+		this.useWebProxy=useWebProxy;
+		this.webProxyHost = webProxyHost;
+		this.webProxyPort = webProxyPort;
+		this.webProxyUser = webProxyUser;
+		this.webProxyPassword = webProxyPassword;
+		
+		this.zaproxy.setUseWebProxy(useWebProxy);
+		this.zaproxy.setWebProxyHost(webProxyHost);
+		this.zaproxy.setWebProxyPort(webProxyPort);
+		this.zaproxy.setWebProxyUser(webProxyUser);
+		this.zaproxy.setWebProxyPassword(webProxyPassword);
+		
+		
+		
 	}
 
 	/*
 	 * Getters allows to access member via UI (config.jelly)
 	 */
-//	public boolean getStartZAPFirst() {
-//		return startZAPFirst;
-//	}
-	
+ 	
 	public ZAProxy getZaproxy() {
 		return zaproxy;
 	}
@@ -117,7 +133,42 @@ public class ZAProxyBuilder extends Builder {
 	public String getZapProxyKey() {
 		return zapProxyKey;
 	}
+	
+	/**
+	 * @return the useWebProxy
+	 */
+	public boolean isUseWebProxy() {
+		return useWebProxy;
+	}
 
+	/**
+	 * @return the webProxyHost
+	 */
+	public String getWebProxyHost() {
+		return webProxyHost;
+	}
+
+	/**
+	 * @return the webProxyPort
+	 */
+	public int getWebProxyPort() {
+		return webProxyPort;
+	}
+
+	/**
+	 * @return the webProxyUser
+	 */
+	public String getWebProxyUser() {
+		return webProxyUser;
+	}
+		
+	/**
+	 * @return the webProxyPassword
+	 */
+	public String getWebProxyPassword() {
+		return webProxyPassword;
+	}
+	
 	// Overridden for better type safety.
 	// If your plugin doesn't really define any property on Descriptor,
 	// you don't have to do this.
@@ -127,62 +178,18 @@ public class ZAProxyBuilder extends Builder {
 	}
 	
 	// Method called before launching the build
-	public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {
-		
-//		if(startZAPFirst) {
-//			listener.getLogger().println("------- START Prebuild -------");
-//			
-//			try {
-//				Launcher launcher = null;
-//				Node node = build.getBuiltOn();
-//				
-//				// Create launcher according to the build's location (Master or Slave) and the build's OS
-//				
-//				if("".equals(node.getNodeName())) { // Build on master 
-//					launcher = new LocalLauncher(listener, build.getWorkspace().getChannel());
-//				} else { // Build on slave
-//					boolean isUnix;
-//					if( "Unix".equals(((SlaveComputer)node.toComputer()).getOSDescription()) ) {
-//						isUnix = true;
-//					} else {
-//						isUnix = false;
-//					}
-//					launcher = new RemoteLauncher(listener, build.getWorkspace().getChannel(), isUnix);
-//				}		
-//				//commented by abdellah 
-//			//	zaproxy.startZAP(build, listener, launcher);
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//				listener.error(ExceptionUtils.getStackTrace(e));
-//				return false;
-//			}
-//			listener.getLogger().println("------- END Prebuild -------");
-//		}
+	public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {	
+ 
 		return true;
 	}
 
-	// Method called when the build is launching
+	// Methode appelée pendant le build, c'est ici que zap est lancé
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
-		
-		//commented bu abdellah
-		
-//		listener.getLogger().println("Perform ZAProxy");
-//		
-//		if(!startZAPFirst) {
-//			try {
-//				zaproxy.startZAP(build, listener, launcher);
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//				listener.error(ExceptionUtils.getStackTrace(e));
-//				return false;
-//			}
-//		}
-//		
+ 	
 		boolean res;
 		try {
-			//copyPolicyFile(build.getWorkspace(), listener); // TODO maybe in future version
-			res = build.getWorkspace().act(new ZAProxyCallable(this.zaproxy, listener));
+ 			res = build.getWorkspace().act(new ZAProxyCallable(this.zaproxy, listener));
 		} catch (Exception e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
@@ -192,66 +199,7 @@ public class ZAProxyBuilder extends Builder {
 		
 		 
 	}
-	
-//	/**
-//	 * Copy local policy file to slave in policies directory of ZAP default directory.
-//	 * 
-//	 * @param workspace the workspace of the build
-//	 * @param listener
-//	 * @throws IOException
-//	 * @throws InterruptedException
-//	 */
-//	private void copyPolicyFile(FilePath workspace, BuildListener listener) throws IOException, InterruptedException {
-//		//if(zaproxy.getScanURL() && zaproxy.pathToLocalPolicy != null && !zaproxy.pathToLocalPolicy.isEmpty())
-//		// TODO a recup via un champ
-//		// File fileToCopy = new File(zaproxy.pathToLocalPolicy);
-//		File fileToCopy = new File("C:\\Users\\ludovic.roucoux\\OWASP ZAP\\policies\\OnlySQLInjection.policy");
-//		
-//		String stringForLogger = "Copy [" + fileToCopy.getAbsolutePath() + "] to ";
-//		
-//		String data = FileUtils.readFileToString(fileToCopy, (String)null);
-//		
-//		stringForLogger = workspace.act(new CopyFileCallable(data, zaproxy.getZapDefaultDir(),
-//				fileToCopy.getName(), stringForLogger));
-//		listener.getLogger().println(stringForLogger);
-//	}
-	
-//	/**
-//	 * Allows to copy local policy file to the default ZAP policies directory in slave.
-//	 * 
-//	 * @author ludovic.roucoux
-//	 *
-//	 */
-//	private static class CopyFileCallable implements FileCallable<String> {
-//		private static final long serialVersionUID = -3375349701206827354L;
-//		private String data;
-//		private String zapDefaultDir;
-//		private String copyFilename;
-//		private String stringForLogger;
-//		
-//		public CopyFileCallable(String data, String zapDefaultDir,
-//				String copyFilename, String stringForLogger) {
-//			this.data = data;
-//			this.zapDefaultDir = zapDefaultDir;
-//			this.copyFilename = copyFilename;
-//			this.stringForLogger = stringForLogger;
-//		}
-//
-//		public String invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
-//			File fileCopiedDir = new File(zapDefaultDir, ZAProxy.NAME_POLICIES_DIR_ZAP);
-//			File fileCopied = new File(fileCopiedDir, copyFilename);
-//			
-//			FileUtils.writeStringToFile(fileCopied, data);
-//			stringForLogger += "[" + fileCopied.getAbsolutePath() + "]";
-//			return stringForLogger;
-//		}
-//
-//		@Override
-//		public void checkRoles(RoleChecker checker) throws SecurityException {
-//			// Nothing to do
-//		}
-//	}
-	
+ 
 	
 
 	/**
@@ -275,6 +223,18 @@ public class ZAProxyBuilder extends Builder {
 		private int zapProxyDefaultPort;
 		/** API Key configured when ZAProxy is used as proxy */
 		private  String zapProxyDefaultApiKey;
+		
+//		/** proxyWeb host */
+//		private String webProxyHost;
+//		/** proxyWeb port*/
+//		private int webProxyPort;
+//		/** proxyWeb username*/
+//		private  String webProxyUser;
+//		/** proxyWeb password */
+//		private String webProxyPassword;
+//		
+//		/** use or not a proxyWeb  */
+//		private boolean useWebProxy;
 
 		/**
 		 * In order to load the persisted global configuration, you have to

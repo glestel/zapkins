@@ -70,7 +70,7 @@ SOFTWARE.
 	</f:advanced>
 	-->
 	
-	<f:section title="${%Setup}">		
+	<!-- <f:section title="${%Setup}">		
 		<j:invoke on="${descriptor}" method="setWorkspace" >
 			<j:arg type="hudson.FilePath" value="${it.someWorkspace}"/>
 		</j:invoke>
@@ -78,9 +78,18 @@ SOFTWARE.
 		<f:entry title="${%Load session}" field="filenameLoadSession">
 			<f:select />
 		</f:entry>	
-	
-		<f:entry title="${%Target URL}" field="targetURL">
+	-->
+		<f:entry title="${%URL à auditer}" field="targetURL">
 			<f:textbox clazz="required" />
+		</f:entry>
+		<f:entry title="${%Nom du contexte}" field="contextName">
+			<f:textbox clazz="required" />
+		</f:entry>
+		<f:entry title="${%URL à inclure dans le contexte}" field="includedUrl" description="L'url doit être écrite de cette façon : \Qhttp://www.exemple.fr\E.*">
+			<f:textbox clazz="required" />
+		</f:entry>
+		<f:entry title="${%URL à exclure du contexte}" field="excludedUrl" description="L'url doit être écrite de cette façon : \Qhttp://www.exemple.fr/logout.php\E">
+			<f:textbox  />
 		</f:entry>
 		
 		
@@ -174,48 +183,10 @@ SOFTWARE.
 
 
 
-
+ 
 	
-			
-		<f:optionalBlock title="${%Generate report}"  field="saveReports" inline="true">
-			<f:entry>
-				<table width="100%">
-					<f:entry title="${%Choose format report}" field="chosenFormats">
-						<select name="chosenFormats" multiple="multiple" size="${descriptor.getAllFormats().size()}"
-						class="setting-input select" >
-							<j:forEach var="aFormat" items="${descriptor.getAllFormats()}" >
-								<j:choose>
-								<j:when test="${instance.chosenFormats.contains(aFormat)}">
-									<option value="${aFormat}" selected="selected">${aFormat}</option>
-								</j:when>
-								<j:otherwise>
-									<option value="${aFormat}">${aFormat}</option>
-								</j:otherwise>
-								</j:choose>
-							</j:forEach>
-						</select>
-					</f:entry>
-					<f:entry title="${%Filename for report}" field="filenameReports">
-						<f:textbox clazz="required" />
-					</f:entry>
-				</table>
-			</f:entry>
-		</f:optionalBlock>
-				
-		<f:optionalBlock title="${%Save session}"  field="saveSession" inline="true">	
-			<f:entry>
-				<table width="100%">
-					<f:entry title="${%Filename for session}" field="filenameSaveSession">
-						<f:textbox clazz="required" />
-					</f:entry>
-				</table>	
-			</f:entry>
-		</f:optionalBlock>
-		
-	</f:section>
-	
-<f:section title="${%Configuration du scan}">	
 
+<!--
 <f:entry>
 				<table width="100%">					
 					<f:entry title="${%ZAProxy default directory}" field="zapDefaultDir">
@@ -227,7 +198,7 @@ SOFTWARE.
 					</f:entry>
 				</table>
 </f:entry>
-
+-->
 <f:radioBlock title="${%Scan en mode non authentifié}" 	name="scanWithoutCredentials" value="true" checked="true" inline="true">
 	<f:entry>
 
@@ -287,7 +258,45 @@ SOFTWARE.
 		
 </f:radioBlock>	
 	
-</f:section>	
+
+	<f:section title="${%Options post audit}">	
+			
+		<f:optionalBlock title="${%Generate report}"  field="saveReports" inline="true">
+			<f:entry>
+				<table width="100%">
+					<f:entry title="${%Choose format report}" field="chosenFormats">
+						<select name="chosenFormats" multiple="multiple" size="${descriptor.getAllFormats().size()}"
+						class="setting-input select" >
+							<j:forEach var="aFormat" items="${descriptor.getAllFormats()}" >
+								<j:choose>
+								<j:when test="${instance.chosenFormats.contains(aFormat)}">
+									<option value="${aFormat}" selected="selected">${aFormat}</option>
+								</j:when>
+								<j:otherwise>
+									<option value="${aFormat}">${aFormat}</option>
+								</j:otherwise>
+								</j:choose>
+							</j:forEach>
+						</select>
+					</f:entry>
+					<f:entry title="${%Filename for report}" field="filenameReports">
+						<f:textbox clazz="required" />
+					</f:entry>
+				</table>
+			</f:entry>
+		</f:optionalBlock>
+				
+		<f:optionalBlock title="${%Save session}"  field="saveSession" inline="true">	
+			<f:entry>
+				<table width="100%">
+					<f:entry title="${%Filename for session}" field="filenameSaveSession">
+						<f:textbox clazz="required" />
+					</f:entry>
+				</table>	
+			</f:entry>
+		</f:optionalBlock>
+		
+</f:section>
 	
 	
 </j:jelly>

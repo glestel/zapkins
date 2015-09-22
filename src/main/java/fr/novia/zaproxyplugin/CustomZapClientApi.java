@@ -520,6 +520,13 @@ public  void setWebProxyDetails(String webProxyPropertiesPath) {
 	Authenticator.setDefault(new ProxyAuthenticator(PropertyLoader.getValueFromKey("USER", "", webProxyPropertiesPath), PropertyLoader.getValueFromKey("PASSWORD", "", webProxyPropertiesPath)));
 }
 
+//a voir comment l'implementer
+public  void setWebProxyDetails(String webProxyHost, int webProxyPort, String webProxyUser, String webProxyPassword) {
+
+	System.setProperty("http.proxyHost", webProxyHost);
+	System.setProperty("http.proxyPort", String.valueOf(webProxyPort));
+	Authenticator.setDefault(new ProxyAuthenticator(webProxyUser, webProxyPassword));
+}
 
 /***************************** GENERAl CONFIG ********************************/
 
@@ -1078,7 +1085,6 @@ public void saveReport(String xmlReportPath, BuildListener listener) {
 		try {
 			xmlReportBytes =  api.xmlreport(zapProxyKey);
 			Files.write(Paths.get(xmlReportPath), xmlReportBytes);
-			//System.out.println("File [" + new File(xmlReportPath).getAbsolutePath() + "] saved");
 			listener.getLogger().println("File [" + new File(xmlReportPath).getAbsolutePath() + "] saved");
  
 
