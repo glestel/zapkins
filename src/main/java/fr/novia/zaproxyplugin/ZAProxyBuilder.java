@@ -117,7 +117,13 @@ public class ZAProxyBuilder extends Builder {
 	/*
 	 * Getters allows to access member via UI (config.jelly)
 	 */
- 	
+	/**
+	 * @return the useWebProxy
+	 */
+	public boolean isUseWebProxy() {
+		return useWebProxy;
+	}
+
 	public ZAProxy getZaproxy() {
 		return zaproxy;
 	}
@@ -134,13 +140,7 @@ public class ZAProxyBuilder extends Builder {
 		return zapProxyKey;
 	}
 	
-	/**
-	 * @return the useWebProxy
-	 */
-	public boolean isUseWebProxy() {
-		return useWebProxy;
-	}
-
+	
 	/**
 	 * @return the webProxyHost
 	 */
@@ -224,19 +224,7 @@ public class ZAProxyBuilder extends Builder {
 		/** API Key configured when ZAProxy is used as proxy */
 		private  String zapProxyDefaultApiKey;
 		
-//		/** proxyWeb host */
-//		private String webProxyHost;
-//		/** proxyWeb port*/
-//		private int webProxyPort;
-//		/** proxyWeb username*/
-//		private  String webProxyUser;
-//		/** proxyWeb password */
-//		private String webProxyPassword;
-//		
-//		/** use or not a proxyWeb  */
-//		private boolean useWebProxy;
-
-		/**
+ 		/**
 		 * In order to load the persisted global configuration, you have to
 		 * call load() in the constructor.
 		 */

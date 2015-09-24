@@ -16,7 +16,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 import org.zaproxy.clientapi.core.ApiResponse;
 import org.zaproxy.clientapi.core.ApiResponseElement;
-import org.zaproxy.clientapi.core.ApiResponseFactory;
 import org.zaproxy.clientapi.core.ClientApiException;
 
 import fr.novia.zaproxyplugin.utilities.PropertyLoader;
@@ -30,24 +29,20 @@ public class CustomZapClientApi {
 
 
 	 
-	 
-	private String zapProxyHost = ""; 
-	private  int zapProxyPort = 8080; 
+
 	private  String zapProxyKey =""; 
 	private CustomZapApi api;
 	
-	private BuildListener listener;
+
  
 	
 	 
 	public CustomZapClientApi(String ZAP_ADDRESS,int zapProxyPort, String ZAP_API_KEY , BuildListener listener) {
 		super();
 		
-		
-		this.zapProxyHost = ZAP_ADDRESS ;
-		this.zapProxyPort = zapProxyPort;
+
 		this.zapProxyKey =ZAP_API_KEY;
-		this.listener=listener;
+	
 		this.api = new CustomZapApi(ZAP_ADDRESS,""+zapProxyPort+"", listener);
 	}
 	
@@ -217,10 +212,11 @@ public class CustomZapClientApi {
 	 * permet de définir les paramètres d'authentification
 	 * @param api
 	 * @param contextId
+	 * @return 
 	 * @throws ClientApiException
 	 * @throws UnsupportedEncodingException
 	 */
-	private  void setFormBasedAuthentication(String contextId, String loginUrl, String loginRequestData, BuildListener listener)  {
+	public void setFormBasedAuthentication(String contextId, String loginUrl, String loginRequestData, BuildListener listener)  {
 		// Setup the authentication method
  
 //		String loginUrl = PropertyLoader.getValueFromKey("LOGINURL", "", authenticationProperties); 
@@ -384,7 +380,7 @@ try {
 //	}
 
 /**
- * permet de spécifier les données d'authentification liées à l'utilisateur
+ * permet de spécifier les données d'authentification liées à l'utilisateur (cas : script d'authentification)
  * @param api
  * @param contextId
  * @param user nom de l'utilisateur utilisé dans le test
@@ -394,8 +390,7 @@ try {
  * @throws ClientApiException
  * @throws UnsupportedEncodingException
  */
-
-public String  setUserAuthConfig(String contextId, String user, String username, String password, BuildListener listener) {
+public String  setUserAuthConfig(String contextId, String user,  String username, String password, BuildListener listener) {
 	 
 
 	/************************************************************************************************************/
@@ -432,6 +427,60 @@ public String  setUserAuthConfig(String contextId, String user, String username,
 	
 	return userId;
 }
+
+
+	/**
+	 * permet de spécifier les données d'authentification liées à l'utilisateur (cas : formulaire d'authentification)
+	 * @param api
+	 * @param contextId
+	 * @param user nom de l'utilisateur utilisé dans le test
+	 * @param username
+	 * @param password
+	 * @return
+	 * @throws ClientApiException
+	 * @throws UnsupportedEncodingException
+	 */
+		
+	public String  setUserAuthConfig(String contextId, String user, String usernameParameter, String passwordParameter, String username, String password, BuildListener listener) {
+		 
+
+		/************************************************************************************************************/
+		// Make sure we have at least one user
+		String userId = null;
+		try {
+			userId = extractUserId(api.newUser(zapProxyKey, contextId, user));
+			/************************************************************************************************************/
+
+			// Prepare the configuration in a format similar to how URL parameters are formed. This
+			// means that any value we add for the configuration values has to be URL encoded.
+			StringBuilder userAuthConfig = new StringBuilder();
+			userAuthConfig.append(usernameParameter+"=").append(URLEncoder.encode(username, "UTF-8"));
+			userAuthConfig.append("&"+passwordParameter+"=").append(URLEncoder.encode(password, "UTF-8"));
+
+			//System.out.println("Setting user authentication configuration as: " + userAuthConfig.toString());
+			listener.getLogger().println("Setting user authentication configuration as: " + userAuthConfig.toString());
+			
+			/************************************************************************************************************/
+			api.setAuthenticationCredentials(zapProxyKey, contextId, userId, userAuthConfig.toString());
+			/************************************************************************************************************/
+
+			// Check if everything is set up ok
+			//System.out.println("Authentication config: " + api.getUserById(contextId, userId).toString(0));
+			listener.getLogger().println("Authentication config: " + api.getUserById(contextId, userId).toString(0));
+		} catch (ClientApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		return userId;
+	}
+
+
+
 
 /**
  * permet d'inclure une url dans un contexte
@@ -512,13 +561,6 @@ public void enableUser(String contextid, String userid, BuildListener listener){
 	}
 }
 
-// a voir comment l'implementer
-public  void setWebProxyDetails(String webProxyPropertiesPath) {
-
-	System.setProperty("http.proxyHost", PropertyLoader.getValueFromKey("PROXYHOST", "", webProxyPropertiesPath));
-	System.setProperty("http.proxyPort", PropertyLoader.getValueFromKey("PROXYPORT", "", webProxyPropertiesPath));
-	Authenticator.setDefault(new ProxyAuthenticator(PropertyLoader.getValueFromKey("USER", "", webProxyPropertiesPath), PropertyLoader.getValueFromKey("PASSWORD", "", webProxyPropertiesPath)));
-}
 
 //a voir comment l'implementer
 public  void setWebProxyDetails(String webProxyHost, int webProxyPort, String webProxyUser, String webProxyPassword) {

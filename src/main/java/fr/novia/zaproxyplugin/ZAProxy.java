@@ -37,32 +37,18 @@ import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.tools.ant.BuildException;
-import org.jenkinsci.remoting.RoleChecker;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
-import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
-import hudson.FilePath.FileCallable;
-import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractDescribableImpl;
-import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
-import hudson.model.Computer;
 import hudson.model.Descriptor;
-import hudson.model.EnvironmentSpecific;
-import hudson.model.JDK;
-import hudson.model.Node;
-import hudson.remoting.VirtualChannel;
-import hudson.slaves.NodeSpecific;
-import hudson.slaves.SlaveComputer;
 import hudson.tools.ToolDescriptor;
 import hudson.tools.ToolInstallation;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-import jenkins.model.Jenkins;
 import fr.novia.zaproxyplugin.CustomZapClientApi;
 import fr.novia.zaproxyplugin.report.ZAPreport;
 import fr.novia.zaproxyplugin.report.ZAPreportCollection;
@@ -79,6 +65,13 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	private static final long serialVersionUID = 3381268691497579059L;	
 	private static final String user = "ZAPR USER"; 
 	public static final String FILE_SESSION_EXTENSION = ".session";	
+	
+	
+	/** the scan mode (AUTHENTICATED/NOT_AUTHENTICATED) */
+	private String scanMode;	
+	
+	/** the authentication mode (SCRIPT_BASED/FORM_BASED) */
+	private String authenticationMode;
 	
 	/** Host configured when ZAProxy is used as proxy */
 	private String zapProxyHost;	
@@ -150,11 +143,24 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	private final String cookie;
 	
 	/** Authentication information for conduct spider as a user*/
+	
 	/** user name for authentication*/
 	private final String username;
 
 	/** Password for the defined user */
 	private final String password;
+	
+	
+	/** user name parameter user for authentication*/
+	private final String usernameParameter;
+
+	/** Password parameter used for the defined user */
+	private final String passwordParameter;
+	
+	
+	
+	
+	
 	
 	/** Realize a url AjaxSpider or not by ZAProxy using credentials*/
 	private final boolean ajaxSpiderURLAsUser;
@@ -194,15 +200,17 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		
 	//ce constructeur est ajoute par moi meme
 	@DataBoundConstructor
-	public ZAProxy(String zapProxyHost, int zapProxyPort, String zapProxyKey,boolean useWebProxy, String webProxyHost, int webProxyPort,
+	public ZAProxy(String scanMode,String zapProxyHost, int zapProxyPort, String zapProxyKey,boolean useWebProxy, String webProxyHost, int webProxyPort,
 			String webProxyUser, String webProxyPassword, String filenameLoadSession, String targetURL,
 			boolean spiderURL, boolean ajaxSpiderURL, boolean scanURL, boolean spiderAsUser, String scriptName,
 			String loginUrl, String contextName, String includedUrl, String excludedUrl, String loggedInIndicator,
-			String loggedOutIndicator, String postData, String cookie, String username, String password,
+			String loggedOutIndicator, String postData, String cookie, String usernameParameter, String passwordParameter,String username, String password,
 			boolean ajaxSpiderURLAsUser, boolean scanURLAsUser, boolean saveReports, ArrayList<String> chosenFormats,
 			String filenameReports, boolean saveSession, String filenameSaveSession, String chosenPolicy,
 			String contextId, String userId, String scanId) {
 		super();
+		
+		this.scanMode=scanMode;
 		this.zapProxyHost = zapProxyHost;
 		this.zapProxyPort = zapProxyPort;
 		this.zapProxyKey = zapProxyKey;
@@ -228,8 +236,13 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		this.loggedOutIndicator = loggedOutIndicator;
 		this.postData = postData;
 		this.cookie = cookie;
+		
+		this.usernameParameter=usernameParameter;
+		this.passwordParameter=passwordParameter;
+		
 		this.username = username;
 		this.password = password;
+		
 		this.ajaxSpiderURLAsUser = ajaxSpiderURLAsUser;
 		this.scanURLAsUser = scanURLAsUser;
 		this.saveReports = saveReports;
@@ -291,9 +304,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		return (ZAProxyDescriptorImpl)super.getDescriptor();
 	}
 	
-	
-	
-	
+		
 	/**
 	 * @return the user
 	 */
@@ -344,47 +355,19 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	}
 
 	/**
-	 * @param zapProxyKey the zapProxyKey to set
+	 * @return the usernameParameter
 	 */
-	public void setZapProxyKey(String zapProxyKey) {
-		this.zapProxyKey = zapProxyKey;
-	}
-	public void setWebProxyHost(String webProxyHost) {
-		// TODO Auto-generated method stub
-		this.webProxyHost=webProxyHost;
-	}
-
-	public void setWebProxyPort(int webProxyPort) {
-		// TODO Auto-generated method stub
-		this.webProxyPort=webProxyPort;
-	}
-
-	public void setWebProxyUser(String webProxyUser) {
-		// TODO Auto-generated method stub
-		this.webProxyUser=webProxyUser;
-	}
-
-	public void setWebProxyPassword(String webProxyPassword) {
-		// TODO Auto-generated method stub
-		this.webProxyPassword=webProxyPassword;
+	public String getUsernameParameter() {
+		return usernameParameter;
 	}
 
 	/**
-	 * @return the useWebProxy
+	 * @return the passwordParameter
 	 */
-	public boolean isUseWebProxy() {
-		return useWebProxy;
+	public String getPasswordParameter() {
+		return passwordParameter;
 	}
 
-	/**
-	 * @param useWebProxy the useWebProxy to set
-	 */
-	public void setUseWebProxy(boolean useWebProxy) {
-		this.useWebProxy = useWebProxy;
-	}
-	
-	
-	
 	/**
 	 * @return the scanId
 	 */
@@ -426,20 +409,8 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	public String getCookie() {
 		return cookie;
 	}
-
-	/**
-	 * @return the ajaxSpiderURLAsUser
-	 */
-	public boolean isAjaxSpiderURLAsUser() {
-		return ajaxSpiderURLAsUser;
-	}
-
-	/**
-	 * @return the scanURLAsUser
-	 */
-	public boolean isScanURLAsUser() {
-		return scanURLAsUser;
-	}
+	
+	
 	/*
 	 * Getters allows to load members variables into UI.
 	 */ 
@@ -541,33 +512,6 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	public String getUserId() {
 		return userId;
 	}
-
-	
-	/**
-	 * @param contextId the contextId to set
-	 */
-	public void setContextId(String contextId) {
-		this.contextId = contextId;
-	}
-
-	/**
-	 * @param userId the userId to set
-	 */
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
-	
-	public void setZapProxyHost(String zapProxyHost) {
-		this.zapProxyHost = zapProxyHost;
-	}
-
-	public void setZapProxyPort(int zapProxyPort) {
-		this.zapProxyPort = zapProxyPort;
-	}
-
-	public void setZapProxyApiKey(String  zapProxyKey) {
-		this.zapProxyKey = zapProxyKey;
-	}
 	
 	/**
 	 * @return the webProxyHost
@@ -596,6 +540,118 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	public String getWebProxyPassword() {
 		return webProxyPassword;
 	}
+	
+	/**
+	 * @return the scanMode
+	 */
+	public String getScanMode() {
+		return scanMode;
+	}
+
+	/**
+	 * @return the authenticationMode
+	 */
+	public String getAuthenticationMode() {
+		return authenticationMode;
+	}
+
+	/**
+	 * @param authenticationMode the authenticationMode to set
+	 */
+	public void setAuthenticationMode(String authenticationMode) {
+		this.authenticationMode = authenticationMode;
+	}
+
+	/**
+	 * @param scanMode the scanMode to set
+	 */
+	public void setScanMode(String scanMode) {
+		this.scanMode = scanMode;
+	}
+
+	/*========================= SETTERS =============================*/
+	/**
+	 * @param zapProxyKey the zapProxyKey to set
+	 */
+	public void setZapProxyKey(String zapProxyKey) {
+		this.zapProxyKey = zapProxyKey;
+	}
+	public void setWebProxyHost(String webProxyHost) {
+		
+		this.webProxyHost=webProxyHost;
+	}
+
+	public void setWebProxyPort(int webProxyPort) {
+	
+		this.webProxyPort=webProxyPort;
+	}
+
+	public void setWebProxyUser(String webProxyUser) {
+	
+		this.webProxyUser=webProxyUser;
+	}
+
+	public void setWebProxyPassword(String webProxyPassword) {
+		
+		this.webProxyPassword=webProxyPassword;
+	}
+
+	/**
+	 * @return the useWebProxy
+	 */
+	public boolean isUseWebProxy() {
+		return useWebProxy;
+	}
+
+	/**
+	 * @param useWebProxy the useWebProxy to set
+	 */
+	public void setUseWebProxy(boolean useWebProxy) {
+		this.useWebProxy = useWebProxy;
+	}
+	
+
+	/**
+	 * @return the ajaxSpiderURLAsUser
+	 */
+	public boolean isAjaxSpiderURLAsUser() {
+		return ajaxSpiderURLAsUser;
+	}
+
+	/**
+	 * @return the scanURLAsUser
+	 */
+	public boolean isScanURLAsUser() {
+		return scanURLAsUser;
+	}
+	
+	/**
+	 * @param contextId the contextId to set
+	 */
+	public void setContextId(String contextId) {
+		this.contextId = contextId;
+	}
+
+	/**
+	 * @param userId the userId to set
+	 */
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+	
+	public void setZapProxyHost(String zapProxyHost) {
+		this.zapProxyHost = zapProxyHost;
+	}
+
+	public void setZapProxyPort(int zapProxyPort) {
+		this.zapProxyPort = zapProxyPort;
+	}
+
+	public void setZapProxyApiKey(String  zapProxyKey) {
+		this.zapProxyKey = zapProxyKey;
+	}
+	
+
 
 	public boolean executeZAP(FilePath workspace, BuildListener listener) {
 	 
@@ -652,7 +708,10 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			
 				setUpScanner(zapClientAPI, listener);				
 				
-				
+			
+	switch(scanMode) {
+	
+	case "NOT_AUTHENTICATED" : {
 			/* ======================================================= 
 			 * |                  SPIDER URL                          |
 			 * ======================================================= 
@@ -686,13 +745,26 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			} else {
 				listener.getLogger().println("Skip scanning the site [" + targetURL + "]");
 			}
-				
-			
+			break;	
+			}
+	
+	case "AUTHENTICATED" :{
 			/* =============================== MODE AVEC AUTHENTIFICATION ============================================================== */	
 			
-			if(spiderAsUser || ajaxSpiderURLAsUser || scanURLAsUser ){
-			setUpAuthenticationConf(zapClientAPI, listener);
-			}
+		   switch(authenticationMode)  {
+		   
+		   case "SCRIPT_BASED" : {
+			setUpScriptBasedAuthenticationConf(zapClientAPI, listener);
+			break;
+		   }
+		   
+		   case "FORM_BASED" : {
+			 setUpFormBasedAuthenticationConf(zapClientAPI, listener);
+			 break;
+		   }
+			 
+			
+		   }
 			
 			/* ======================================================= 
 			 * |                  SPIDER URL AS USER                      |
@@ -738,10 +810,12 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 				listener.getLogger().println("Skip scanning the site [" + targetURL + "]");
 			}
 			
+			break;
 			
+			}
 			/* ============================================================================================= */
 			
-			
+			}
 			
 			/* ======================================================= 
 			 * |                  SAVE REPORTS                        |
@@ -792,7 +866,20 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		return buildSuccess;
 	}
 	
-	
+	 /**
+     * Test if the test type names match (for marking the radio button).
+     * @param testTypeName The String representation of the test type.
+     * @return Whether or not the test type string matches.
+     */
+    public String isScanMode(String testTypeName) {
+        return this.scanMode.equalsIgnoreCase(testTypeName) ? "true" : "";
+    }
+    
+    
+    
+    public String isAuthenticationMode(String testTypeName) {
+        return this.authenticationMode.equalsIgnoreCase(testTypeName) ? "true" : "";
+    }
 	/**
 	 * Verify parameters of the build setup are correct (null, empty, negative ...)
 	 * 
@@ -923,7 +1010,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	 * @throws InterruptedException 
 	 * @throws UnsupportedEncodingException
 	 */
-	private void setUpAuthenticationConf(CustomZapClientApi zapClientAPI, BuildListener listener){
+	private void setUpScriptBasedAuthenticationConf(CustomZapClientApi zapClientAPI, BuildListener listener){
 		
 		 
 		/***************** AUTHENTIFICATION ********************/
@@ -965,6 +1052,59 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		}
 	
 	
+	/**
+	 * Set up all authentication details
+	 * @author Abdellah
+	 * @param username user name to be used in authentication
+	 * @param password password for the authentication user
+	 * @param usernameParameter parameter define in passing username
+	 * @param passwordParameter parameter that define in passing password for the user
+	 * @param loginUrl login page url
+	 * @param loggedInIdicator indication for know its logged in
+	 * @throws ClientApiException
+	 * @throws InterruptedException 
+	 * @throws UnsupportedEncodingException
+	 */
+	private void setUpFormBasedAuthenticationConf(CustomZapClientApi zapClientAPI, BuildListener listener){
+		
+		 
+		/***************** AUTHENTIFICATION ********************/
+		listener.getLogger().println("---------------------------------------");
+		//test.setFormBasedAuthentication(api,contextId );
+		//{"error":"false","engine":"Rhino","description":"","name":"b.espaceclientv3.orange.fr.js","type":"authentication"}
+		//String LoginUrl,String postData, String Cookie, String scriptName 
+		zapClientAPI.setFormBasedAuthentication(contextId,loginUrl,postData, listener);
+		
+		listener.getLogger().println("---------------------------------------");
+		zapClientAPI.setLoggedInIndicator(contextId,loggedInIndicator,listener);
+		
+		listener.getLogger().println("---------------------------------------");
+		zapClientAPI.setLoggedOutIndicator(contextId,loggedOutIndicator,listener) ;
+		
+		listener.getLogger().println("---------------------------------------");
+		zapClientAPI.listUserConfigInformation(contextId,listener);
+		
+		listener.getLogger().println("---------------------------------------");
+		//String user, String username, String password
+		String userid=zapClientAPI.setUserAuthConfig(contextId,user, usernameParameter, passwordParameter, username, password,listener);
+		this.setUserId(userid);
+		
+		zapClientAPI.enableUser( contextId, userid,listener);
+		
+		/*********************** Forced User **********************************/
+		//https://groups.google.com/forum/#!topic/zaproxy-users/GRtzMJ4WJzk
+		//pour que la partie ajaxSpider se fasse d'une manière authentifiée il faut activer et renseigner le ForcedUser 
+		zapClientAPI.isForcedUserModeEnabled(listener);
+		zapClientAPI.setForcedUser( contextId, userid,listener);
+		zapClientAPI.getForcedUser(contextId,listener);
+		zapClientAPI.setForcedUserModeEnabled( true,listener);
+		zapClientAPI.isForcedUserModeEnabled(listener);
+		
+		
+		
+		/*********************************************************************/
+		
+		}
 	
 	
  

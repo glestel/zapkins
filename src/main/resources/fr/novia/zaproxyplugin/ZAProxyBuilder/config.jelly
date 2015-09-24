@@ -54,6 +54,8 @@ SOFTWARE.
 		
 			
 		<f:optionalBlock title="${%Utiliser un serveur proxy web}" field="useWebProxy" inline="true" >
+		<f:entry>
+		<table width="100%">
 		
 			<f:entry title="${%Adresse du serveur proxy web}" field="webProxyHost"
 			description="Entrer L'adresse du serveur proxy web">
@@ -75,7 +77,8 @@ SOFTWARE.
 				<f:password default="password" clazz="required" />
 			</f:entry>
  
-			
+		</table>
+		</f:entry>	
 		</f:optionalBlock>	
 			
 			
@@ -85,7 +88,7 @@ SOFTWARE.
 		
 	</f:section>
 		
-	<f:section title="${%Configuration de l'audit}" />
+	<f:section title="${%Configuration du contexte}" />
 	<!--	<f:optionalBlock title="${%Start ZAProxy in a pre-build step}" field="startZAPFirst" inline="true" />  -->
 		
 		<!-- Load the config.jelly bind to ZAProxy class 
