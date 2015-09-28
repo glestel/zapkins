@@ -216,7 +216,7 @@ public class CustomZapClientApi {
 	 * @throws ClientApiException
 	 * @throws UnsupportedEncodingException
 	 */
-	public void setFormBasedAuthentication(String contextId, String loginUrl, String loginRequestData, BuildListener listener)  {
+	public void setUpFormBasedAuthentication(String contextId, String loginUrl, String loginRequestData,String usernameParameter, String passwordParameter, BuildListener listener)  {
 		// Setup the authentication method
  
 //		String loginUrl = PropertyLoader.getValueFromKey("LOGINURL", "", authenticationProperties); 
@@ -224,10 +224,11 @@ public class CustomZapClientApi {
 
 		// Prepare the configuration in a format similar to how URL parameters are formed. This
 		// means that any value we add for the configuration values has to be URL encoded.
+		//String loginRequestData = "username={%username%}&password={%password%}";
 		StringBuilder formBasedConfig = new StringBuilder();
 		try {
 			formBasedConfig.append("loginUrl=").append(URLEncoder.encode(loginUrl, "UTF-8"));
-			formBasedConfig.append("&loginRequestData=").append(URLEncoder.encode(loginRequestData, "UTF-8"));
+			formBasedConfig.append("&loginRequestData=").append(URLEncoder.encode(usernameParameter+"={%username%}&"+passwordParameter+"={%password%}&"+loginRequestData, "UTF-8"));
 
 			//System.out.println("Setting form based authentication configuration as: "+ formBasedConfig.toString());
 			listener.getLogger().println("Setting form based authentication configuration as: "+ formBasedConfig.toString());
@@ -252,7 +253,7 @@ public class CustomZapClientApi {
 		
 	}
 	
-	public void setScriptBasedAuthentication(String contextId, String LoginUrl,String postData, String Cookie, String scriptName, BuildListener listener  ) {
+	public void setScriptBasedAuthentication(String contextId,  String scriptName, BuildListener listener  ) {
 
 // Setup the authentication method
 //String LoginUrl = PropertyLoader.getValueFromKey("LOGINURL", "", authenticationProperties); 
@@ -266,9 +267,7 @@ public class CustomZapClientApi {
 StringBuilder scriptBasedConfig = new StringBuilder();
 try {
 	scriptBasedConfig.append("scriptName=").append(URLEncoder.encode(scriptName, "UTF-8"));
-	scriptBasedConfig.append("&LoginUrl=").append(URLEncoder.encode(LoginUrl, "UTF-8"));
-	scriptBasedConfig.append("&postData=").append(URLEncoder.encode(postData, "UTF-8"));
-	scriptBasedConfig.append("&Cookie=").append(URLEncoder.encode(Cookie, "UTF-8"));
+ 
 	//System.out.println("Setting Script based authentication configuration as: "+ scriptBasedConfig .toString());
 	listener.getLogger().println("Setting Script based authentication configuration as: "+ scriptBasedConfig .toString());
 	/************************************************************************************************************/
@@ -294,6 +293,49 @@ try {
 
 
 }
+	
+	public void setScriptBasedAuthentication(String contextId, String LoginUrl,String postData, String Cookie, String scriptName, BuildListener listener  ) {
+
+		// Setup the authentication method
+		//String LoginUrl = PropertyLoader.getValueFromKey("LOGINURL", "", authenticationProperties); 
+		//String postData = PropertyLoader.getValueFromKey("POSTDATAWITHOUTCREDENTIALS", "", authenticationProperties);
+		//String Cookie=PropertyLoader.getValueFromKey("COOKIE", "", authenticationProperties);
+		//String scriptName=PropertyLoader.getValueFromKey("SCRIPTNAME", "", authenticationProperties);
+
+
+		// Prepare the configuration in a format similar to how URL parameters are formed. This
+		// means that any value we add for the configuration values has to be URL encoded.
+		StringBuilder scriptBasedConfig = new StringBuilder();
+		try {
+			scriptBasedConfig.append("scriptName=").append(URLEncoder.encode(scriptName, "UTF-8"));
+			scriptBasedConfig.append("&LoginUrl=").append(URLEncoder.encode(LoginUrl, "UTF-8"));
+			scriptBasedConfig.append("&postData=").append(URLEncoder.encode(postData, "UTF-8"));
+			scriptBasedConfig.append("&Cookie=").append(URLEncoder.encode(Cookie, "UTF-8"));
+			//System.out.println("Setting Script based authentication configuration as: "+ scriptBasedConfig .toString());
+			listener.getLogger().println("Setting Script based authentication configuration as: "+ scriptBasedConfig .toString());
+			/************************************************************************************************************/
+			//http://10.107.2.102:8080/JSON/authentication/action/setAuthenticationMethod/?zapapiformat=JSON&apikey=2q0ap4er4dhnlauq165mv43cht&contextId=1&authMethodName=scriptBasedAuthentication&authMethodConfigParams=scriptName%3Db.espaceclientv3.orange.fr.js
+			api.setAuthenticationMethod(zapProxyKey, contextId, "scriptBasedAuthentication",scriptBasedConfig .toString());
+			/************************************************************************************************************/
+
+
+			// Check if everything is set up ok
+			/************************************************************************************************************/
+			//System.out.println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));
+			listener.getLogger().println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));
+			/************************************************************************************************************/
+			 
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClientApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+
+
+		}
 	/**
 	 * permet de définir les paramètres d'authentification
 	 * @param api
@@ -304,27 +346,37 @@ try {
 	 * @throws UnsupportedEncodingException
 	 */
 	
-//private  void setFormBasedAuthentication( String contextId, String loginUrl, String loginRequestData)  {
-//// Setup the authentication method
-//// Prepare the configuration in a format similar to how URL parameters are formed. This
-//// means that any value we add for the configuration values has to be URL encoded.
-//StringBuilder formBasedConfig = new StringBuilder();
-//formBasedConfig.append("loginUrl=").append(URLEncoder.encode(loginUrl, "UTF-8"));
-//formBasedConfig.append("&loginRequestData=").append(URLEncoder.encode(loginRequestData, "UTF-8"));
-//
-//System.out.println("Setting form based authentication configuration as: "+ formBasedConfig.toString());
-//
-///************************************************************************************************************/
-//api.setAuthenticationMethod(ZAP_API_KEY, contextId, "formBasedAuthentication",formBasedConfig.toString());
-///************************************************************************************************************/
-//
-//
-//// Check if everything is set up ok
-///************************************************************************************************************/
-//System.out.println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));
-///************************************************************************************************************/
-//}
-//
+private  void setFormBasedAuthentication( String contextId, String loginUrl, String loginRequestData)  {
+// Setup the authentication method
+// Prepare the configuration in a format similar to how URL parameters are formed. This
+// means that any value we add for the configuration values has to be URL encoded.
+StringBuilder formBasedConfig = new StringBuilder();
+try {
+formBasedConfig.append("loginUrl=").append(URLEncoder.encode(loginUrl, "UTF-8"));
+formBasedConfig.append("&loginRequestData=").append(URLEncoder.encode(loginRequestData, "UTF-8"));
+
+System.out.println("Setting form based authentication configuration as: "+ formBasedConfig.toString());
+
+/************************************************************************************************************/
+
+	api.setAuthenticationMethod(zapProxyKey, contextId, "formBasedAuthentication",formBasedConfig.toString());
+	/************************************************************************************************************/
+
+
+	// Check if everything is set up ok
+	/************************************************************************************************************/
+	System.out.println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));
+	/************************************************************************************************************/
+} catch (ClientApiException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+} catch (UnsupportedEncodingException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+}
+
+}
+
 
 
 ///**
@@ -336,7 +388,7 @@ try {
 // * @throws UnsupportedEncodingException
 // */
 // 
-//private  String  setUserAuthConfig(String contextId, String user, String username, String password)   {
+//private  String  setUserFormAuthConfig(String contextId, String user, String username, String password)   {
 //		// Prepare info
 ////		//String contextId = PropertyLoader.getValueFromKey("CONTEXTID", "", authenticationProperties);//"1";
 ////		String user = PropertyLoader.getValueFromKey("USER", "User Test", authenticationProperties);//"Test User";
@@ -353,8 +405,8 @@ try {
 //			// Prepare the configuration in a format similar to how URL parameters are formed. This
 //			// means that any value we add for the configuration values has to be URL encoded.
 //			StringBuilder userAuthConfig = new StringBuilder();
-//			userAuthConfig.append("Username=").append(URLEncoder.encode(username, "UTF-8"));
-//			userAuthConfig.append("&Password=").append(URLEncoder.encode(password, "UTF-8"));
+//			userAuthConfig.append("username=").append(URLEncoder.encode(username, "UTF-8"));
+//			userAuthConfig.append("&password=").append(URLEncoder.encode(password, "UTF-8"));
 //
 //			System.out.println("Setting user authentication configuration as: " + userAuthConfig.toString());
 //			
@@ -390,7 +442,7 @@ try {
  * @throws ClientApiException
  * @throws UnsupportedEncodingException
  */
-public String  setUserAuthConfig(String contextId, String user,  String username, String password, BuildListener listener) {
+public String  setUserScriptAuthConfig(String contextId, String user,  String username, String password, BuildListener listener) {
 	 
 
 	/************************************************************************************************************/
@@ -429,57 +481,107 @@ public String  setUserAuthConfig(String contextId, String user,  String username
 }
 
 
-	/**
-	 * permet de spécifier les données d'authentification liées à l'utilisateur (cas : formulaire d'authentification)
-	 * @param api
-	 * @param contextId
-	 * @param user nom de l'utilisateur utilisé dans le test
-	 * @param username
-	 * @param password
-	 * @return
-	 * @throws ClientApiException
-	 * @throws UnsupportedEncodingException
-	 */
-		
-	public String  setUserAuthConfig(String contextId, String user, String usernameParameter, String passwordParameter, String username, String password, BuildListener listener) {
-		 
+/**
+ * permet de spécifier les données d'authentification liées à l'utilisateur (cas : script d'authentification)
+ * @param api
+ * @param contextId
+ * @param user nom de l'utilisateur utilisé dans le test
+ * @param username
+ * @param password
+ * @return
+ * @throws ClientApiException
+ * @throws UnsupportedEncodingException
+ */
+public String  setUserFormAuthConfig(String contextId, String user,  String username, String password, BuildListener listener) {
+	 
 
+	/************************************************************************************************************/
+	// Make sure we have at least one user
+	String userId = null;
+	try {
+		userId = extractUserId(api.newUser(zapProxyKey, contextId, user));
 		/************************************************************************************************************/
-		// Make sure we have at least one user
-		String userId = null;
-		try {
-			userId = extractUserId(api.newUser(zapProxyKey, contextId, user));
-			/************************************************************************************************************/
 
-			// Prepare the configuration in a format similar to how URL parameters are formed. This
-			// means that any value we add for the configuration values has to be URL encoded.
-			StringBuilder userAuthConfig = new StringBuilder();
-			userAuthConfig.append(usernameParameter+"=").append(URLEncoder.encode(username, "UTF-8"));
-			userAuthConfig.append("&"+passwordParameter+"=").append(URLEncoder.encode(password, "UTF-8"));
+		// Prepare the configuration in a format similar to how URL parameters are formed. This
+		// means that any value we add for the configuration values has to be URL encoded.
+		StringBuilder userAuthConfig = new StringBuilder();
+		userAuthConfig.append("username=").append(URLEncoder.encode(username, "UTF-8"));
+		userAuthConfig.append("&password=").append(URLEncoder.encode(password, "UTF-8"));
 
-			//System.out.println("Setting user authentication configuration as: " + userAuthConfig.toString());
-			listener.getLogger().println("Setting user authentication configuration as: " + userAuthConfig.toString());
-			
-			/************************************************************************************************************/
-			api.setAuthenticationCredentials(zapProxyKey, contextId, userId, userAuthConfig.toString());
-			/************************************************************************************************************/
-
-			// Check if everything is set up ok
-			//System.out.println("Authentication config: " + api.getUserById(contextId, userId).toString(0));
-			listener.getLogger().println("Authentication config: " + api.getUserById(contextId, userId).toString(0));
-		} catch (ClientApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//System.out.println("Setting user authentication configuration as: " + userAuthConfig.toString());
+		listener.getLogger().println("Setting user authentication configuration as: " + userAuthConfig.toString());
 		
-		
-		return userId;
+		/************************************************************************************************************/
+		api.setAuthenticationCredentials(zapProxyKey, contextId, userId, userAuthConfig.toString());
+		/************************************************************************************************************/
+
+		// Check if everything is set up ok
+		//System.out.println("Authentication config: " + api.getUserById(contextId, userId).toString(0));
+		listener.getLogger().println("Authentication config: " + api.getUserById(contextId, userId).toString(0));
+	} catch (ClientApiException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (UnsupportedEncodingException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
 	}
+	
+	
+	return userId;
+}
 
 
+//	/**
+//	 * permet de spécifier les données d'authentification liées à l'utilisateur (cas : formulaire d'authentification)
+//	 * @param api
+//	 * @param contextId
+//	 * @param user nom de l'utilisateur utilisé dans le test
+//	 * @param username
+//	 * @param password
+//	 * @return
+//	 * @throws ClientApiException
+//	 * @throws UnsupportedEncodingException
+//	 */
+//		
+//	public String  setUserAuthConfig(String contextId, String user, String usernameParameter, String passwordParameter, String username, String password, BuildListener listener) {
+//		 
+//
+//		/************************************************************************************************************/
+//		// Make sure we have at least one user
+//		String userId = null;
+//		try {
+//			userId = extractUserId(api.newUser(zapProxyKey, contextId, user));
+//			/************************************************************************************************************/
+//
+//			// Prepare the configuration in a format similar to how URL parameters are formed. This
+//			// means that any value we add for the configuration values has to be URL encoded.
+//			StringBuilder userAuthConfig = new StringBuilder();
+//			userAuthConfig.append(usernameParameter+"=").append(URLEncoder.encode(username, "UTF-8"));
+//			userAuthConfig.append("&"+passwordParameter+"=").append(URLEncoder.encode(password, "UTF-8"));
+//
+//			//System.out.println("Setting user authentication configuration as: " + userAuthConfig.toString());
+//			listener.getLogger().println("Setting user authentication configuration as: " + userAuthConfig.toString());
+//			
+//			/************************************************************************************************************/
+//			api.setAuthenticationCredentials(zapProxyKey, contextId, userId, userAuthConfig.toString());
+//			/************************************************************************************************************/
+//
+//			// Check if everything is set up ok
+//			//System.out.println("Authentication config: " + api.getUserById(contextId, userId).toString(0));
+//			listener.getLogger().println("Authentication config: " + api.getUserById(contextId, userId).toString(0));
+//		} catch (ClientApiException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (UnsupportedEncodingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//		
+//		return userId;
+//	}
+//
+//
 
 
 /**
