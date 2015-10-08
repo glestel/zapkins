@@ -49,5 +49,9 @@ SOFTWARE.
 			<f:textbox default="2q0ap4er4dhnlauq165mv43cht" clazz="required" />
 		</f:entry>
 		
+		<f:entry title="${%Répertoire d'installation du serveur ZAP}" field="zapDefaultDirectory">
+			<f:textbox default="/opt/ZAP_2.4.2/" clazz="required" />
+		</f:entry>
+		
 	</f:section>
 </j:jelly>

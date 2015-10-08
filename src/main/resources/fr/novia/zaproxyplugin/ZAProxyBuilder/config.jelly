@@ -37,6 +37,12 @@ SOFTWARE.
 			${it.workspace}
 		</f:entry>
 		-->
+		
+		<f:entry title="${%Répertoire d'installation du serveur ZAP}" field="zapProxyDirectory"
+		description="Le répertoire par défaut est : ${descriptor.zapDefaultDirectory} (${%Configuré dans l'interface d'administration de Jenkins})">
+			<f:textbox  default="${descriptor.zapDefaultDirectory}" />
+		</f:entry>
+		
 		<f:entry title="${%Adresse du serveur ZAP}" field="zapProxyHost"
 		description="L'adresse par défaut est : ${descriptor.zapProxyDefaultHost} (${%Configurée dans l'interface d'administration de Jenkins})">
 			<f:textbox clazz="required" default="${descriptor.zapProxyDefaultHost}" />
@@ -88,7 +94,7 @@ SOFTWARE.
 		
 	</f:section>
 		
-	<f:section title="${%Configuration du contexte}" />
+	<f:section title="${%Options pré-audit}" />
 	<!--	<f:optionalBlock title="${%Start ZAProxy in a pre-build step}" field="startZAPFirst" inline="true" />  -->
 		
 		<!-- Load the config.jelly bind to ZAProxy class 

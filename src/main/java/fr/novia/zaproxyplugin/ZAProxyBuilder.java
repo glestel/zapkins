@@ -70,6 +70,9 @@ public class ZAProxyBuilder extends Builder {
 	/** API Key configured when ZAProxy is used as proxy */
 	private final String zapProxyKey;
 	
+	/** ZAP Directory configured when ZAProxy is used as proxy */
+	private final String zapProxyDirectory;
+	
 	/** proxyWeb host */
 	private final String webProxyHost;
 	/** proxyWeb port*/
@@ -86,17 +89,19 @@ public class ZAProxyBuilder extends Builder {
 	
 	// Fields in fr/novia/zaproxyplugin/ZAProxyBuilder/config.jelly must match the parameter names in the "DataBoundConstructor"
 	@DataBoundConstructor 
-	public ZAProxyBuilder(ZAProxy zaproxy, String zapProxyHost, int zapProxyPort, boolean useWebProxy,  String zapProxyKey,
+	public ZAProxyBuilder(ZAProxy zaproxy, String zapProxyHost, int zapProxyPort, boolean useWebProxy, String zapProxyDirectory,  String zapProxyKey,
 			String webProxyHost, int webProxyPort, String webProxyUser, String webProxyPassword) {
 		super();
 		this.zaproxy = zaproxy;
 		this.zapProxyHost = zapProxyHost;
 		this.zapProxyPort = zapProxyPort;
-		this.zapProxyKey = zapProxyKey;		
+		this.zapProxyKey = zapProxyKey;	
+		this.zapProxyDirectory=zapProxyDirectory;
 		
 		this.zaproxy.setZapProxyHost(zapProxyHost);
 		this.zaproxy.setZapProxyPort(zapProxyPort);
 		this.zaproxy.setZapProxyApiKey(zapProxyKey);
+		this.zaproxy.setZapProxyDirectory(zapProxyDirectory);
 		
 		this.useWebProxy=useWebProxy;
 		this.webProxyHost = webProxyHost;
@@ -142,6 +147,13 @@ public class ZAProxyBuilder extends Builder {
 	
 	
 	/**
+	 * @return the zapProxyDirectory
+	 */
+	public String getZapProxyDirectory() {
+		return zapProxyDirectory;
+	}
+
+	/**
 	 * @return the webProxyHost
 	 */
 	public String getWebProxyHost() {
@@ -186,7 +198,18 @@ public class ZAProxyBuilder extends Builder {
 	// Methode appelée pendant le build, c'est ici que zap est lancé
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
- 	
+		
+		listener.getLogger().println("Perform ZAProxy");		 
+			try {
+				zaproxy.startZAP(build, listener, launcher);
+			} catch (Exception e) {
+				e.printStackTrace();
+				listener.error(ExceptionUtils.getStackTrace(e));
+				return false;
+			}
+		 
+		
+		
 		boolean res;
 		try {
  			res = build.getWorkspace().act(new ZAProxyCallable(this.zaproxy, listener));
@@ -224,6 +247,9 @@ public class ZAProxyBuilder extends Builder {
 		/** API Key configured when ZAProxy is used as proxy */
 		private  String zapProxyDefaultApiKey;
 		
+		/** ZAP default Directory configured when ZAProxy is used as proxy */
+		private  String zapDefaultDirectory ;
+		
  		/**
 		 * In order to load the persisted global configuration, you have to
 		 * call load() in the constructor.
@@ -252,7 +278,8 @@ public class ZAProxyBuilder extends Builder {
 			// set that to properties and call save().
 			zapProxyDefaultHost = formData.getString("zapProxyDefaultHost");
 			zapProxyDefaultPort = formData.getInt("zapProxyDefaultPort");
-			zapProxyDefaultApiKey=formData.getString("zapProxyDefaultApiKey");;
+			zapProxyDefaultApiKey=formData.getString("zapProxyDefaultApiKey");
+			zapDefaultDirectory=formData.getString("zapDefaultDirectory");
 			// ^Can also use req.bindJSON(this, formData);
 			//  (easier when there are many fields; need set* methods for this, like setUseFrench)
 			save();
@@ -269,6 +296,10 @@ public class ZAProxyBuilder extends Builder {
 		
 		public String getZapProxyDefaultApiKey() {
 			return zapProxyDefaultApiKey;
+		}
+		
+		public String getZapDefaultDirectory() {
+			return zapDefaultDirectory;
 		}
 
 	}

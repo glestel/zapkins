@@ -29,25 +29,36 @@ SOFTWARE.
 
 	See global.jelly for a general discussion about jelly script.
 	-->
-	 
+	
+<!-- la partie du code ci-dessous m'a fait tourné la tête, elle permet d'assigner une variable (workspace) avec une valeur à partir du viewer, faire attention --> ne pas oublier cette partie pour charger la session et la liste des scripts d'authentification -->
+<j:invoke on="${descriptor}" method="setWorkspace" >
+			<j:arg type="hudson.FilePath" value="${it.someWorkspace}"/>
+</j:invoke>
+
+
+<f:entry title="${%Charger la session}" field="filenameLoadSession">
+			<f:select />
+</f:entry> 
+<f:optionalBlock title="${%Charger la liste des scripts d'authentification}" field="loadAuthenticationsScripts" inline="true" />
 <!-- Configuration du contexte -->
+<f:section title="${%Configuration du contexte}">
 		<f:entry title="${%Nom du contexte}" field="contextName">
-			<f:textbox clazz="required" />
-		</f:entry>
-		
-		<f:entry title="${%URL à auditer}" field="targetURL">
-			<f:textbox clazz="required" />
-		</f:entry>
-		
-		<f:entry title="${%URL à inclure dans le contexte}" field="includedUrl" description="L'url doit être écrite de cette façon : \Qhttp://www.exemple.fr\E.*">
-			<f:textbox clazz="required" />
-		</f:entry>
-		
-		<f:entry title="${%URL à exclure du contexte}" field="excludedUrl" description="L'url doit être écrite de cette façon : \Qhttp://www.exemple.fr/logout.php\E">
 			<f:textbox  />
 		</f:entry>
 		
+		<f:entry title="${%URL à auditer}" field="targetURL">
+			<f:textbox  />
+		</f:entry>
 		
+		<f:entry title="${%URL à inclure dans le contexte}" field="includedUrl" description="L'url doit être écrite de cette façon : \Qhttp://www.exemple.fr\E.*">
+			<f:textarea clazz="required" />
+		</f:entry>
+			
+		<f:entry title="${%URL à exclure du contexte}" field="excludedUrl" description="L'url doit être écrite de cette façon : \Qhttp://www.exemple.fr/logout.php\E">
+			<f:textarea  />
+		</f:entry>
+		
+</f:section>		
 <!-- Configuration du scan --> 
 <f:section title="${%Configuration du scan}">
 <!-- ======================================================== SCAN : MODE NON AUTHENTIFIE ======================================================================================================================= -->
@@ -72,7 +83,8 @@ SOFTWARE.
 					  
 						<f:nested>
 						  <f:entry title="${%Nom du scripit d'authentification}" field="scriptName">
-								<f:textbox clazz="required" />
+								<!-- <f:textbox clazz="required" /> -->
+								<f:select />
 						  </f:entry>
 						  
 						  <f:entry title="${%Nom de l'utilisateur}" field="scriptUsername">

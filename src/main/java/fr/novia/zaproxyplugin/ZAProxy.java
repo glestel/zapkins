@@ -27,31 +27,65 @@
 package fr.novia.zaproxyplugin;
 
  
-import java.io.File; 
-import java.io.IOException; 
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException; 
-import java.util.ArrayList; 
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
+import fr.novia.zaproxyplugin.report.ZAPreport;
+import fr.novia.zaproxyplugin.report.ZAPreportCollection;
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
-import hudson.model.AbstractBuild;
+import hudson.FilePath.FileCallable;
+import hudson.Launcher;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.BuildListener;
+import hudson.model.EnvironmentSpecific;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
+import hudson.model.Computer;
 import hudson.model.Descriptor;
+import hudson.model.JDK;
+import hudson.model.Node;
+import hudson.remoting.VirtualChannel;
+import hudson.slaves.NodeSpecific;
+import hudson.slaves.SlaveComputer;
 import hudson.tools.ToolDescriptor;
 import hudson.tools.ToolInstallation;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-import fr.novia.zaproxyplugin.CustomZapClientApi;
-import fr.novia.zaproxyplugin.report.ZAPreport;
-import fr.novia.zaproxyplugin.report.ZAPreportCollection;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import jenkins.model.Jenkins;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.tools.ant.BuildException;
+import org.jenkinsci.remoting.RoleChecker;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+import org.zaproxy.clientapi.core.ApiResponse;
+import org.zaproxy.clientapi.core.ApiResponseElement;
+import org.zaproxy.clientapi.core.ClientApi;
+import org.zaproxy.clientapi.core.ClientApiException;
 
 /**
  * Contains methods to start and execute ZAProxy.
@@ -65,10 +99,21 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	private static final long serialVersionUID = 3381268691497579059L;	
 	private static final String user = "ZAPR USER"; 
 	public static final String FILE_SESSION_EXTENSION = ".session";	
+	public static final String FILE_SCRIPTS_EXTENSION = ".scripts";	
+	public static final String authenticationScriptsListFile="authenticationScriptsList.scripts";
+	public static final String sessionsListFile="sessionsListFile.session";
 	
-	
+	public  String FILE_SEPARATOR="" ;
+
+
+
+
+
 	/** the scan mode (AUTHENTICATED/NOT_AUTHENTICATED) */
 	private String scanMode;	
+	
+	/* Charger la liste des scripts d'authentification */
+	private boolean loadAuthenticationsScripts;
 	
 	/** the authentication mode (SCRIPT_BASED/FORM_BASED) */
 	private String authenticationMode;
@@ -79,7 +124,8 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	private int zapProxyPort;		
 	/** the secret API key when ZAProxy is used */
 	private String zapProxyKey ;
-	
+
+	private String zapProxyDirectory;
 	
 	
 	/** Use a web Proxy or not by ZAProxy */
@@ -216,7 +262,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		
 	//ce constructeur est ajoute par moi meme
 	@DataBoundConstructor
-	public ZAProxy(String scanMode,String authenticationMode, String zapProxyHost, int zapProxyPort, String zapProxyKey,boolean useWebProxy, String webProxyHost, int webProxyPort,
+	public ZAProxy(Boolean loadAuthenticationsScripts,String scanMode,String authenticationMode, String zapProxyHost, int zapProxyPort, String zapProxyKey,boolean useWebProxy, String webProxyHost, int webProxyPort,
 			String webProxyUser, String webProxyPassword, String filenameLoadSession, String targetURL,
 			boolean spiderURL, boolean ajaxSpiderURL, boolean scanURL, boolean spiderAsUser, String scriptName,
 			String loginUrl, String contextName, String includedUrl, String excludedUrl, String formLoggedInIndicator,
@@ -226,6 +272,8 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			String contextId, String userId, String scanId) {
 		super();
 		
+		
+		this.loadAuthenticationsScripts=loadAuthenticationsScripts;
 		this.scanMode=scanMode;
 		this.authenticationMode=authenticationMode;
 		this.zapProxyHost = zapProxyHost;
@@ -610,6 +658,33 @@ public String getScriptLoggedOutIndicator() {
 	}
 
 	/**
+	 * @return the loadAuthenticationsScripts
+	 */
+	public Boolean getLoadAuthenticationsScripts() {
+		return loadAuthenticationsScripts;
+	}
+	
+	/**
+	 * @return the fILE_SEPARATOR
+	 */
+	public String getFILE_SEPARATOR() {
+		return FILE_SEPARATOR;
+	}
+	
+	/**
+	 * @param fILE_SEPARATOR the fILE_SEPARATOR to set
+	 */
+	public void setFILE_SEPARATOR(String fILE_SEPARATOR) {
+		FILE_SEPARATOR = fILE_SEPARATOR;
+	}
+	/**
+	 * @param loadAuthenticationsScripts the loadAuthenticationsScripts to set
+	 */
+	public void setLoadAuthenticationsScripts(Boolean loadAuthenticationsScripts) {
+		this.loadAuthenticationsScripts = loadAuthenticationsScripts;
+	}
+
+	/**
 	 * @param authenticationMode the authenticationMode to set
 	 */
 	public void setAuthenticationMode(String authenticationMode) {
@@ -629,6 +704,12 @@ public String getScriptLoggedOutIndicator() {
 	 */
 	public void setZapProxyKey(String zapProxyKey) {
 		this.zapProxyKey = zapProxyKey;
+	}
+	
+
+	public void setZapProxyDirectory(String zapProxyDirectory) {
+		// TODO Auto-generated method stub
+		this.zapProxyDirectory=zapProxyDirectory;
 	}
 	public void setWebProxyHost(String webProxyHost) {
 		
@@ -705,9 +786,101 @@ public String getScriptLoggedOutIndicator() {
 		this.zapProxyKey = zapProxyKey;
 	}
 	
-
+	/**
+	 * Start ZAProxy using command line. It uses host and port configured in Jenkins admin mode and
+	 * ZAProxy program is launched in daemon mode (i.e without UI).
+	 * ZAProxy is started on the build's machine (so master machine ou slave machine) thanks to 
+	 * {@link FilePath} object and {@link Launcher} object.
+	 * 
+	 * @param build
+	 * @param listener the listener to display log during the job execution in jenkins
+	 * @param launcher the object to launch a process locally or remotely
+	 * @throws InterruptedException 
+	 * @throws IOException 
+	 * @throws IllegalArgumentException 
+	 */
+	public void startZAP(AbstractBuild<?, ?> build, BuildListener listener, Launcher launcher) 
+			throws IllegalArgumentException, IOException, InterruptedException {
+		checkParams(build, listener);
+		
+		FilePath ws = build.getWorkspace();
+	   
+		if (ws == null) {
+			Node node = build.getBuiltOn();
+			if (node == null) {
+				throw new NullPointerException("no such build node: " + build.getBuiltOnStr());
+			}
+			throw new NullPointerException("no workspace from node " + node + " which is computer " + node.toComputer() + " and has channel " + node.getChannel());
+		}
+		
+		Node node = build.getBuiltOn();
+		 
+		
+//		// Append zap program following Master/Slave and Windows/Unix
+//		if( "".equals(node.getNodeName())) { // Master
+//			if( File.pathSeparatorChar == ':' ) { // UNIX
+//				this.setFILE_SEPARATOR("/");
+//			} else { // Windows (pathSeparatorChar == ';')
+//				this.setFILE_SEPARATOR("\\");
+//			}
+//		} 
+//		else { // Slave
+//			if( "Unix".equals(((SlaveComputer)node.toComputer()).getOSDescription()) ) {
+//				this.setFILE_SEPARATOR("/");
+//			} else {
+//				this.setFILE_SEPARATOR("\\");
+//			}
+//		}
+		 
+		
+//		// Contains the absolute path to ZAP program
+//		FilePath zapPathWithProgName = new FilePath(ws.getChannel(), zapProgram + getZAPProgramNameWithSeparator(build));
+//		listener.getLogger().println("Start ZAProxy [" + zapPathWithProgName.getRemote() + "]");
+//		
+//		// Command to start ZAProxy with parameters
+//		List<String> cmd = new ArrayList<String>();
+//		cmd.add(zapPathWithProgName.getRemote());
+//		// TODO decommenter
+//		//cmd.add(CMD_LINE_DAEMON);
+//		cmd.add(CMD_LINE_HOST);
+//		cmd.add(zapProxyHost);
+//		cmd.add(CMD_LINE_PORT);
+//		cmd.add(String.valueOf(zapProxyPort));
+//		
+//		// Set the default directory used by ZAP if it's defined and if a scan is provided
+//		if(scanURL && zapDefaultDir != null && !zapDefaultDir.isEmpty()) {
+//			cmd.add(CMD_LINE_DIR);
+//			cmd.add(zapDefaultDir);
+//		}
+//		
+//		// Adds command line arguments if it's provided
+//		if(!cmdLinesZAP.isEmpty()) {
+//			addZapCmdLine(cmd);
+//		}
+//			
+//		EnvVars envVars = build.getEnvironment(listener);
+//		// on Windows environment variables are converted to all upper case,
+//		// but no such conversions are done on Unix, so to make this cross-platform,
+//		// convert variables to all upper cases.
+//		for(Map.Entry<String,String> e : build.getBuildVariables().entrySet())
+//			envVars.put(e.getKey(),e.getValue());
+//		
+//		FilePath workDir = new FilePath(ws.getChannel(), zapProgram);
+//		
+//		// JDK choice
+//		computeJdkToUse(build, listener, envVars);
+//		
+//		// Launch ZAP process on remote machine (on master if no remote machine)
+//		launcher.launch().cmds(cmd).envs(envVars).stdout(listener).pwd(workDir).start();
+//		
+//		// Call waitForSuccessfulConnectionToZap(int, BuildListener) remotely
+//		build.getWorkspace().act(new WaitZAProxyInitCallable(this, listener));
+	}
 
 	public boolean executeZAP(FilePath workspace, BuildListener listener) {
+		
+		
+		
 	 
 		CustomZapClientApi zapClientAPI =new CustomZapClientApi(zapProxyHost,zapProxyPort, zapProxyKey, listener);
 		boolean buildSuccess = true;
@@ -717,6 +890,7 @@ public String getScriptLoggedOutIndicator() {
 		// Try/catch here because I need to stopZAP in finally block and for that,
  
 		try {
+			
 			
 			/* ======================================================= 
 			 * |                 USE WEB PROXY                       |
@@ -730,13 +904,49 @@ public String getScriptLoggedOutIndicator() {
 			}
 			
 			/* ======================================================= 
+			 * |                ZAP FILE PATH SEPARATOR                       |
+			 * ======================================================= 
+			 */
+			
+			String zapHomeDirectory= zapClientAPI.getZapHomeDirectory();
+			listener.getLogger().println("zapHomeDirectory : "+zapHomeDirectory);
+			if(zapHomeDirectory.startsWith("/")){				
+				this.setFILE_SEPARATOR("/");				
+			}			
+			else
+			{
+				this.setFILE_SEPARATOR("\\");
+			}
+			
+			
+			/* ======================================================= 
+			 * |                  AUTHENTICATION SCRIPTS LIST                       |
+			 * ======================================================= 
+			 */
+			
+			if (loadAuthenticationsScripts){
+				
+				String scripstList=zapClientAPI.getScripts();
+				File scriptsListFile = new File(workspace.getRemote(),authenticationScriptsListFile );
+				listener.getLogger().println("/***************************** Liste des scripts d'authentification ****************************************/");
+				listener.getLogger().println(scripstList);
+				listener.getLogger().println("/***********************************************************************************************************/");
+				
+				FileUtils.writeByteArrayToFile(scriptsListFile, scripstList.getBytes());
+				listener.getLogger().println("File ["+ scriptsListFile.getAbsolutePath() +"] saved");
+			}
+			else {
+				listener.getLogger().println("Skip loading authentication Scripts List");
+			
+			/* ======================================================= 
 			 * |                  LOAD SESSION                        |
 			 * ======================================================= 
 			 */
 			if(filenameLoadSession != null && filenameLoadSession.length() != 0) {
-				File sessionFile = new File(filenameLoadSession);
-				listener.getLogger().println("Load session at ["+ sessionFile.getAbsolutePath() +"]");
-				zapClientAPI.loadSession(sessionFile.getAbsolutePath());
+				String sessionFile=zapProxyDirectory+"session"+getFILE_SEPARATOR()+workspace.getBaseName()+getFILE_SEPARATOR()+filenameSaveSession;
+				//File sessionFile = new File(filenameLoadSession);
+				listener.getLogger().println("Load session at ["+ sessionFile+"]");
+				zapClientAPI.loadSession(sessionFile);
 			} else {
 				listener.getLogger().println("Skip loadSession");
 			}
@@ -788,8 +998,11 @@ public String getScriptLoggedOutIndicator() {
 			} else {
 				listener.getLogger().println("Skip Ajax spidering the site [" + targetURL + "]");
 			}
-			
-			
+			/* ======================================================= 
+			 * |                VIEW SPIDER RESULTS                       |
+			 * ======================================================= 
+			 */
+			zapClientAPI.viewSpiderResults(scanId, listener);
 			/* ======================================================= 
 			 * |                  SCAN URL                            |
 			 * ======================================================= 
@@ -855,6 +1068,11 @@ public String getScriptLoggedOutIndicator() {
 				listener.getLogger().println("Skip Ajax spidering the site [" + targetURL + "] As User ["+userId+"]");
 			}
 			
+			/* ======================================================= 
+			 * |                VIEW SPIDER RESULTS                       |
+			 * ======================================================= 
+			 */
+			zapClientAPI.viewSpiderResults(scanId, listener);
 			
 			/* ======================================================= 
 			 * |                  SCAN URL  As USER                          |
@@ -871,7 +1089,7 @@ public String getScriptLoggedOutIndicator() {
 			break;
 			
 			}
-			/* ============================================================================================= */
+			/* ======================================= ACTIONS POST AUDIT ====================================================== */
 			
 			}
 			
@@ -882,8 +1100,8 @@ public String getScriptLoggedOutIndicator() {
 			if (saveReports) {			
 				// Generates reports for all formats selected
 				for(String format : chosenFormats) {
-					ZAPreport report = ZAPreportCollection.getInstance().getMapFormatReport().get(format);
-					saveReport(report, listener, workspace, zapClientAPI);
+					//ZAPreport report = ZAPreportCollection.getInstance().getMapFormatReport().get(format);
+					saveReport(format, listener, workspace, zapClientAPI);
 				}
 			}
 			
@@ -893,22 +1111,47 @@ public String getScriptLoggedOutIndicator() {
 			 */
 			if(saveSession) {
 				if(filenameSaveSession != null && !filenameSaveSession.isEmpty()) {
-					File sessionFile = new File(workspace.getRemote(), filenameSaveSession);
-					listener.getLogger().println("Save session to ["+ sessionFile.getAbsolutePath() +"]");
+				 
+					//File sessionFile = new File(workspace.getRemote(), filenameSaveSession);
+					//File sessionFile = new File(zapProxyDirectory+workspace.getBaseName()+"/session/", filenameSaveSession);
+					String sessionFile=zapProxyDirectory+"session"+getFILE_SEPARATOR()+workspace.getBaseName()+getFILE_SEPARATOR()+filenameSaveSession;
 					
-					// Path creation if it doesn't exist
-					if(!sessionFile.getParentFile().exists()) {
-						sessionFile.getParentFile().mkdirs();
-					}
+					//write session to file = à toi de jouer
+					
+					
+					
+					
+					
+					
+					
+					
+					//listener.getLogger().println("Save session to ["+ sessionFile.getAbsolutePath() +"]");
+					listener.getLogger().println("Save session to ["+ sessionFile +"]"); 
+//					
+//					// Path creation if it doesn't exist
+//					if(!sessionFile.getParentFile().exists()) {
+//						sessionFile.getParentFile().mkdirs();
+//					}
 					
 					// Method signature : saveSession(String apikey, String name, String overwrite)
-		 			zapClientAPI.saveSession(sessionFile.getAbsolutePath(), "true", listener);
+		 			//zapClientAPI.saveSession(sessionFile.getAbsolutePath(), "true", listener);
+					String status = zapClientAPI.saveSession(sessionFile, "true", listener);
+					
+					if (status.equals("OK")){
+						
+					//write session name to localfile sessionsListFile				
+					File file = new File(workspace.getRemote(), sessionsListFile);
+					FileUtils.writeStringToFile(file, filenameSaveSession+".session\n",true);
+					listener.getLogger().println("File ["+ file.getAbsolutePath() +"] saved");
+							
+						
+					}
 				} 
 			} else {
 				listener.getLogger().println("Skip saveSession");
 			}
 			
- 	
+			}
 		} catch (Exception e) {
 			listener.error(ExceptionUtils.getStackTrace(e));
 			buildSuccess = false;
@@ -949,10 +1192,10 @@ public String getScriptLoggedOutIndicator() {
 	 */
 	private void checkParams(AbstractBuild<?, ?> build, BuildListener listener) throws IllegalArgumentException, IOException, InterruptedException {		 
 		
-		if(targetURL == null || targetURL.isEmpty()) {
-			throw new IllegalArgumentException("targetURL is missing");
-		} else
-			listener.getLogger().println("targetURL = " + targetURL);
+//		if(targetURL == null || targetURL.isEmpty()) {
+//			throw new IllegalArgumentException("targetURL is missing");
+//		} else
+//			listener.getLogger().println("targetURL = " + targetURL);
 
 		if(zapProxyHost == null || zapProxyHost.isEmpty()) {
 			throw new IllegalArgumentException("zapProxy Host is missing");
@@ -984,14 +1227,43 @@ public String getScriptLoggedOutIndicator() {
 	 * @throws ClientApiException 
 	 * @throws IOException
 	 */
-	private void saveReport(ZAPreport reportFormat, BuildListener listener, FilePath workspace, CustomZapClientApi clientApi)   {
+	private void saveReport(String  format, BuildListener listener, FilePath workspace, CustomZapClientApi clientApi)   {
 		
-		final String fullFileName = filenameReports + "." + reportFormat.getFormat();
+		final String fullFileName = filenameReports + "." + format;
 		File reportsFile = new File(workspace.getRemote(), fullFileName);
-		//FileUtils.writeByteArrayToFile(reportsFile, reportFormat.generateReport(clientApi, zapProxyKey));
-		//listener.getLogger().println("File ["+ reportsFile.getAbsolutePath() +"] saved");
+		 
+		switch (format ) {
 		
-		clientApi.saveReport(reportsFile.getAbsolutePath(), listener);
+		case "xml" :{
+			try {
+				FileUtils.writeByteArrayToFile(reportsFile, clientApi.generateXmlReport());
+				listener.getLogger().println("File ["+ reportsFile.getAbsolutePath() +"] saved");
+				break;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClientApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}  
+			
+		}
+			
+		case "html" :{
+			try {
+				FileUtils.writeByteArrayToFile(reportsFile, clientApi.generateHtmlReport());
+				listener.getLogger().println("File ["+ reportsFile.getAbsolutePath() +"] saved");
+				break;
+			} catch (IOException | ClientApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+		}
+			
+		}
+		
 		
 		
 	}
@@ -1397,23 +1669,180 @@ public String getScriptLoggedOutIndicator() {
 			return items;
 		}
 		
+		
 		/**
-		 * List model to choose the tool used (normally, it should be the ZAProxy tool).
+		 * List model to choose authentication script
 		 * 
 		 * @return a {@link ListBoxModel}
+		 * @throws InterruptedException 
+		 * @throws IOException 
 		 */
-		public ListBoxModel doFillToolUsedItems() {
+public ListBoxModel doFillScriptNameItems() throws IOException, InterruptedException {
+			
 			ListBoxModel items = new ListBoxModel();
-			for(ToolDescriptor<?> desc : ToolInstallation.all()) {
-				for (ToolInstallation tool : desc.getInstallations()) {
-					items.add(tool.getName());
+			 
+			//hudson.FilePath workspace = hudson.model.Executor.currentExecutor().getCurrentWorkspace();
+			// No workspace before the first build, so workspace is null
+			if(workspace != null) {
+				Collection<String> sessionsInString = workspace.act(new FileCallable<Collection<String>>() {
+					private static final long serialVersionUID = 1328740269013881941L;
+	
+					public Collection<String> invoke(File f, VirtualChannel channel) throws IOException {
+						
+						// List all files with FILE_SESSION_EXTENSION on the machine where the workspace is located
+						Collection<File> colFiles = FileUtils.listFiles(f,
+								FileFilterUtils.suffixFileFilter(FILE_SCRIPTS_EXTENSION),
+								TrueFileFilter.INSTANCE);
+						
+						Collection<String> colString = new ArrayList<String>();
+						
+						// "Transform" File into String
+						for (File file : colFiles) {
+							for (String line : FileUtils.readLines(file)) {
+							colString.add(line);
+							//colString.add(file.getAbsolutePath());
+							// The following line is to remove the full path to the workspace,
+							// keep just the relative path to the session
+							//colString.add(file.getAbsolutePath().replace(workspace.getRemote() + File.separatorChar, ""));
+						
+							}
+							}
+						return colString;
+					}
+	
+					@Override
+					public void checkRoles(RoleChecker checker) throws SecurityException {
+						// Nothing to do
+					}
+				});
+			
+				// To not load a session, add a blank choice
+				items.add("Merci de choisir un script d'authentification adapté");
+				for (String s : sessionsInString) {
+					items.add(s);
 				}
+				
 			}
+			
+			else {
+				
+				items.add("workspace is null : lancer le build pour récupérre la liste des scripts d'authentification");
+				 
+			}
+			
+			
 			return items;
+//	ListBoxModel m=new ListBoxModel();
+//	m.add("Merci de choisir un script d'authentification","");
+//	//hudson.FilePath workspace = hudson.model.Executor.currentExecutor().getCurrentWorkspace();
+////	  Collection<String> allJobs=Hudson.getInstance().getNodeName();
+////	  for (  String job : allJobs) {
+////	    m.add(job);
+////	  }
+//	  
+//
+//	  m.add( "Jenkins workspace :"+Jenkins.getInstance().getRawWorkspaceDir());
+//	  m.add( "Jenkins rootDir :"+Jenkins.getInstance().getRootDir().getAbsolutePath());
+//	  m.add( "Jenkins workspace :"+Jenkins.getInstance().getRootPath().getBaseName());
+//	  return m;
+			
 		}
 		
+		/**
+		 * List model to choose the ZAP session to use. It's called on the remote machine (if present)
+		 * to load all session files in the build's workspace.
+		 * 
+		 * @return a {@link ListBoxModel}. It can be empty if the workspace doesn't contain any ZAP sessions.
+		 * @throws InterruptedException 
+		 * @throws IOException 
+		 */
+		public ListBoxModel doFillFilenameLoadSessionItems() throws IOException, InterruptedException {
+			ListBoxModel items = new ListBoxModel();
+			
+			// No workspace before the first build, so workspace is null
+			if(workspace != null) {
+				Collection<String> sessionsInString = workspace.act(new FileCallable<Collection<String>>() {
+					private static final long serialVersionUID = 1328740269013881941L;
+	
+					public Collection<String> invoke(File f, VirtualChannel channel) throws IOException {
+						
+						// List all files with FILE_SESSION_EXTENSION on the machine where the workspace is located
+						Collection<File> colFiles = FileUtils.listFiles(f,
+								FileFilterUtils.suffixFileFilter(FILE_SESSION_EXTENSION),
+								TrueFileFilter.INSTANCE);
+						
+						Collection<String> colString = new ArrayList<String>();
+						
+						for (File file : colFiles) {
+							for (String line : FileUtils.readLines(file)) {
+							if(!colString.contains(line)){	
+								colString.add(line);
+							}
+							//colString.add(file.getAbsolutePath());
+							// The following line is to remove the full path to the workspace,
+							// keep just the relative path to the session
+							//colString.add(file.getAbsolutePath().replace(workspace.getRemote() + File.separatorChar, ""));
+						
+							}
+							}
+						return colString;
+					}
+						
+						
+						
+						
+						
+//						
+//						// "Transform" File into String
+//						for (File file : colFiles) {
+//							colString.add(file.getAbsolutePath());
+//							// The following line is to remove the full path to the workspace,
+//							// keep just the relative path to the session
+//							//colString.add(file.getAbsolutePath().replace(workspace.getRemote() + File.separatorChar, ""));
+//						}
+//						return colString;
+//					}
+	
+					@Override
+					public void checkRoles(RoleChecker checker) throws SecurityException {
+						// Nothing to do
+					}
+				});
+			
+				items.add(""); // To not load a session, add a blank choice
+				
+				for (String s : sessionsInString) {
+					items.add(s);
+				}
+			}
+			else {
+				
+				items.add("workspace is null");
+			}
+			
+			return items;
+		}
+	
+		
+//		/**
+//		 * List model to choose the tool used (normally, it should be the ZAProxy tool).
+//		 * 
+//		 * @return a {@link ListBoxModel}
+//		 */
+//		public ListBoxModel doFillToolUsedItems() {
+//			ListBoxModel items = new ListBoxModel();
+//			for(ToolDescriptor<?> desc : ToolInstallation.all()) {
+//				for (ToolInstallation tool : desc.getInstallations()) {
+//					items.add(tool.getName());
+//				}
+//			}
+//			return items;
+//		}
+//		
  
 	}
+
+
 
 
 	

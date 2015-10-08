@@ -41,6 +41,22 @@ public class CustomZapApi {
 	 
 	
 	/**************************************** Methodes utilitaires ********************/
+	/****************** LIST SCRIPTS ****************************/
+	/**
+	 * Lists the scripts available, with its engine, name, description, type and error state.
+	 */
+	public ApiResponse listScripts() throws ClientApiException {
+		Map<String, String> map = null;
+		return callApi("script", "view", "listScripts", map);
+	}
+	
+	
+	/************************* HOME DIRECTORY *******************************************/
+	
+	public ApiResponse homeDirectory() throws ClientApiException {
+		Map<String, String> map = null;
+		return callApi("core", "view", "homeDirectory", map);
+	}
 	
 	
 	/************************* Authentification ******************************/
@@ -597,6 +613,9 @@ public class CustomZapApi {
 		return callApi("core", "view", "numberOfMessages", map);
 	}
 	
+	/**
+	 * Generates a report in XML format
+	 */
 	public byte[] xmlreport(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -604,6 +623,18 @@ public class CustomZapApi {
 			map.put("apikey", apikey);
 		}
 		return callApiOther("core", "other", "xmlreport", map);
+	}
+	
+	/**
+	 * Generates a report in HTML format
+	 */
+	public byte[] htmlreport(String apikey) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		return callApiOther("core", "other", "htmlreport", map);
 	}
 	
 	private  byte[] callApiOther (String component, String type, String method,

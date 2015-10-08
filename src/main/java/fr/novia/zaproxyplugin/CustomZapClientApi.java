@@ -98,12 +98,50 @@ public class CustomZapClientApi {
 	
 	
 	
+	/**************************** SCRIPTS VIEW  ***********************************************************/
+	public String getScripts(){
+		
+		
+		
+ 
+			ApiResponseList configParamsList;
+			StringBuilder sb = null; 
+			try {
+				configParamsList = (ApiResponseList) api.listScripts();
+				sb=new StringBuilder(); 	
+				for (ApiResponse r : configParamsList.getItems()) {
+					ApiResponseSet set = (ApiResponseSet) r;
+					sb.append(set.getAttribute("name")+"\n") ;
+					 
+				}
+				
+				
+			} catch (ClientApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		return sb.toString();
+	}
 	
 	
+	/**************************** HOME DIRECTORY   ***********************************************************/
 	
-	
-	
-	
+	public String getZapHomeDirectory(){
+		
+		ApiResponseElement  set = null;
+		try {
+			set = (ApiResponseElement ) api.homeDirectory();
+			
+			
+			
+			
+		} catch (ClientApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return set.getValue();      
+	}
 	/**************************** CONTEXT CONFIG ***********************************************************/
 	
 	public String getContextId( String contextname, BuildListener listener){
@@ -592,10 +630,18 @@ public String  setUserFormAuthConfig(String contextId, String user,  String user
 public void includeInContext(String url, String contextname, BuildListener listener ){
 		//String contextname=PropertyLoader.getValueFromKey("CONTEXTNAME", "", authenticationProperties);
 		try {
+			 String [] urls = url.split("\n");
+			 listener.getLogger().println("URLS : "+urls.toString());
 			 
-			ApiResponse status=api.includeInContext(zapProxyKey, contextname, url);
-			//System.out.println(((ApiResponseElement) status).getValue());
-			listener.getLogger().println(((ApiResponseElement) status).getValue());
+			 for (int i=0; i< urls.length; i++){
+				 urls[i]=urls[i].trim();
+				 if (!urls[i].isEmpty()){
+				 ApiResponse status=api.includeInContext(zapProxyKey, contextname, urls[i]);
+				//System.out.println(((ApiResponseElement) status).getValue());
+				 listener.getLogger().println(((ApiResponseElement) status).getValue());
+				 }
+			 
+			 }
 			
 			
 			
@@ -634,10 +680,22 @@ public void includeInContext(String url, String contextname, BuildListener liste
 public void excludeFromContext(String url, String contextname, BuildListener listener){
 		//String contextname=PropertyLoader.getValueFromKey("CONTEXTNAME", "", authenticationProperties);
 		try {
+			
+			
+			String [] urls = url.split("\n");
+			 listener.getLogger().println("URLS : "+urls.toString());
 			 
-			ApiResponse status=api.excludeFromContext(zapProxyKey, contextname, url);
-			//System.out.println(((ApiResponseElement) status).getValue());
-			listener.getLogger().println(((ApiResponseElement) status).getValue());
+			 for (int i=0; i< urls.length; i++){
+				 urls[i]=urls[i].trim();
+				 if (!urls[i].isEmpty()){
+				 ApiResponse status=api.excludeFromContext(zapProxyKey, contextname, urls[i]);
+				 //System.out.println(((ApiResponseElement) status).getValue());
+				 listener.getLogger().println(((ApiResponseElement) status).getValue());
+				 }
+			 
+			 }
+			 
+			
 			
 			
 			
@@ -716,20 +774,20 @@ public ApiResponse loadSession(String name)  {
 }
 
 
-public void saveSession( String name, String overwrite, BuildListener listener )   {
+public String saveSession( String name, String overwrite, BuildListener listener )   {
 	
 	
 	try {
-		ApiResponse status = api.saveSession("+apikey+", name, overwrite);
+		ApiResponse status = api.saveSession(zapProxyKey, name, overwrite);
 		listener.getLogger().println(((ApiResponseElement) status).getValue());
 		
-		
+		return ((ApiResponseElement) status).getValue();
 		
 	} catch (ClientApiException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
- 
+  return "KO";
 }
 /**************************************************************************/
 
@@ -1099,12 +1157,15 @@ public void viewSpiderResults(String scanId, BuildListener listener ){
 		 try {
 			 ApiResponseList results = (ApiResponseList) api.results( scanId);
 			 
+			 listener.getLogger().println("------------------- DEBUT : RESULTATS DU SPIDERING ------------------- ");
 	
 						for (ApiResponse r : results.getItems()) {
 							
 							//System.out.println(((ApiResponseElement) r).getValue());
 							listener.getLogger().println(((ApiResponseElement) r).getValue());
-						}			
+						}	
+			  listener.getLogger().println("------------------- FIN : RESULTATS DU SPIDERING ------------------- ");
+
 			
 		} catch (ClientApiException e) {
 			
@@ -1219,7 +1280,19 @@ public void scanURLAsUser(String url, String scanid, String contextid,String use
 
 
 /*******************************************************************************************************************************/
+/**
+ * Generates a report in XML format
+ */
+public byte[] generateXmlReport() throws ClientApiException {
+	 return api.xmlreport(zapProxyKey);
+}
 
+/**
+ * Generates a report in HTML format
+ */
+public byte[] generateHtmlReport() throws ClientApiException {
+	return api.htmlreport(zapProxyKey);
+}
 
 /*************************************************** Reporting ******************************************************************/
 public void saveReport(String xmlReportPath, BuildListener listener) {
