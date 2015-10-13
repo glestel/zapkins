@@ -58,6 +58,29 @@ SOFTWARE.
 			<f:textbox default="${descriptor.zapProxyDefaultApiKey}" clazz="required" />
 		</f:entry>
 		
+		<f:optionalBlock title="${%Démarrer ZAP à distance}" field="startZAPFirst" inline="true" >
+		
+		<f:entry>
+		<table width="100%">
+		
+			<f:entry title="${%Numéro de port SSH du serveur ZAP}" field="zapSSHPort"
+			description="Le port par défaut est : ${descriptor.zapDefaultSSHPort} (${%Configuré dans l'interface d'administration de Jenkins})">
+				<f:number default="${descriptor.zapDefaultSSHPort}" clazz="required positive-number" />
+			</f:entry>
+			
+			<f:entry title="${%Nom d'utilisateur SSH}" field="zapSSHUser"
+			description="Le nom d'utilisateur par défaut est : ${descriptor.zapDefaultSSHUser} (${%Configuré dans l'interface d'administration de Jenkins})">
+			<f:textbox clazz="required" default="${descriptor.zapDefaultSSHUser}" />
+			</f:entry>
+			
+			<f:entry title="${%Mot de passe d'utilisateur SSH}" field="zapSSHPassword"
+			description="(${%Configuré dans l'interface d'administration de Jenkins})">
+			<f:password clazz="required" default="${descriptor.zapDefaultSSHPassword}" />
+			</f:entry>
+		</table>
+		</f:entry>	
+	
+		</f:optionalBlock>	
 			
 		<f:optionalBlock title="${%Utiliser un serveur proxy web}" field="useWebProxy" inline="true" >
 		<f:entry>

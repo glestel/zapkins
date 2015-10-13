@@ -723,7 +723,7 @@ public void enableUser(String contextid, String userid, BuildListener listener){
 
 
 //a voir comment l'implementer
-public  void setWebProxyDetails(String webProxyHost, int webProxyPort, String webProxyUser, String webProxyPassword) {
+public  static void setWebProxyDetails(String webProxyHost, int webProxyPort, String webProxyUser, String webProxyPassword) {
 
 	System.setProperty("http.proxyHost", webProxyHost);
 	System.setProperty("http.proxyPort", String.valueOf(webProxyPort));

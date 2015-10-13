@@ -130,6 +130,8 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	
 	/** Use a web Proxy or not by ZAProxy */
 	private boolean useWebProxy;
+	 
+	
 	/** proxyWeb */
 	private String webProxyHost;
 	/** proxyWeb */
@@ -138,6 +140,25 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	private  String webProxyUser;
 	/** proxyWeb */
 	private String webProxyPassword;	
+	
+	
+	/** Use SSH connection **/
+
+	/** SSH PORT  configured when ZAProxy is used as proxy */
+	private int zapSSHPort;
+	
+
+	/** SSH USER configured when ZAProxy is used as proxy */
+	private String  zapSSHUser;
+	
+	
+	/** SSH PASSWORD configured when ZAProxy is used as proxy */
+	private String  zapSSHPassword;
+	
+	
+	
+	
+	
 
 	
 	
@@ -148,7 +169,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	private final String targetURL;
 	
 	/** Realize a url spider or not by ZAProxy */
-	private final boolean spiderURL;
+	private boolean spiderURL;
 
 	/** Realize a url AjaxSpider or not by ZAProxy */
 	private final boolean ajaxSpiderURL;
@@ -262,7 +283,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		
 	//ce constructeur est ajoute par moi meme
 	@DataBoundConstructor
-	public ZAProxy(Boolean loadAuthenticationsScripts,String scanMode,String authenticationMode, String zapProxyHost, int zapProxyPort, String zapProxyKey,boolean useWebProxy, String webProxyHost, int webProxyPort,
+	public ZAProxy(Boolean loadAuthenticationsScripts,String scanMode,String authenticationMode, String zapProxyHost, int zapProxyPort, String zapProxyKey,   int zapSSHPort, String  zapSSHUser,String  zapSSHPassword,boolean useWebProxy, String webProxyHost, int webProxyPort,
 			String webProxyUser, String webProxyPassword, String filenameLoadSession, String targetURL,
 			boolean spiderURL, boolean ajaxSpiderURL, boolean scanURL, boolean spiderAsUser, String scriptName,
 			String loginUrl, String contextName, String includedUrl, String excludedUrl, String formLoggedInIndicator,
@@ -276,11 +297,19 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		this.loadAuthenticationsScripts=loadAuthenticationsScripts;
 		this.scanMode=scanMode;
 		this.authenticationMode=authenticationMode;
+		
 		this.zapProxyHost = zapProxyHost;
 		this.zapProxyPort = zapProxyPort;
 		this.zapProxyKey = zapProxyKey;
 		
+ 
+		
+		this.zapSSHPort=zapSSHPort;
+		this.zapSSHUser=zapSSHUser;
+		this.zapSSHPassword=zapSSHPassword;
+		
 		this.useWebProxy=useWebProxy;
+		
 		this.webProxyHost = webProxyHost;
 		this.webProxyPort = webProxyPort;
 		this.webProxyUser = webProxyUser;
@@ -672,6 +701,48 @@ public String getScriptLoggedOutIndicator() {
 	}
 	
 	/**
+	 * @return the zapSSHPort
+	 */
+	public int getZapSSHPort() {
+		return zapSSHPort;
+	}
+
+	/**
+	 * @return the zapSSHUser
+	 */
+	public String getZapSSHUser() {
+		return zapSSHUser;
+	}
+
+	/**
+	 * @return the zapSSHPassword
+	 */
+	public String getZapSSHPassword() {
+		return zapSSHPassword;
+	}
+
+	/**
+	 * @param zapSSHPort the zapSSHPort to set
+	 */
+	public void setZapSSHPort(int zapSSHPort) {
+		this.zapSSHPort = zapSSHPort;
+	}
+
+	/**
+	 * @param zapSSHUser the zapSSHUser to set
+	 */
+	public void setZapSSHUser(String zapSSHUser) {
+		this.zapSSHUser = zapSSHUser;
+	}
+
+	/**
+	 * @param zapSSHPassword the zapSSHPassword to set
+	 */
+	public void setZapSSHPassword(String zapSSHPassword) {
+		this.zapSSHPassword = zapSSHPassword;
+	}
+
+	/**
 	 * @param fILE_SEPARATOR the fILE_SEPARATOR to set
 	 */
 	public void setFILE_SEPARATOR(String fILE_SEPARATOR) {
@@ -891,12 +962,38 @@ public String getScriptLoggedOutIndicator() {
  
 		try {
 			
-			
+//			/* ======================================================= 
+//			 * |                 start ZAP                       |
+//			 * ======================================================= 
+//			 */
+//			if(startZAP){
+//				
+//				 
+//				listener.getLogger().println("Starting ZAP remotely (SSH)");
+//				listener.getLogger().println("SSH PORT : "+this.getZapSSHPort());
+//				listener.getLogger().println("SSH USER : "+this.getZapSSHUser());
+//			}
+//			else {
+//				listener.getLogger().println("Skip starting ZAP remotely");
+//				listener.getLogger().println("startZAP : "+startZAPFirst);
+//			}
+//			if(startZAPFirst){
+//				
+//			 
+//				listener.getLogger().println("Starting ZAP remotely (SSH)");
+//				listener.getLogger().println("SSH PORT : "+this.getZapSSHPort());
+//				listener.getLogger().println("SSH USER : "+this.getZapSSHUser());
+//			}
+//			else {
+//				listener.getLogger().println("Skip starting ZAP remotely");
+//				listener.getLogger().println("startZAPFirst : "+startZAPFirst);
+//			}
 			/* ======================================================= 
 			 * |                 USE WEB PROXY                       |
 			 * ======================================================= 
 			 */
 			if(useWebProxy){
+
 				zapClientAPI.setWebProxyDetails(webProxyHost, webProxyPort, webProxyUser, webProxyPassword);
 			}
 			else {
@@ -1156,14 +1253,13 @@ public String getScriptLoggedOutIndicator() {
 			listener.error(ExceptionUtils.getStackTrace(e));
 			buildSuccess = false;
 		} 
-//		finally {
-//			try {
-//				stopZAP(zapClientAPI, listener);
-//			} catch (ClientApiException e) {
-//				listener.error(ExceptionUtils.getStackTrace(e));
-//				buildSuccess = false;
-//			}
-//		}
+		finally {
+		
+				stopZAP(zapClientAPI, listener);
+		
+				buildSuccess = false;
+			
+		}
 		return buildSuccess;
 	}
 	
@@ -1181,6 +1277,16 @@ public String getScriptLoggedOutIndicator() {
     public String isAuthenticationMode(String testTypeName) {
         return this.authenticationMode.equalsIgnoreCase(testTypeName) ? "true" : "";
     }
+ 
+ 
+
+	/**
+	 * @param spiderURL the spiderURL to set
+	 */
+	public void setSpiderURL(boolean spiderURL) {
+		this.spiderURL = spiderURL;
+	}
+
 	/**
 	 * Verify parameters of the build setup are correct (null, empty, negative ...)
 	 * 

@@ -11,6 +11,8 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 
+import hudson.model.BuildListener;
+
 public class SSHConnexion {
 	
 	public SSHConnexion(){
@@ -18,7 +20,7 @@ public class SSHConnexion {
 	}
 	
 	
-public static boolean startZAPDaemon(String HOST, int PORT, String USER, String PASSWORD , String ZAPPATH, JTextArea textAreaLogs){
+public static boolean startZAPDaemon(String HOST, int PORT, String USER, String PASSWORD , String ZAPPATH, BuildListener listener){
     	
     	JSch jsch = new JSch();
 		try {
@@ -66,7 +68,7 @@ public static boolean startZAPDaemon(String HOST, int PORT, String USER, String 
 						if (i < 0)
 							break;
 						System.out.print(new String(tmp, 0, i));
-						textAreaLogs.append(new String(tmp, 0, i));
+						//listener.getLogger().println(new String(tmp, 0, i));
 						 
 					}
 					
@@ -77,8 +79,8 @@ public static boolean startZAPDaemon(String HOST, int PORT, String USER, String 
 							continue;
 						System.out.println("exit-status: " + channel.getExitStatus());
 						System.out.println("Chanel closed");
-						textAreaLogs.append("exit-status: " + channel.getExitStatus());
-						textAreaLogs.append("Chanel closed");
+						listener.getLogger().println("exit-status: " + channel.getExitStatus());
+						listener.getLogger().println("Chanel closed");
 						break;
 					}
 					
@@ -90,6 +92,7 @@ public static boolean startZAPDaemon(String HOST, int PORT, String USER, String 
 			}
 			
 			System.out.println("exit-status: " + channel.getExitStatus());
+			listener.getLogger().println("exit-status: " + channel.getExitStatus());
 			channel.disconnect();
 			session.disconnect();
 			return true ;
@@ -117,7 +120,7 @@ catch (IOException e) {
     	
     }
 
-public static boolean execCommand(String HOST, int PORT, String USER, String PASSWORD , String command,JTextArea textAreaLogs){
+public static boolean execCommand(String HOST, int PORT, String USER, String PASSWORD , String command,BuildListener listener){
 	
 	JSch jsch = new JSch();
 	try {
@@ -150,14 +153,15 @@ public static boolean execCommand(String HOST, int PORT, String USER, String PAS
 				if (i < 0)
 					break;
 				System.out.print(new String(tmp, 0, i));
-				textAreaLogs.append(new String(tmp, 0, i));
+				//listener.getLogger().println(new String(tmp, 0, i));
 				System.out.println("exit-status: " + channel.getExitStatus());
+				//listener.getLogger().println("exit-status: " + channel.getExitStatus());
 			}
 			if (channel.isClosed()) {
 				if (in.available() > 0)
 					continue;
 				System.out.println("exit-status: " + channel.getExitStatus());
-				textAreaLogs.append("exit-status: " + channel.getExitStatus());
+				listener.getLogger().println("exit-status: " + channel.getExitStatus());
 				break;
 			}
 			try {
@@ -167,6 +171,7 @@ public static boolean execCommand(String HOST, int PORT, String USER, String PAS
 		}
 		
 		System.out.println("exit-status: " + channel.getExitStatus());
+		listener.getLogger().println("exit-status: " + channel.getExitStatus());
 		channel.disconnect();
 		session.disconnect();
 

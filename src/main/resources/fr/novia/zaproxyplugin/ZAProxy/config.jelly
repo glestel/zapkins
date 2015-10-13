@@ -40,6 +40,8 @@ SOFTWARE.
 			<f:select />
 </f:entry> 
 <f:optionalBlock title="${%Charger la liste des scripts d'authentification}" field="loadAuthenticationsScripts" inline="true" />
+
+ 
 <!-- Configuration du contexte -->
 <f:section title="${%Configuration du contexte}">
 		<f:entry title="${%Nom du contexte}" field="contextName">

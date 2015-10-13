@@ -36,7 +36,7 @@ SOFTWARE.
 	tags they use. Views are always organized according to its owner class,
 	so it should be straightforward to find them.
 	-->
-	<f:section title="ZAProxy">
+	<f:section title="Information de connexion au serveur ZAProxy">
 		<f:entry title="${%Adresse par défaut du serveur ZAP}" field="zapProxyDefaultHost">
 			<f:textbox default="10.107.2.102" clazz="required" />
 		</f:entry>
@@ -52,6 +52,18 @@ SOFTWARE.
 		<f:entry title="${%Répertoire d'installation du serveur ZAP}" field="zapDefaultDirectory">
 			<f:textbox default="/opt/ZAP_2.4.2/" clazz="required" />
 		</f:entry>
+	</f:section>	
+	<f:section title="Configuration SSH du serveur ZAProxy">
+		<f:entry title="${%Port SSH par défaut du serveur ZAP}" field="zapDefaultSSHPort">
+			<f:number default="22" clazz="positive-number" />
+		</f:entry>
+		<f:entry title="${%Utilisateur SSH du serveur ZAP}" field="zapDefaultSSHUser">
+			<f:textbox default="user"   />
+		</f:entry>
+		<f:entry title="${%Mot de passe de l'utilisateur SSH du serveur ZAP}" field="zapDefaultSSHPassword">
+			<f:textbox default="password"  />
+		</f:entry>
 		
 	</f:section>
 </j:jelly>
+	
