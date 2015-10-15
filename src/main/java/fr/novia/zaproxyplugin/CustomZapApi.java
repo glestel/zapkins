@@ -28,7 +28,7 @@ public class CustomZapApi {
 	
 	public  String zapProxyHost="";
 	public  String zapProxyPort="";
-	public BuildListener listener;
+	private  BuildListener listener;
 	
 	public CustomZapApi(String zapProxyHost, String zapProxyPort, BuildListener listener) {
 		super();
@@ -40,6 +40,17 @@ public class CustomZapApi {
 	
 	 
 	
+	public CustomZapApi(String zapProxyHost, String zapProxyPort) {
+		// TODO Auto-generated constructor stub
+		super();
+		this.zapProxyHost = zapProxyHost;
+		this.zapProxyPort = zapProxyPort;
+		this.listener= listener;
+	}
+
+
+
+
 	/**************************************** Methodes utilitaires ********************/
 	/****************** LIST SCRIPTS ****************************/
 	/**
@@ -51,6 +62,26 @@ public class CustomZapApi {
 	}
 	
 	
+	/**
+	 * @return the listener
+	 */
+	public BuildListener getListener() {
+		return listener;
+	}
+
+
+
+
+	/**
+	 * @param listener the listener to set
+	 */
+	public void setListener(BuildListener listener) {
+		this.listener = listener;
+	}
+
+
+
+
 	/************************* HOME DIRECTORY *******************************************/
 	
 	public ApiResponse homeDirectory() throws ClientApiException {

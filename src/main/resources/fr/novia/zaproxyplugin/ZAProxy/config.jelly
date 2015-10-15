@@ -29,7 +29,7 @@ SOFTWARE.
 
 	See global.jelly for a general discussion about jelly script.
 	-->
-	
+
 <!-- la partie du code ci-dessous m'a fait tourné la tête, elle permet d'assigner une variable (workspace) avec une valeur à partir du viewer, faire attention --> ne pas oublier cette partie pour charger la session et la liste des scripts d'authentification -->
 <j:invoke on="${descriptor}" method="setWorkspace" >
 			<j:arg type="hudson.FilePath" value="${it.someWorkspace}"/>

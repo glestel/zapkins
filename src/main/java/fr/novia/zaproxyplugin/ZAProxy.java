@@ -1255,9 +1255,9 @@ public String getScriptLoggedOutIndicator() {
 		} 
 		finally {
 		
-				stopZAP(zapClientAPI, listener);
+				//stopZAP(zapClientAPI, listener);
 		
-				buildSuccess = false;
+				buildSuccess = true;
 			
 		}
 		return buildSuccess;

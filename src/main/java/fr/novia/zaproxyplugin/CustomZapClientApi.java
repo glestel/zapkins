@@ -33,6 +33,8 @@ public class CustomZapClientApi {
 	private  String zapProxyKey =""; 
 	private CustomZapApi api;
 	
+	private BuildListener listener ;
+	
 
  
 	
@@ -63,6 +65,17 @@ public class CustomZapClientApi {
 	
 	
 	
+	public CustomZapClientApi(String zapProxyHost, int zapProxyPort, String zapProxyKey) {
+		// TODO Auto-generated constructor stub
+		super();
+		
+
+		this.zapProxyKey =zapProxyKey;
+	
+		this.api = new CustomZapApi(zapProxyHost,String.valueOf(zapProxyPort));
+	}
+
+
 	/***************************** USER CONFIG *************************************************************/
 	
 	public void listUserConfigInformation(String contextId, BuildListener listener)  {
@@ -125,6 +138,23 @@ public class CustomZapClientApi {
 	}
 	
 	
+	/**
+	 * @return the listener
+	 */
+	public BuildListener getListener() {
+		return listener;
+	}
+
+
+	/**
+	 * @param listener the listener to set
+	 */
+	public void setListener(BuildListener listener) {
+		this.listener = listener;
+		this.api.setListener(listener);
+	}
+
+
 	/**************************** HOME DIRECTORY   ***********************************************************/
 	
 	public String getZapHomeDirectory(){
