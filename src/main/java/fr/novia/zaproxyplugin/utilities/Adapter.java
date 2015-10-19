@@ -2,6 +2,7 @@ package fr.novia.zaproxyplugin.utilities;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -12,12 +13,12 @@ import java.util.regex.Matcher;
 
 
 
-public class Adapter {
-	
-	
-	
-	
-	
+public class Adapter implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -231406734218154467L;
+
 	public static void adaptTemplate(String birtTemplatePath, String zapReportPath) throws IOException{
 		 
 		//Adapt the path to the zap xml report

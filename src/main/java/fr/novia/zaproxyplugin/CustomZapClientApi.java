@@ -3,6 +3,7 @@ package fr.novia.zaproxyplugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.Authenticator;
 import java.net.URLEncoder;
@@ -25,11 +26,16 @@ import hudson.model.BuildListener;
 import org.zaproxy.clientapi.core.ApiResponseList; 
 import org.zaproxy.clientapi.core.ApiResponseSet;
 
-public class CustomZapClientApi {
+public class CustomZapClientApi implements Serializable {
+
 
 
 	 
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3961600153488729709L;
 	private  String zapProxyKey =""; 
 	private CustomZapApi api;
 	
@@ -774,6 +780,17 @@ public ApiResponse setPolicyAttackStrength( String id, String attackstrength, St
 	return null;
 }
 
+public ApiResponse setScannerAttackStrength( String id, String attackstrength, String scanpolicyname)  {
+	
+	try {
+		return api.setScannerAttackStrength(zapProxyKey, id, attackstrength, scanpolicyname);
+	} catch (ClientApiException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	 
+	return null;
+}
 
 public ApiResponse setPolicyAlertThreshold( String id, String attackstrength, String scanpolicyname){
 	
@@ -787,6 +804,22 @@ public ApiResponse setPolicyAlertThreshold( String id, String attackstrength, St
 	 
 	return null;
 }
+
+public ApiResponse setScannerAlertThreshold( String id, String attackstrength, String scanpolicyname){
+	
+	
+	try {
+		api.setScannerAlertThreshold(zapProxyKey, id, attackstrength, scanpolicyname);
+	} catch (ClientApiException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	 
+	return null;
+}
+
+
+
 /**************************** SESSION *******************************/
 /**
  * Loads the session with the given name. If a relative path is specified it will be resolved against the "session" directory in ZAP "home" dir.
@@ -1413,7 +1446,7 @@ public void setForcedUserModeEnabled( boolean bool, BuildListener listener)  {
 
 /*******************************************************************************************************************************/
 	
-	public void enableAllScanner(String scanpolicyname, BuildListener listener ){
+	public void enableAllScanners(String scanpolicyname, BuildListener listener ){
 		//String scanpolicyname=PropertyLoader.getValueFromKey("SCANPOLICYNAME", "", authenticationProperties);
 		try {
 			ApiResponse status= api.enableAllScanners(zapProxyKey, scanpolicyname);
@@ -1428,6 +1461,79 @@ public void setForcedUserModeEnabled( boolean bool, BuildListener listener)  {
 		}
 		
 	}
+	
+	
+	public void disableAllScanners(String scanpolicyname, BuildListener listener)  {
+		
+		try {
+			ApiResponse status= api.disableAllScanners(zapProxyKey, scanpolicyname);
+			
+			//System.out.println(((ApiResponseElement) status).getValue());
+			listener.getLogger().println(((ApiResponseElement) status).getValue());
+			
+			
+		} catch (ClientApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	 
+	}
+	
+	
+	
+	public void  enableScanners(String ids, BuildListener listener)  {
+		
+		
+		try {
+			ApiResponse status= api.enableScanners(zapProxyKey, ids);
+			
+			//System.out.println(((ApiResponseElement) status).getValue());
+			listener.getLogger().println(((ApiResponseElement) status).getValue());
+			
+			
+		} catch (ClientApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	 
+	}
+
+	public void  disableScanners(  String ids, BuildListener listener)  {
+		
+		try {
+			ApiResponse status= api.disableScanners(zapProxyKey, ids);
+			
+			//System.out.println(((ApiResponseElement) status).getValue());
+			listener.getLogger().println(((ApiResponseElement) status).getValue());
+			
+			
+		} catch (ClientApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	 
+	}
+	
+	public void  setEnabledPolicies( String ids, BuildListener listener)   {
+		
+		try {
+			ApiResponse status= api.setEnabledPolicies(zapProxyKey, ids);
+			
+			//System.out.println(((ApiResponseElement) status).getValue());
+			listener.getLogger().println(((ApiResponseElement) status).getValue());
+			
+			
+		} catch (ClientApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+ 
+	}
+	
+	
 	
 	public void PassiveScanEnableAllScanner( BuildListener listener){
 		

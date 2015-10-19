@@ -2,6 +2,7 @@ package fr.novia.zaproxyplugin.utilities;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 
 import javax.swing.JTextArea;
 
@@ -13,8 +14,14 @@ import com.jcraft.jsch.Session;
 
 import hudson.model.BuildListener;
 
-public class SSHConnexion {
+public class SSHConnexion implements Serializable {
 	
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1718331299868798947L;
+
 	public SSHConnexion(){
 		
 	}

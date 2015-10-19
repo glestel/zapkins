@@ -35,41 +35,57 @@ import java.util.Map;
  * @author ludovic.roucoux
  *
  */
-public class ZAPreportCollection implements Serializable {
+public class ZAPscannersCollection implements Serializable {
+
 
 	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -8822284199004356478L;
+	private static final long serialVersionUID = 1335367990441760922L;
 
-	private static ZAPreportCollection uniqueInstance = new ZAPreportCollection();
+	private static ZAPscannersCollection uniqueInstance = new ZAPscannersCollection();
 	
 	/** Map where key is the report format represented by a String
 	 *  and value is a ZAPreport object allowing to generate a report with the corresponding format.
 	 */
-	private Map<String, ZAPreport> mapFormatReport;
+	private Map<String, String> mapScannersTypes;
 
-	private ZAPreportCollection() {
-		mapFormatReport = new HashMap<String, ZAPreport>();
-
-		// ZAPreport's creation
-		ZAPreportXML reportXML = new ZAPreportXML();
-		ZAPreportHTML reportHTML = new ZAPreportHTML();
+	private ZAPscannersCollection() {
+		mapScannersTypes = new HashMap<String, String>();
 		
-		// Add ZAPreport to the map
-		mapFormatReport.put(reportXML.getFormat(), reportXML);
-		mapFormatReport.put(reportHTML.getFormat(), reportHTML);
+		// Add SCANNERS to the map
+		mapScannersTypes.put("ALL SCANNERS", "ALL");
+		mapScannersTypes.put("Cross Site Scripting (Reflected)", "40012");
+		mapScannersTypes.put("Cross Site Scripting (Persistent)", "40014");
+		mapScannersTypes.put("Cross Site Scripting (Persistent) - Prime", "40016");
+		mapScannersTypes.put("Cross Site Scripting (Persistent) - Spider", "40017");
+		mapScannersTypes.put("SQL Injection", "40018");
+		mapScannersTypes.put("Server Side Code Injection", "90019");
+		mapScannersTypes.put(" Remote OS Command Injection Plugin", "90020");
+		mapScannersTypes.put("Directory browsing", "0");
+		mapScannersTypes.put("Path Traversal", "6");
+		mapScannersTypes.put("Remote File Inclusion", "7");
+		mapScannersTypes.put("Secure page browser cache", "10001");
+		
+		mapScannersTypes.put("External redirect", "30000");
+		mapScannersTypes.put("CRLF injection", "40003");
+		mapScannersTypes.put("Parameter tampering", "40008");
+		mapScannersTypes.put("Server side include", "40009");
+		
+		
+		
+		 
 	}
 	
-	public static ZAPreportCollection getInstance(){
+	public static ZAPscannersCollection getInstance(){
 		if(uniqueInstance == null)
-			uniqueInstance = new ZAPreportCollection();
+			uniqueInstance = new ZAPscannersCollection();
 		
 		return uniqueInstance;
 	}
 
-	public Map<String, ZAPreport> getMapFormatReport() {
-		return mapFormatReport;
+	public Map<String, String> getMapScannersTypes() {
+		return mapScannersTypes;
 	}	
 }

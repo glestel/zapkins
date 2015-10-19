@@ -29,6 +29,7 @@ package fr.novia.zaproxyplugin;
  
 import fr.novia.zaproxyplugin.report.ZAPreport;
 import fr.novia.zaproxyplugin.report.ZAPreportCollection;
+import fr.novia.zaproxyplugin.report.ZAPscannersCollection;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
@@ -50,6 +51,7 @@ import hudson.tools.ToolDescriptor;
 import hudson.tools.ToolInstallation;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import hudson.util.ListBoxModel.Option;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -96,7 +98,10 @@ import org.zaproxy.clientapi.core.ClientApiException;
  */
 public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Serializable  {
 
-	private static final long serialVersionUID = 3381268691497579059L;	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 946509532597271579L;
 	private static final String user = "ZAPR USER"; 
 	public static final String FILE_SESSION_EXTENSION = ".session";	
 	public static final String FILE_SCRIPTS_EXTENSION = ".scripts";	
@@ -108,7 +113,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 
 
 
-
+ 
 	/** the scan mode (AUTHENTICATED/NOT_AUTHENTICATED) */
 	private String scanMode;	
 	
@@ -159,8 +164,8 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	
 	
 	
-
-	
+    /** the scanner to choose to make audit **/
+	private final String scannerId;
 	
 	/** Filename to load ZAProxy session. Contains the absolute path to the session */
 	private final String filenameLoadSession;
@@ -259,6 +264,11 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	 */
 	private final ArrayList<String> chosenFormats;
 	
+	/** List of chosen scanners for audits.
+	 * ArrayList because it needs to be Serializable (whereas List is not Serializable)
+	 */
+	private final ArrayList<String> chosenScanners;
+	
 	/** Filename for ZAProxy reports. It can contain a relative path. */
 	private final String filenameReports;
 	
@@ -283,7 +293,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		
 	//ce constructeur est ajoute par moi meme
 	@DataBoundConstructor
-	public ZAProxy(Boolean loadAuthenticationsScripts,String scanMode,String authenticationMode, String zapProxyHost, int zapProxyPort, String zapProxyKey,   int zapSSHPort, String  zapSSHUser,String  zapSSHPassword,boolean useWebProxy, String webProxyHost, int webProxyPort,
+	public ZAProxy(ArrayList<String> chosenScanners, String scannerId, Boolean loadAuthenticationsScripts,String scanMode,String authenticationMode, String zapProxyHost, int zapProxyPort, String zapProxyKey,   int zapSSHPort, String  zapSSHUser,String  zapSSHPassword,boolean useWebProxy, String webProxyHost, int webProxyPort,
 			String webProxyUser, String webProxyPassword, String filenameLoadSession, String targetURL,
 			boolean spiderURL, boolean ajaxSpiderURL, boolean scanURL, boolean spiderAsUser, String scriptName,
 			String loginUrl, String contextName, String includedUrl, String excludedUrl, String formLoggedInIndicator,
@@ -293,7 +303,8 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			String contextId, String userId, String scanId) {
 		super();
 		
-		
+		this.chosenScanners=chosenScanners;
+		this.scannerId=scannerId;
 		this.loadAuthenticationsScripts=loadAuthenticationsScripts;
 		this.scanMode=scanMode;
 		this.authenticationMode=authenticationMode;
@@ -605,6 +616,13 @@ public String getScriptLoggedOutIndicator() {
 		return chosenFormats;
 	}
 
+	/**
+	 * @return the chosenScanners
+	 */
+	public ArrayList<String> getChosenScanners() {
+		return chosenScanners;
+	}
+
 	public String getFilenameReports() {
 		return filenameReports;
 	}
@@ -719,6 +737,13 @@ public String getScriptLoggedOutIndicator() {
 	 */
 	public String getZapSSHPassword() {
 		return zapSSHPassword;
+	}
+
+	/**
+	 * @return the scannerId
+	 */
+	public String getScannerId() {
+		return scannerId;
 	}
 
 	/**
@@ -994,7 +1019,7 @@ public String getScriptLoggedOutIndicator() {
 			 */
 			if(useWebProxy){
 
-				zapClientAPI.setWebProxyDetails(webProxyHost, webProxyPort, webProxyUser, webProxyPassword);
+				CustomZapClientApi.setWebProxyDetails(webProxyHost, webProxyPort, webProxyUser, webProxyPassword);
 			}
 			else {
 				listener.getLogger().println("Skip using web proxy");
@@ -1065,9 +1090,16 @@ public String getScriptLoggedOutIndicator() {
 			 /* ======================================================= 
 			  * |                 SET UP SCANNER                          |
 			  * ======================================================= 
-			  */	
-			
-				setUpScanner(zapClientAPI, listener);				
+			  */
+				setUpScanner(zapClientAPI,  listener);
+//				if(scannerId != null && scannerId.length() != 0) {
+//					setUpScanner(zapClientAPI, scannerId, listener);
+//		 
+//				} else {
+//					setUpScanner(zapClientAPI, "ALL", listener);
+//				}
+//			
+								
 				
 			
 	switch(scanMode) {
@@ -1377,18 +1409,9 @@ public String getScriptLoggedOutIndicator() {
 	
 	
  
-	private void setUpScanner(CustomZapClientApi zapClientAPI,  BuildListener listener){
+	private void setUpScanner(CustomZapClientApi zapClientAPI,   BuildListener listener){
 /************************ PREPARATION DU SCANNER **********************/
-		
-		zapClientAPI.includeInContext(includedUrl,contextName, listener);	
-				
-		if(!excludedUrl.equals("")){
-			zapClientAPI.excludeFromContext(excludedUrl,contextName, listener);
-		}
-		
-		zapClientAPI.enableAllScanner(chosenPolicy, listener );
-		
-		
+
 		/*********************************************************************/
 		zapClientAPI.setPolicyAttackStrength("0", "HIGH", chosenPolicy);
 		zapClientAPI.setPolicyAttackStrength( "1", "HIGH", chosenPolicy);
@@ -1397,11 +1420,12 @@ public String getScriptLoggedOutIndicator() {
 		zapClientAPI.setPolicyAttackStrength( "4", "HIGH", chosenPolicy);
 		
 		/*********************************************************************/
-		zapClientAPI.setPolicyAlertThreshold( "0", "HIGH", chosenPolicy);
-		zapClientAPI.setPolicyAlertThreshold( "1", "HIGH", chosenPolicy);
-		zapClientAPI.setPolicyAlertThreshold( "2", "HIGH", chosenPolicy);
-		zapClientAPI.setPolicyAlertThreshold( "3", "HIGH", chosenPolicy);
-		zapClientAPI.setPolicyAlertThreshold( "4", "HIGH", chosenPolicy);
+		//Ici on met le tous à OFF sinon les scanners seront activés malgé l'appel de la fonction disableAllScanners()
+		zapClientAPI.setPolicyAlertThreshold( "0", "OFF", chosenPolicy);
+		zapClientAPI.setPolicyAlertThreshold( "1", "OFF", chosenPolicy);
+		zapClientAPI.setPolicyAlertThreshold( "2", "OFF", chosenPolicy);
+		zapClientAPI.setPolicyAlertThreshold( "3", "OFF", chosenPolicy);
+		zapClientAPI.setPolicyAlertThreshold( "4", "OFF", chosenPolicy);
 		
 		/*********************************************************************/
 		zapClientAPI.setOptionPostForm( true);
@@ -1416,8 +1440,46 @@ public String getScriptLoggedOutIndicator() {
 		/*********************************************************************/
 		
 		
-		//test.PassiveScanDisableAllScanner();
-		zapClientAPI.PassiveScanEnableAllScanner(listener);
+	   //on active les scans passifs
+		zapClientAPI.PassiveScanEnableAllScanner(listener);	
+		
+		// Generates reports for all formats selected
+		 Map<String, String> mapScannersTypes=ZAPscannersCollection.getInstance().getMapScannersTypes();
+		 boolean allScanners=false;
+		for(String format : chosenScanners) {
+			
+			if(mapScannersTypes.get(format).equals("ALL")){
+				allScanners=true;
+			}
+ 
+		}
+		
+		
+		
+		
+		if(!allScanners){
+		//ETAPE 1 : on désactive tous les scanners
+		zapClientAPI.disableAllScanners(chosenPolicy, listener);		
+		//ETAPE 1 : on active les scans voulus	
+		String scannerIds="";
+		for(String format : chosenScanners) {
+			scannerIds=mapScannersTypes.get(format);
+			zapClientAPI.enableScanners(scannerIds, listener);
+			zapClientAPI.setScannerAlertThreshold(scannerIds, "HIGH", chosenPolicy);
+			zapClientAPI.setScannerAttackStrength(scannerIds, "HIGH", chosenPolicy);
+		}
+		
+		}
+		else{
+		zapClientAPI.enableAllScanners(chosenPolicy, listener);	
+		zapClientAPI.setPolicyAlertThreshold( "0", "HIGH", chosenPolicy);
+		zapClientAPI.setPolicyAlertThreshold( "1", "HIGH", chosenPolicy);
+		zapClientAPI.setPolicyAlertThreshold( "2", "HIGH", chosenPolicy);
+		zapClientAPI.setPolicyAlertThreshold( "3", "HIGH", chosenPolicy);
+		zapClientAPI.setPolicyAlertThreshold( "4", "HIGH", chosenPolicy);
+		}
+			
+			
 	}
 
  
@@ -1430,6 +1492,11 @@ public String getScriptLoggedOutIndicator() {
 		this.setContextId(contextId);
 		listener.getLogger().println("ContextId : "+contextId);		
 		
+		zapClientAPI.includeInContext(includedUrl,contextName, listener);	
+				
+		if(!excludedUrl.equals("")){
+			zapClientAPI.excludeFromContext(excludedUrl,contextName, listener);
+		}
 		
 	}
 	
@@ -1671,6 +1738,11 @@ public String getScriptLoggedOutIndicator() {
 		 */
 		private Map<String, ZAPreport> mapFormatReport;
 		
+		/** Map where key is the scanner type represented by a String
+		 *  and value is a string corresponding to the scanner id known by ZAP.
+		 */
+		private Map<String, String> mapScannersTypes;
+		
 		/** Represents the build's workspace */
 		private FilePath workspace;
 		
@@ -1680,6 +1752,7 @@ public String getScriptLoggedOutIndicator() {
 		 */
 		public ZAProxyDescriptorImpl() {
 			mapFormatReport = ZAPreportCollection.getInstance().getMapFormatReport();
+			mapScannersTypes=ZAPscannersCollection.getInstance().getMapScannersTypes();
 			load();
 		}
 		
@@ -1692,8 +1765,20 @@ public String getScriptLoggedOutIndicator() {
 			return mapFormatReport;
 		}
 		
+		public Map<String, String> getMapScannersTypes() {
+			return mapScannersTypes;
+		}
+		
 		public List<String> getAllFormats() {
 			return new ArrayList<String>(mapFormatReport.keySet());
+		}
+		
+		public List<String> getAllScanners() {
+			//On supprime l'élément "ALL SCANNERS" et on le remet au début.
+			ArrayList<String> tab = new ArrayList<String>(mapScannersTypes.keySet());
+			tab.remove(tab.indexOf("ALL SCANNERS"));
+			tab.add(0,"ALL SCANNERS");
+			return tab;
 		}
 		
 		public void setWorkspace(FilePath ws) {
@@ -1775,6 +1860,59 @@ public String getScriptLoggedOutIndicator() {
 			return items;
 		}
 		
+		/**
+		 * List model to choose the alert report format
+		 * 
+		 * @return a {@link ListBoxModel}
+		 */
+		public ListBoxModel doFillScannerIdItems() {
+			
+			ListBoxModel items = new ListBoxModel();
+			items.add(new Option("ALL SCANNERS", "ALL", true));
+			for(String format: mapScannersTypes.keySet()) {
+				items.add(new Option(format,mapScannersTypes.get(format),false));
+			}
+			return items;	
+			
+//	    return new ListBoxModel(
+//	    						new Option("ALL SCANNERS", "ALL", true),	
+//								new Option("Cross Site Scripting (Reflected)", "40012", false),						        			        
+//						        new Option("Cross Site Scripting (Persistent)","40014", false),
+//						        new Option("Cross Site Scripting (Persistent) - Prime","40016", false),
+//						        new Option("Cross Site Scripting (Persistent) - Spider","40017", false),
+//						        new Option("SQL Injection","40018 ", false)
+//						         
+//	        );
+			
+ 
+		}
+		
+		/**
+		 * List model to choose the alert report format
+		 * 
+		 * @return a {@link ListBoxModel}
+		 */
+		public ListBoxModel doFillChosenScannersItems() {
+			
+			ListBoxModel items = new ListBoxModel();
+			items.add(new Option("ALL SCANNERS", "ALL", true));
+			for(String format: mapScannersTypes.keySet()) {
+				items.add(new Option(format,mapScannersTypes.get(format),false));
+			}
+			return items;	
+			
+//	    return new ListBoxModel(
+//	    						new Option("ALL SCANNERS", "ALL", true),	
+//								new Option("Cross Site Scripting (Reflected)", "40012", false),						        			        
+//						        new Option("Cross Site Scripting (Persistent)","40014", false),
+//						        new Option("Cross Site Scripting (Persistent) - Prime","40016", false),
+//						        new Option("Cross Site Scripting (Persistent) - Spider","40017", false),
+//						        new Option("SQL Injection","40018 ", false)
+//						         
+//	        );
+			
+ 
+		}
 		
 		/**
 		 * List model to choose authentication script

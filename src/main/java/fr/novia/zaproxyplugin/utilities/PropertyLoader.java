@@ -2,14 +2,20 @@ package fr.novia.zaproxyplugin.utilities;
 
 import java.util.Properties;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 
-public class PropertyLoader{
+public class PropertyLoader implements Serializable {
+	
 
    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7550424203698393051L;
+/**
     * Charge la liste des propriétés contenu dans le fichier spécifié
     *
     * @param filename le fichier contenant les propriétés

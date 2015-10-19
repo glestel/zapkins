@@ -3,6 +3,7 @@ package fr.novia.zaproxyplugin;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -24,8 +25,13 @@ import hudson.model.BuildListener;
 
 
 
-public class CustomZapApi {
+public class CustomZapApi implements Serializable {
+
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3728827419473825213L;
 	public  String zapProxyHost="";
 	public  String zapProxyPort="";
 	private  BuildListener listener;
@@ -548,6 +554,47 @@ public class CustomZapApi {
 		return callApi("ascan", "action", "enableAllScanners", map);
 	}
 	
+	public ApiResponse disableAllScanners(String apikey, String scanpolicyname) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("scanPolicyName", scanpolicyname);
+		return callApi("ascan", "action", "disableAllScanners", map);
+	}
+	
+	public ApiResponse enableScanners(String apikey, String ids) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("ids", ids);
+		return callApi("ascan", "action", "enableScanners", map);
+	}
+
+	public ApiResponse disableScanners(String apikey, String ids) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("ids", ids);
+		return callApi("ascan", "action", "disableScanners", map);
+	}
+	
+	public ApiResponse setEnabledPolicies(String apikey, String ids) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("ids", ids);
+		return callApi("ascan", "action", "setEnabledPolicies", map);
+	}
+
+	/********************************************************************************************************************/	
 	//10014 : CSRF
 	//http://10.107.2.102:8080/xml/ascan/action/setPolicyAttackStrength/?id=10014&attackStrength=HIGH&scanPolicyName=Default%20policy&apikey=2q0ap4er4dhnlauq165mv43cht
 	public ApiResponse setPolicyAttackStrength(String apikey, String id, String attackstrength, String scanpolicyname) throws ClientApiException {

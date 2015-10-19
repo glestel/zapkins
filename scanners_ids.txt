@@ -1,0 +1,108 @@
+"Active scanner rules" add-on version 16:
+0         Directory browsing
+6         Path Traversal
+7         Remote File Inclusion
+
+10001 Secure page browser cache
+30000 External redirect
+40003 CRLF injection
+
+40008 Parameter tampering
+40009 Server side include
+40012 Cross Site Scripting (Reflected)
+40014 Cross Site Scripting (Persistent)
+40016 Cross Site Scripting (Persistent) - Prime
+40017 Cross Site Scripting (Persistent) - Spider
+40018 SQL Injection
+90019 Server Side Code Injection
+90020 Remote OS Command Injection Plugin
+
+"Active scanner rules (beta)" add-on version 13:
+20012 Anti CSRF tokens scanner
+20014 HTTP Parameter Pollution scanner
+40013 Session Fixation
+40015 LDAP Injection
+40019 SQL Injection - MySQL
+40020 SQL Injection - Hypersonic SQL
+40021 SQL Injection - Oracle
+40022 SQL Injection - PostgreSQL
+40023 Possible Username Enumeration
+90021 XPath Injection Plugin
+90023 XML External Entity Attack
+
+90024 Generic Padding Oracle
+90025 Expression Language Injection
+
+"Active scanner rules (alpha)" add-on version 7:
+41       Source Code Disclosure - Git
+42       Source Code Disclosure - SVN
+43       Source Code Disclosure - File Inclusion
+10095 Backup File Disclosure
+20015 Heartbleed OpenSSL Vulnerability
+20016 Cross-Domain Misconfiguration
+60100 Example Active Scanner: Denial of Service
+60101 An example active scan rule which loads data from a file
+
+"Passive scanner rules" add-on version 11:
+
+2         Private IP disclosure
+3         Session ID in URL rewrite
+10010 Cookie no http-only flag
+10011 Cookie without secure flag
+
+10012 Password Autocomplete in browser
+10015 Incomplete or no cache-control and pragma HTTPHeader set
+10016 Web Browser XSS Protection Not Enabled
+10017 Cross-domain JavaScript source file inclusion
+10019 Content-Type header missing
+10020 X-Frame-Options header not set
+10021 X-Content-Type-Options header missing
+10040 Secure pages including mixed content
+90022 Application Error disclosure
+
+"Passive scanner rules (beta)" add-on version 9:
+
+10023 Information disclosure - debug error messages
+10024 Information disclosure - sensitive informations in URL
+10025 Information disclosure - sensitive informations on HTTP Referrer header
+10026 HTTP Parameter Override
+10027 Information disclosure - suspicious comments
+10032 Viewstate scanner
+40014 Absence of Anti-CSRF Tokens
+40017 Weak Authentication Method
+90001 Insecure JSF ViewState
+90011 Charset Mismatch
+90033 Loosely Scoped Cookie
+
+"Passive scanner rules (alpha)" add-on version 4:
+
+10028 Open redirect
+10029 Cookie poisoning
+10030 User controllable charset
+10031 User controllable HTML element attribute (potential XSS)
+10033 Directory Browsing
+10034 Heartbleed OpenSSL Vulnerability (Indicative)
+
+10035 Strict-Transport-Security Header Not Set
+10036 Server Leaks Version Information via "Server" HTTP Response Header Field
+10037 Server Leaks Information via "X-Powered-By" HTTP Response Header Field(s)
+10038 Content Security Policy (CSP) Header Not Set
+10039 X-Backend-Server Header Information Leak
+10041 HTTP to HTTPS insecure transition in form post
+10042 HTTPS to HTTP insecure transition in form post
+10043 User controllable javascript event (XSS)
+10094 Base64 Disclosure
+10096 Timestamp Disclosure
+10097 Hash Disclosure
+10098 Cross-Domain Misconfiguration
+10099 Source Code Disclosure
+60001 An example passive scan rule which loads data from a file
+60000 Example Passive Scanner: Denial of Service
+
+"SQLMap Injection Engine" version 6:
+90018 Advanced SQL Injection
+
+
+
+https://groups.google.com/forum/#!searchin/zaproxy-users/scanner$20ids/zaproxy-users/p1aXvO6oWu4/EjSYJYADWsgJ
+

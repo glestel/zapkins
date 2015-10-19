@@ -40,9 +40,39 @@ SOFTWARE.
 			<f:select />
 </f:entry> 
 <f:optionalBlock title="${%Charger la liste des scripts d'authentification}" field="loadAuthenticationsScripts" inline="true" />
+<!-- ======================================================== CONFIGURATION DU SCANNER ======================================================================================================================= -->
+<f:section title="${%Configuration du scanner}" >
+		<f:entry title="${%Type de scanner}" field="scannerId" >
+			 
+				<f:select />
+			 
+		</f:entry>
+		
+		 
+				
+					<f:entry title="${%Type de scanner}" field="chosenScanners">
+						<select name="chosenScanners" multiple="multiple" size="${descriptor.getAllScanners().size()}"
+						class="setting-input select" >
+							<j:forEach var="scanner" items="${descriptor.getAllScanners()}" >
+								<j:choose>
+								<j:when test="${instance.chosenScanners.contains(scanner)}">
+									<option value="${scanner}" selected="selected">${scanner}</option>
+								</j:when>
+								<j:otherwise>
+									<option value="${scanner}">${scanner}</option>
+								</j:otherwise>
+								</j:choose>
+							</j:forEach>
+						</select>
+					</f:entry>
 
+		 
+		
+		
+</f:section>
  
-<!-- Configuration du contexte -->
+<!-- ======================================================== CONFIGURATION DU CONTEXTE  ======================================================================================================================= -->
+
 <f:section title="${%Configuration du contexte}">
 		<f:entry title="${%Nom du contexte}" field="contextName">
 			<f:textbox  />

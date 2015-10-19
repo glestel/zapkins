@@ -36,8 +36,12 @@ import java.io.Serializable;
  *
  */
 public abstract class ZAPreport implements Serializable {
-	private static final long serialVersionUID = 2241940678203529066L;
+
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2241940678203529066L;
 	protected static final String REPORT_FORMAT_XML = "xml";
 	protected static final String REPORT_FORMAT_HTML = "html";
 	

@@ -29,13 +29,11 @@ import hudson.FilePath;
 import hudson.FilePath.FileCallable;
 import hudson.Launcher; 
 import hudson.model.BuildListener;
-import hudson.model.Descriptor;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject; 
 import hudson.remoting.VirtualChannel; 
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
-import jenkins.model.Jenkins;
 import net.sf.json.JSONObject; 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.tools.ant.BuildException;
@@ -595,8 +593,12 @@ public class ZAProxyBuilder extends Builder {
 	 */
 	private static class ZAProxyCallable implements FileCallable<Boolean> {
 
-		private static final long serialVersionUID = -313398999885177679L;
 		
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -650973012616753534L;
 		private ZAProxy zaproxy;
 		private BuildListener listener;
 		
