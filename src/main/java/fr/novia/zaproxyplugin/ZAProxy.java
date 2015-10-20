@@ -163,9 +163,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 	
 	
 	
-	
-    /** the scanner to choose to make audit **/
-	private final String scannerId;
+
 	
 	/** Filename to load ZAProxy session. Contains the absolute path to the session */
 	private final String filenameLoadSession;
@@ -293,7 +291,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 		
 	//ce constructeur est ajoute par moi meme
 	@DataBoundConstructor
-	public ZAProxy(ArrayList<String> chosenScanners, String scannerId, Boolean loadAuthenticationsScripts,String scanMode,String authenticationMode, String zapProxyHost, int zapProxyPort, String zapProxyKey,   int zapSSHPort, String  zapSSHUser,String  zapSSHPassword,boolean useWebProxy, String webProxyHost, int webProxyPort,
+	public ZAProxy(ArrayList<String> chosenScanners,  Boolean loadAuthenticationsScripts,String scanMode,String authenticationMode, String zapProxyHost, int zapProxyPort, String zapProxyKey,   int zapSSHPort, String  zapSSHUser,String  zapSSHPassword,boolean useWebProxy, String webProxyHost, int webProxyPort,
 			String webProxyUser, String webProxyPassword, String filenameLoadSession, String targetURL,
 			boolean spiderURL, boolean ajaxSpiderURL, boolean scanURL, boolean spiderAsUser, String scriptName,
 			String loginUrl, String contextName, String includedUrl, String excludedUrl, String formLoggedInIndicator,
@@ -304,7 +302,6 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 		super();
 		
 		this.chosenScanners=chosenScanners;
-		this.scannerId=scannerId;
 		this.loadAuthenticationsScripts=loadAuthenticationsScripts;
 		this.scanMode=scanMode;
 		this.authenticationMode=authenticationMode;
@@ -737,13 +734,6 @@ public String getScriptLoggedOutIndicator() {
 	 */
 	public String getZapSSHPassword() {
 		return zapSSHPassword;
-	}
-
-	/**
-	 * @return the scannerId
-	 */
-	public String getScannerId() {
-		return scannerId;
 	}
 
 	/**
@@ -1901,18 +1891,7 @@ public String getScriptLoggedOutIndicator() {
 			}
 			return items;	
 			
-//	    return new ListBoxModel(
-//	    						new Option("ALL SCANNERS", "ALL", true),	
-//								new Option("Cross Site Scripting (Reflected)", "40012", false),						        			        
-//						        new Option("Cross Site Scripting (Persistent)","40014", false),
-//						        new Option("Cross Site Scripting (Persistent) - Prime","40016", false),
-//						        new Option("Cross Site Scripting (Persistent) - Spider","40017", false),
-//						        new Option("SQL Injection","40018 ", false)
-//						         
-//	        );
-			
- 
-		}
+			}
 		
 		/**
 		 * List model to choose authentication script
@@ -2059,10 +2038,7 @@ public ListBoxModel doFillScriptNameItems() throws IOException, InterruptedExcep
 					items.add(s);
 				}
 			}
-			else {
-				
-				items.add("workspace is null");
-			}
+			
 			
 			return items;
 		}

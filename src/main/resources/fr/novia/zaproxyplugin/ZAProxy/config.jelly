@@ -42,14 +42,7 @@ SOFTWARE.
 <f:optionalBlock title="${%Charger la liste des scripts d'authentification}" field="loadAuthenticationsScripts" inline="true" />
 <!-- ======================================================== CONFIGURATION DU SCANNER ======================================================================================================================= -->
 <f:section title="${%Configuration du scanner}" >
-		<f:entry title="${%Type de scanner}" field="scannerId" >
-			 
-				<f:select />
-			 
-		</f:entry>
-		
-		 
-				
+					
 					<f:entry title="${%Type de scanner}" field="chosenScanners">
 						<select name="chosenScanners" multiple="multiple" size="${descriptor.getAllScanners().size()}"
 						class="setting-input select" >
@@ -95,7 +88,8 @@ SOFTWARE.
 <f:section title="${%Configuration du scan}">
 <!-- ======================================================== SCAN : MODE NON AUTHENTIFIE ======================================================================================================================= -->
 	
-	<f:radioBlock title="${%Scan en mode non authentifié}" 	name="scanMode" value="NOT_AUTHENTICATED" checked="${instance.isScanMode('NOT_AUTHENTICATED')}" inline="true">
+	<!-- <f:radioBlock title="${%Scan en mode non authentifié}" 	name="scanMode" value="NOT_AUTHENTICATED" checked="${instance.isScanMode('NOT_AUTHENTICATED')}" inline="true"> -->
+	<f:radioBlock title="${%Scan en mode non authentifié}" 	name="scanMode" value="NOT_AUTHENTICATED" checked="true" inline="true">
 		<f:entry>
 			<table>
 			<f:optionalBlock title="${%Spider URL}" field="spiderURL" inline="true" />
@@ -140,7 +134,8 @@ SOFTWARE.
 					     
 					<!-- =========================================================== authentification basée sur formulaire  ========================================================================= -->
 	
-					<f:radioBlock title="${%Authentification basée sur un formulaire}" 	name="authenticationMode" value="FORM_BASED" checked="${instance.isAuthenticationMode('FORM_BASED')}" inline="true">
+					<!-- <f:radioBlock title="${%Authentification basée sur un formulaire}" 	name="authenticationMode" value="FORM_BASED" checked="${instance.isAuthenticationMode('FORM_BASED')}" inline="true"> -->
+					<f:radioBlock title="${%Authentification basée sur un formulaire}" 	name="authenticationMode" value="FORM_BASED" checked="true" inline="true">
 				 
 					  
 									<f:entry title="${%URL d'authentification}" field="loginUrl">
@@ -189,7 +184,7 @@ SOFTWARE.
  	
 </f:section>
 	<f:section title="${%Options post audit}">	
-			
+		<!-- ****************************************************************** -->	
 		<f:optionalBlock title="${%Générer le rapport d'audit}"  field="saveReports" inline="true">
 			<f:entry>
 				<table width="100%">
@@ -214,7 +209,7 @@ SOFTWARE.
 				</table>
 			</f:entry>
 		</f:optionalBlock>
-				
+		<!-- ****************************************************************** -->			
 		<f:optionalBlock title="${%Sauvegarder la session}"  field="saveSession" inline="true">	
 			<f:entry>
 				<table width="100%">
@@ -224,7 +219,7 @@ SOFTWARE.
 				</table>	
 			</f:entry>
 		</f:optionalBlock>
-		
+		<!-- ****************************************************************** -->	
 </f:section>
 	
 	
