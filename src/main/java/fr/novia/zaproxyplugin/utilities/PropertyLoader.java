@@ -8,13 +8,13 @@ import java.io.FileOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 
-public class PropertyLoader implements Serializable {
+public class PropertyLoader { //implements Serializable {
 	
 
    /**
 	 * 
 	 */
-	private static final long serialVersionUID = -7550424203698393051L;
+	//private static final long serialVersionUID = -7550424203698393051L;
 /**
     * Charge la liste des propriétés contenu dans le fichier spécifié
     *

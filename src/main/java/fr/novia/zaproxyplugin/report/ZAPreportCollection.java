@@ -35,7 +35,7 @@ import java.util.Map;
  * @author ludovic.roucoux
  *
  */
-public class ZAPreportCollection implements Serializable {
+public class ZAPreportCollection  implements Serializable {
 
 	
 	/**

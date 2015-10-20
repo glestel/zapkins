@@ -2,14 +2,14 @@ package fr.novia.zaproxyplugin.utilities;
 
 import java.io.Serializable;
 
-public class ProxyCredentials implements Serializable {
+public class ProxyCredentials  { // implements Serializable {
 
 
 	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 6416326735795310263L;
+	//private static final long serialVersionUID = 6416326735795310263L;
 	private String proxyHost="";
 	private String proxyPort="";
 	private String USER;

@@ -13,11 +13,11 @@ import java.util.regex.Matcher;
 
 
 
-public class Adapter implements Serializable {
+public class Adapter { //implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -231406734218154467L;
+	//private static final long serialVersionUID = -231406734218154467L;
 
 	public static void adaptTemplate(String birtTemplatePath, String zapReportPath) throws IOException{
 		 

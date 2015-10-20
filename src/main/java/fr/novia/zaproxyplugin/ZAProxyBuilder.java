@@ -29,6 +29,7 @@ import hudson.FilePath;
 import hudson.FilePath.FileCallable;
 import hudson.Launcher; 
 import hudson.model.BuildListener;
+import hudson.model.Node;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject; 
 import hudson.remoting.VirtualChannel; 
@@ -40,7 +41,7 @@ import org.apache.tools.ant.BuildException;
 import org.jenkinsci.remoting.RoleChecker;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
-
+import hudson.slaves.SlaveComputer;
 import fr.novia.zaproxyplugin.utilities.SSHConnexion;
 
 import java.io.File;
@@ -263,7 +264,7 @@ public class ZAProxyBuilder extends Builder {
 	// you don't have to do this.
 	@Override
 	public ZAProxyBuilderDescriptorImpl getDescriptor() {
-		return (ZAProxyBuilderDescriptorImpl)super.getDescriptor();
+		return (ZAProxyBuilderDescriptorImpl) super.getDescriptor();
 	}
 	
 	
@@ -308,14 +309,9 @@ public class ZAProxyBuilder extends Builder {
 
 	// Method called before launching the build
 	public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {	
-        this.setListener(listener);
-		return true;
-	}
-
-	// Methode appelée pendant le build, c'est ici que zap est lancé
-	@Override
-	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
-		
+       // this.setListener(listener);
+		if(startZAPFirst) {
+			listener.getLogger().println("------- START Prebuild -------");
 			
 		listener.getLogger().println("Perform ZAProxy");
 		final String command=this.getZapProxyDirectory()+"zap.sh";
@@ -323,27 +319,20 @@ public class ZAProxyBuilder extends Builder {
 		 * |                 start ZAP                       |
 		 * ======================================================= 
 		 */
- 
-		if(startZAPFirst){
-			
-		    
-			listener.getLogger().println("Starting ZAP remotely (SSH)");
-			listener.getLogger().println("SSH PORT : "+this.getZapSSHPort());
-			listener.getLogger().println("SSH USER : "+this.getZapSSHUser());
-			listener.getLogger().println("SSH PASSWORD : "+this.getZapSSHPassword());
-			listener.getLogger().println("ZAP DIRECTORY : "+this.getZapProxyDirectory());
-			
-			
-			Thread queryThread = new Thread() {
-			public void run() {
-								SSHConnexion.execCommand(getZapProxyHost(), getZapSSHPort(), getZapSSHUser(), getZapSSHPassword(), "sh "+command+" -daemon", getListener());
-								}};
-			queryThread.start();
-		}
-		else {
-			listener.getLogger().println("Skip starting ZAP remotely");
-			listener.getLogger().println("startZAPFirst : "+startZAPFirst);
-		}
+		
+		listener.getLogger().println("Starting ZAP remotely (SSH)");
+		listener.getLogger().println("SSH PORT : "+this.getZapSSHPort());
+		listener.getLogger().println("SSH USER : "+this.getZapSSHUser());
+		listener.getLogger().println("SSH PASSWORD : "+this.getZapSSHPassword());
+		listener.getLogger().println("ZAP DIRECTORY : "+this.getZapProxyDirectory());
+		
+		
+		Thread queryThread = new Thread() {
+		public void run() {
+							SSHConnexion.execCommand(getZapProxyHost(), getZapSSHPort(), getZapSSHUser(), getZapSSHPassword(), "sh "+command+" -daemon", getListener());
+							}};
+		queryThread.start();
+		
 		
 		/* ======================================================= 
 		 * |                 USE WEB PROXY                       |
@@ -360,6 +349,90 @@ public class ZAProxyBuilder extends Builder {
 		
 		this.waitForSuccessfulConnectionToZap(zapProxyHost, zapProxyPort, timeoutInSec, listener);
 		
+			
+//			try {
+//				Launcher launcher = null;
+//				Node node = build.getBuiltOn();
+//				
+//				// Create launcher according to the build's location (Master or Slave) and the build's OS
+//				
+//				if("".equals(node.getNodeName())) { // Build on master 
+//					launcher = new Launcher(listener, build.getWorkspace().getChannel());
+//				} else { // Build on slave
+//					boolean isUnix;
+//					if( "Unix".equals(((SlaveComputer)node.toComputer()).getOSDescription()) ) {
+//						isUnix = true;
+//					} else {
+//						isUnix = false;
+//					}
+//					launcher = new Launcher(listener, build.getWorkspace().getChannel(), isUnix);
+//				}		
+//				zaproxy.startZAP(build, listener, launcher);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//				listener.error(ExceptionUtils.getStackTrace(e));
+//				return false;
+//			}		
+			
+			
+			listener.getLogger().println("------- END Prebuild -------");
+		}
+		
+		else {
+			listener.getLogger().println("Skip starting ZAP remotely");
+			listener.getLogger().println("startZAPFirst : "+startZAPFirst);
+		}
+		return true;
+	}
+
+	// Methode appelée pendant le build, c'est ici que zap est lancé
+	@Override
+	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+		
+//			
+//		listener.getLogger().println("Perform ZAProxy");
+//		final String command=this.getZapProxyDirectory()+"zap.sh";
+//		/* ======================================================= 
+//		 * |                 start ZAP                       |
+//		 * ======================================================= 
+//		 */
+ 
+//		if(startZAPFirst){
+			
+		    
+//			listener.getLogger().println("Starting ZAP remotely (SSH)");
+//			listener.getLogger().println("SSH PORT : "+this.getZapSSHPort());
+//			listener.getLogger().println("SSH USER : "+this.getZapSSHUser());
+//			listener.getLogger().println("SSH PASSWORD : "+this.getZapSSHPassword());
+//			listener.getLogger().println("ZAP DIRECTORY : "+this.getZapProxyDirectory());
+//			
+//			
+//			Thread queryThread = new Thread() {
+//			public void run() {
+//								SSHConnexion.execCommand(getZapProxyHost(), getZapSSHPort(), getZapSSHUser(), getZapSSHPassword(), "sh "+command+" -daemon", getListener());
+//								}};
+//			queryThread.start();
+//		}
+//		else {
+//			listener.getLogger().println("Skip starting ZAP remotely");
+//			listener.getLogger().println("startZAPFirst : "+startZAPFirst);
+//		}
+		
+//		/* ======================================================= 
+//		 * |                 USE WEB PROXY                       |
+//		 * ======================================================= 
+//		 */
+//		if(useWebProxy){
+//			    
+//			CustomZapClientApi.setWebProxyDetails(webProxyHost, webProxyPort, webProxyUser, webProxyPassword);
+//		}
+//		else {
+//			listener.getLogger().println("Skip using web proxy");
+//		}
+//		
+//		
+//		this.waitForSuccessfulConnectionToZap(zapProxyHost, zapProxyPort, timeoutInSec, listener);
+//		
 		try {
 				zaproxy.startZAP(build, listener, launcher);
 			} catch (Exception e) {

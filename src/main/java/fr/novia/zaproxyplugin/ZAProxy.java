@@ -96,7 +96,7 @@ import org.zaproxy.clientapi.core.ClientApiException;
  * @author ludovic.roucoux
  *
  */
-public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Serializable  {
+public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Serializable  {
 
 	/**
 	 * 
