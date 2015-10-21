@@ -122,12 +122,13 @@ public class ZAProxyBuilder extends Builder {
 	/** start ZAP remotely  */
 	private final boolean startZAPFirst;
  
-	
+	/** stop ZAP At the end of scan  */
+	private final boolean stopZAPAtEnd;
 	
 	
 	// Fields in fr/novia/zaproxyplugin/ZAProxyBuilder/config.jelly must match the parameter names in the "DataBoundConstructor"
 	@DataBoundConstructor 
-	public ZAProxyBuilder(ZAProxy zaproxy, String zapProxyHost, int zapProxyPort, int zapSSHPort, String zapSSHUser, String zapSSHPassword,  boolean startZAPFirst, boolean useWebProxy, String zapProxyDirectory,  String zapProxyKey,
+	public ZAProxyBuilder(ZAProxy zaproxy, String zapProxyHost, int zapProxyPort, int zapSSHPort, String zapSSHUser, String zapSSHPassword,  boolean startZAPFirst,boolean stopZAPAtEnd, boolean useWebProxy, String zapProxyDirectory,  String zapProxyKey,
 			String webProxyHost, int webProxyPort, String webProxyUser, String webProxyPassword) {
 		super();
 		this.zaproxy = zaproxy;
@@ -154,6 +155,9 @@ public class ZAProxyBuilder extends Builder {
 		this.zaproxy.setWebProxyPassword(webProxyPassword);
 		
 		this.startZAPFirst=startZAPFirst;
+		
+		this.stopZAPAtEnd=stopZAPAtEnd;
+		this.zaproxy.setStopZAPAtEnd(stopZAPAtEnd);
 		 
 		this.zapSSHPort=zapSSHPort;
 		this.zapSSHUser=zapSSHUser;
@@ -187,6 +191,13 @@ public class ZAProxyBuilder extends Builder {
 		return startZAPFirst;
 	}
  
+
+	/**
+	 * @return the stopZAPAtEnd
+	 */
+	public boolean isStopZAPAtEnd() {
+		return stopZAPAtEnd;
+	}
 
 	public ZAProxy getZaproxy() {
 		return zaproxy;
@@ -334,20 +345,20 @@ public class ZAProxyBuilder extends Builder {
 		queryThread.start();
 		
 		
-		/* ======================================================= 
-		 * |                 USE WEB PROXY                       |
-		 * ======================================================= 
-		 */
-		if(useWebProxy){
-			    
-			CustomZapClientApi.setWebProxyDetails(webProxyHost, webProxyPort, webProxyUser, webProxyPassword);
-		}
-		else {
-			listener.getLogger().println("Skip using web proxy");
-		}
-		
-		
-		this.waitForSuccessfulConnectionToZap(zapProxyHost, zapProxyPort, timeoutInSec, listener);
+//		/* ======================================================= 
+//		 * |                 USE WEB PROXY                       |
+//		 * ======================================================= 
+//		 */
+//		if(useWebProxy){
+//			    
+//			CustomZapClientApi.setWebProxyDetails(webProxyHost, webProxyPort, webProxyUser, webProxyPassword);
+//		}
+//		else {
+//			listener.getLogger().println("Skip using web proxy");
+//		}
+//		
+//		
+//		this.waitForSuccessfulConnectionToZap(zapProxyHost, zapProxyPort, timeoutInSec, listener);
 		
 			
 //			try {
@@ -418,21 +429,21 @@ public class ZAProxyBuilder extends Builder {
 //			listener.getLogger().println("startZAPFirst : "+startZAPFirst);
 //		}
 		
-//		/* ======================================================= 
-//		 * |                 USE WEB PROXY                       |
-//		 * ======================================================= 
-//		 */
-//		if(useWebProxy){
-//			    
-//			CustomZapClientApi.setWebProxyDetails(webProxyHost, webProxyPort, webProxyUser, webProxyPassword);
-//		}
-//		else {
-//			listener.getLogger().println("Skip using web proxy");
-//		}
-//		
-//		
-//		this.waitForSuccessfulConnectionToZap(zapProxyHost, zapProxyPort, timeoutInSec, listener);
-//		
+		/* ======================================================= 
+		 * |                 USE WEB PROXY                       |
+		 * ======================================================= 
+		 */
+		if(useWebProxy){
+			    
+			CustomZapClientApi.setWebProxyDetails(webProxyHost, webProxyPort, webProxyUser, webProxyPassword);
+		}
+		else {
+			listener.getLogger().println("Skip using web proxy");
+		}
+		
+		
+		this.waitForSuccessfulConnectionToZap(zapProxyHost, zapProxyPort, timeoutInSec, listener);
+		
 		try {
 				zaproxy.startZAP(build, listener, launcher);
 			} catch (Exception e) {

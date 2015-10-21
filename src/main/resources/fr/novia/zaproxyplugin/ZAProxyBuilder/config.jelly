@@ -37,11 +37,7 @@ SOFTWARE.
 			${it.workspace}
 		</f:entry>
 		-->
-		
-		<f:entry title="${%Répertoire d'installation du serveur ZAP}" field="zapProxyDirectory"
-		description="Le répertoire par défaut est : ${descriptor.zapDefaultDirectory} (${%Configuré dans l'interface d'administration de Jenkins})">
-			<f:textbox  default="${descriptor.zapDefaultDirectory}" />
-		</f:entry>
+		<f:advanced>
 		
 		<f:entry title="${%Adresse du serveur ZAP}" field="zapProxyHost"
 		description="L'adresse par défaut est : ${descriptor.zapProxyDefaultHost} (${%Configurée dans l'interface d'administration de Jenkins})">
@@ -58,7 +54,13 @@ SOFTWARE.
 			<f:textbox default="${descriptor.zapProxyDefaultApiKey}" clazz="required" />
 		</f:entry>
 		
+		<f:entry title="${%Répertoire d'installation du serveur ZAP}" field="zapProxyDirectory"
+		description="Le répertoire par défaut est : ${descriptor.zapDefaultDirectory} (${%Configuré dans l'interface d'administration de Jenkins})">
+			<f:textbox  default="${descriptor.zapDefaultDirectory}" />
+		</f:entry>
+		
 		<f:optionalBlock title="${%Démarrer ZAP à distance}" field="startZAPFirst" inline="true" >
+		
 		
 		<f:entry>
 		<table width="100%">
@@ -81,7 +83,7 @@ SOFTWARE.
 		</f:entry>	
 	
 		</f:optionalBlock>	
-			
+		<f:optionalBlock title="${%Arrêter ZAP à la fin du scan}" field="stopZAPAtEnd" inline="true" />	
 		<f:optionalBlock title="${%Utiliser un serveur proxy web}" field="useWebProxy" inline="true" >
 		<f:entry>
 		<table width="100%">
@@ -112,7 +114,7 @@ SOFTWARE.
 			
 			
 			
-		
+		</f:advanced>
 
 		
 	</f:section>

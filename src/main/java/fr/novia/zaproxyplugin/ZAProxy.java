@@ -29,64 +29,35 @@ package fr.novia.zaproxyplugin;
  
 import fr.novia.zaproxyplugin.report.ZAPreport;
 import fr.novia.zaproxyplugin.report.ZAPreportCollection;
-import fr.novia.zaproxyplugin.report.ZAPscannersCollection;
-import hudson.EnvVars;
+import fr.novia.zaproxyplugin.report.ZAPscannersCollection; 
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.FilePath.FileCallable;
 import hudson.Launcher;
 import hudson.model.AbstractDescribableImpl;
-import hudson.model.BuildListener;
-import hudson.model.EnvironmentSpecific;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.Computer;
-import hudson.model.Descriptor;
-import hudson.model.JDK;
+import hudson.model.BuildListener; 
+import hudson.model.AbstractBuild; 
+import hudson.model.Descriptor; 
 import hudson.model.Node;
-import hudson.remoting.VirtualChannel;
-import hudson.slaves.NodeSpecific;
-import hudson.slaves.SlaveComputer;
-import hudson.tools.ToolDescriptor;
-import hudson.tools.ToolInstallation;
+import hudson.remoting.VirtualChannel;  
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.ListBoxModel.Option;
-
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.IOException; 
 import java.io.Serializable;
-import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
+ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import jenkins.model.Jenkins;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.tools.ant.BuildException;
 import org.jenkinsci.remoting.RoleChecker;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
-import org.zaproxy.clientapi.core.ApiResponse;
-import org.zaproxy.clientapi.core.ApiResponseElement;
-import org.zaproxy.clientapi.core.ClientApi;
 import org.zaproxy.clientapi.core.ClientApiException;
 
 /**
@@ -102,7 +73,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 	 * 
 	 */
 	private static final long serialVersionUID = 946509532597271579L;
-	private static final String user = "ZAPR USER"; 
+	private static final String user = "ZAP USER"; 
 	public static final String FILE_SESSION_EXTENSION = ".session";	
 	public static final String FILE_SCRIPTS_EXTENSION = ".scripts";	
 	public static final String authenticationScriptsListFile="authenticationScriptsList.scripts";
@@ -135,6 +106,10 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 	
 	/** Use a web Proxy or not by ZAProxy */
 	private boolean useWebProxy;
+	
+	
+	/* stop ZAP at the end of scan */
+	private boolean stopZAPAtEnd;
 	 
 	
 	/** proxyWeb */
@@ -291,7 +266,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 		
 	//ce constructeur est ajoute par moi meme
 	@DataBoundConstructor
-	public ZAProxy(ArrayList<String> chosenScanners,  Boolean loadAuthenticationsScripts,String scanMode,String authenticationMode, String zapProxyHost, int zapProxyPort, String zapProxyKey,   int zapSSHPort, String  zapSSHUser,String  zapSSHPassword,boolean useWebProxy, String webProxyHost, int webProxyPort,
+	public ZAProxy(ArrayList<String> chosenScanners,  Boolean loadAuthenticationsScripts,String scanMode,String authenticationMode, String zapProxyHost, int zapProxyPort, String zapProxyKey,   int zapSSHPort, String  zapSSHUser,String  zapSSHPassword,boolean useWebProxy, boolean stopZAPAtEnd, String webProxyHost, int webProxyPort,
 			String webProxyUser, String webProxyPassword, String filenameLoadSession, String targetURL,
 			boolean spiderURL, boolean ajaxSpiderURL, boolean scanURL, boolean spiderAsUser, String scriptName,
 			String loginUrl, String contextName, String includedUrl, String excludedUrl, String formLoggedInIndicator,
@@ -317,6 +292,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 		this.zapSSHPassword=zapSSHPassword;
 		
 		this.useWebProxy=useWebProxy;
+		this.stopZAPAtEnd=stopZAPAtEnd;
 		
 		this.webProxyHost = webProxyHost;
 		this.webProxyPort = webProxyPort;
@@ -737,6 +713,20 @@ public String getScriptLoggedOutIndicator() {
 	}
 
 	/**
+	 * @return the stopZAPAtEnd
+	 */
+	public boolean isStopZAPAtEnd() {
+		return stopZAPAtEnd;
+	}
+
+	/**
+	 * @param stopZAPAtEnd the stopZAPAtEnd to set
+	 */
+	public void setStopZAPAtEnd(boolean stopZAPAtEnd) {
+		this.stopZAPAtEnd = stopZAPAtEnd;
+	}
+
+	/**
 	 * @param zapSSHPort the zapSSHPort to set
 	 */
 	public void setZapSSHPort(int zapSSHPort) {
@@ -976,44 +966,7 @@ public String getScriptLoggedOutIndicator() {
 		// Try/catch here because I need to stopZAP in finally block and for that,
  
 		try {
-			
-//			/* ======================================================= 
-//			 * |                 start ZAP                       |
-//			 * ======================================================= 
-//			 */
-//			if(startZAP){
-//				
-//				 
-//				listener.getLogger().println("Starting ZAP remotely (SSH)");
-//				listener.getLogger().println("SSH PORT : "+this.getZapSSHPort());
-//				listener.getLogger().println("SSH USER : "+this.getZapSSHUser());
-//			}
-//			else {
-//				listener.getLogger().println("Skip starting ZAP remotely");
-//				listener.getLogger().println("startZAP : "+startZAPFirst);
-//			}
-//			if(startZAPFirst){
-//				
-//			 
-//				listener.getLogger().println("Starting ZAP remotely (SSH)");
-//				listener.getLogger().println("SSH PORT : "+this.getZapSSHPort());
-//				listener.getLogger().println("SSH USER : "+this.getZapSSHUser());
-//			}
-//			else {
-//				listener.getLogger().println("Skip starting ZAP remotely");
-//				listener.getLogger().println("startZAPFirst : "+startZAPFirst);
-//			}
-			/* ======================================================= 
-			 * |                 USE WEB PROXY                       |
-			 * ======================================================= 
-			 */
-			if(useWebProxy){
 
-				CustomZapClientApi.setWebProxyDetails(webProxyHost, webProxyPort, webProxyUser, webProxyPassword);
-			}
-			else {
-				listener.getLogger().println("Skip using web proxy");
-			}
 			
 			/* ======================================================= 
 			 * |                ZAP FILE PATH SEPARATOR                       |
@@ -1276,8 +1229,11 @@ public String getScriptLoggedOutIndicator() {
 			buildSuccess = false;
 		} 
 		finally {
+			
+			if(stopZAPAtEnd){
 		
-				//stopZAP(zapClientAPI, listener);
+				stopZAP(zapClientAPI, listener);
+			}
 		
 				buildSuccess = true;
 			
@@ -2044,21 +2000,7 @@ public ListBoxModel doFillScriptNameItems() throws IOException, InterruptedExcep
 		}
 	
 		
-//		/**
-//		 * List model to choose the tool used (normally, it should be the ZAProxy tool).
-//		 * 
-//		 * @return a {@link ListBoxModel}
-//		 */
-//		public ListBoxModel doFillToolUsedItems() {
-//			ListBoxModel items = new ListBoxModel();
-//			for(ToolDescriptor<?> desc : ToolInstallation.all()) {
-//				for (ToolInstallation tool : desc.getInstallations()) {
-//					items.add(tool.getName());
-//				}
-//			}
-//			return items;
-//		}
-//		
+ 	
  
 	}
 
