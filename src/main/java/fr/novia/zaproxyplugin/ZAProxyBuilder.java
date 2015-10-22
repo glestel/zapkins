@@ -35,11 +35,13 @@ import hudson.model.AbstractProject;
 import hudson.remoting.VirtualChannel; 
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
+import hudson.util.FormValidation;
 import net.sf.json.JSONObject; 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.tools.ant.BuildException;
 import org.jenkinsci.remoting.RoleChecker;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import hudson.slaves.SlaveComputer;
 import fr.novia.zaproxyplugin.utilities.SSHConnexion;
@@ -47,8 +49,11 @@ import fr.novia.zaproxyplugin.utilities.SSHConnexion;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+
+import javax.servlet.ServletException;
  
 
 /**
@@ -515,6 +520,55 @@ public class ZAProxyBuilder extends Builder {
 		} while (!connectionSuccessful);
 	}
 	
+	
+	/**
+	 * Wait for ZAProxy initialization, so it's ready to use at the end of this method
+	 * (otherwise, catch exception). This method is launched on the remote machine (if there is one)
+	 *   
+	 * @param timeout the time in sec to try to connect at zap proxy. 
+	 * @param listener the listener to display log during the job execution in jenkins
+	 * @throws IOException 
+	 * @see <a href="https://groups.google.com/forum/#!topic/zaproxy-develop/gZxYp8Og960">
+	 * 		https://groups.google.com/forum/#!topic/zaproxy-develop/gZxYp8Og960</a>
+	 */
+	private static boolean checkConnectionToZap(String zapProxyHost, int zapProxyPort , int timeout) throws IOException {	
+			
+		int timeoutInMs = getMilliseconds(timeout);
+		int connectionTimeoutInMs = timeoutInMs;
+		int pollingIntervalInMs = getMilliseconds(1);
+		boolean connectionSuccessful = false;
+		long startTime = System.currentTimeMillis();
+	 
+		URL url;
+
+		 
+//			try {
+				url = new URL(PROTOCOL+"://"+zapProxyHost+":"+zapProxyPort);
+				connectionSuccessful=checkURL(url, connectionTimeoutInMs);
+				return connectionSuccessful; 
+
+//			} catch (SocketTimeoutException ignore) {
+//				 
+//				throw new BuildException("Unable to connect to ZAP's proxy after " + timeout + " seconds.");
+//				
+//			} catch (IOException ignore) {
+//				// and keep trying but wait some time first...
+//				try {
+//					Thread.sleep(pollingIntervalInMs);
+//				} catch (InterruptedException e) {
+//					 
+//					throw new BuildException("The task was interrupted while sleeping between connection polling.", e);
+//				}
+//
+//				long ellapsedTime = System.currentTimeMillis() - startTime;
+//				if (ellapsedTime >= timeoutInMs) {
+//					 
+//					throw new BuildException("Unable to connect to ZAP's proxy after " + timeout + " seconds.");
+//				}
+//				connectionTimeoutInMs = (int) (timeoutInMs - ellapsedTime);
+//			} 
+		 
+	}
 	/**
 	 * Converts seconds in milliseconds.
 	 * @param seconds the time in second to convert
@@ -534,7 +588,7 @@ public class ZAProxyBuilder extends Builder {
 	    conn.setConnectTimeout(connectionTimeoutInMs);
 	    System.out.println(String.format("Fetching %s ...", url));
 	    listener.getLogger().println(String.format("Fetching %s ...", url));
-	    try {
+//	    try {
 	        int responseCode = conn.getResponseCode();
 	        if (responseCode == 200) {
 	            System.out.println(String.format("Site is up, content length = %s", conn.getHeaderField("content-length")));
@@ -545,11 +599,39 @@ public class ZAProxyBuilder extends Builder {
 	            listener.getLogger().println(String.format("Site is up, but returns non-ok status = %d", responseCode));
 	            return false;
 	        }
-	    } catch (java.net.UnknownHostException e) {
-	        System.out.println("Site is down");
-	        listener.getLogger().println("Site is down");
-	        return false; 
-	    }
+//	    } catch (java.net.UnknownHostException e) {
+//	        System.out.println("Site is down");
+//	        listener.getLogger().println("Site is down");
+//	        return false; 
+//	    }
+	}
+	
+private static boolean  checkURL(URL url, int connectionTimeoutInMs ) throws IOException {
+		
+
+		
+		/******************************************/
+	    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+	    conn.setRequestMethod("GET");
+	    conn.setConnectTimeout(connectionTimeoutInMs);
+	    System.out.println(String.format("Fetching %s ...", url));
+	    //listener.getLogger().println(String.format("Fetching %s ...", url));
+//	    try {
+	        int responseCode = conn.getResponseCode();
+	        if (responseCode == 200) {
+	            System.out.println(String.format("Site is up, content length = %s", conn.getHeaderField("content-length")));
+	            //listener.getLogger().println(String.format("Site is up, content length = %s", conn.getHeaderField("content-length")));
+	            return true;
+	        } else {
+	            System.out.println(String.format("Site is up, but returns non-ok status = %d", responseCode));
+	            //listener.getLogger().println(String.format("Site is up, but returns non-ok status = %d", responseCode));
+	            return false;
+	        }
+//	    } catch (java.net.UnknownHostException e) {
+//	        System.out.println("Site is down");
+//	        listener.getLogger().println("Site is down");
+//	        return false; 
+//	    }
 	}
 
 	/**
@@ -666,8 +748,143 @@ public class ZAProxyBuilder extends Builder {
 		public String getZapDefaultSSHPassword() {
 			return zapDefaultSSHPassword;
 		}
+		
+		
+		
+		public FormValidation doTestZAPConnection(
+				@QueryParameter("useWebProxy") final boolean useWebProxy,
+				@QueryParameter("webProxyHost") final String webProxyHost,
+				@QueryParameter("webProxyPort") final int webProxyPort ,
+				@QueryParameter("webProxyUser") final String webProxyUser,
+				@QueryParameter("webProxyPassword") final String webProxyPassword,
+				@QueryParameter("zapProxyHost") final String zapProxyHost,
+		        @QueryParameter("zapProxyPort") final int  zapProxyPort, 
+		        @QueryParameter("zapProxyKey") final String zapProxyKey
+		        								
+				) {
+
+			
+			
+			/******************************************/
+//			String s = "";
+//			
+//			s += "\n--------------------------------------------------\n";  
+//			s += "useWebProxy ["+useWebProxy+"]\n";
+//			s += "webProxyHost ["+webProxyHost+"]\n";
+//			s += "webProxyPort ["+webProxyPort+"]\n";
+//			s += "webProxyUser ["+webProxyUser+"]\n";
+//			s += "webProxyPassword ["+webProxyPassword+"]\n";
+//			
+//			
+//			s += "zapProxyHost ["+zapProxyHost+"]\n";
+//			s += "zapProxyPort ["+zapProxyPort+"]\n";	
+//			s += "zapProxyKey ["+zapProxyKey+"]\n";	
+			/* ======================================================= 
+			 * |                 USE WEB PROXY                       |
+			 * ======================================================= 
+			 */
+			if(useWebProxy){
+				    
+				CustomZapClientApi.setWebProxyDetails(webProxyHost, webProxyPort, webProxyUser, webProxyPassword);
+			}
+			
+			URL url;
+			try {
+				
+				
+				
+				url = new URL(PROTOCOL+"://"+zapProxyHost+":"+zapProxyPort);
+				//s += "URL ["+url.toString()+"]\n";
+				
+			    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			    conn.setRequestMethod("GET");
+			    conn.setConnectTimeout(10);
+			    System.out.println(String.format("Fetching %s ...", url));
+			  //  s += "["+String.format("Fetching %s ...", url)+"]\n";
+			    //listener.getLogger().println(String.format("Fetching %s ...", url));
+//			    try {
+			        int responseCode = conn.getResponseCode();
+			        if (responseCode == 200) {
+			            System.out.println(String.format("Site is up, content length = %s", conn.getHeaderField("content-length")));
+			            //listener.getLogger().println(String.format("Site is up, content length = %s", conn.getHeaderField("content-length")));
+			            return FormValidation.okWithMarkup("<br><FONT COLOR=\"green\">Success : 200</FONT></br>");
+			        } else {
+			            System.out.println(String.format("<br>Site is up, but returns non-ok status = %d", responseCode));
+			           // s += "Site is up, but returns non-ok status = ["+responseCode+"]\n";
+			            //listener.getLogger().println(String.format("Site is up, but returns non-ok status = %d", responseCode));
+			            return FormValidation.warning("Site is up, but returns non-ok status = "+responseCode);
+			        }	
+				
+				
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+				return FormValidation.error(e.getMessage());
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+				return FormValidation.error(e.getMessage());
+			}
+
+//		    } catch (java.net.UnknownHostException e) {
+//		        System.out.println("Site is down");
+//		        listener.getLogger().println("Site is down");
+//		        return false; 
+//		    }
+			
+			
+			
+			//		    try {
+//		        
+//		    	
+//		    	if(checkConnectionToZap(zapProxyHost, zapProxyPort ,20))
+//		    		 return FormValidation.ok("Success");
+//		    	else 
+//		    		return FormValidation.error("1 --> Unable to connect to ZAP's proxy after a timeout");
+//		    	
+//		    	
+//		        
+//		        
+//				} catch (Exception ignore) {
+//				 
+//					return FormValidation.error("2 --> Unable to connect to ZAP's proxy after a timeout: "+ignore.getMessage()+"||"+ignore.getCause().getMessage()+"||"+ignore.getStackTrace().toString());
+//				
+//			} 
+	   
+		}
+		
+		
+		
+		
+		
+		
+		
+		
 
 	}
+	
+
+	
+//	
+//	public FormValidation testZAPConnection(@QueryParameter("zapProxyHost") final String zapProxyHost,
+//	        @QueryParameter("zapProxyPort") final int  zapProxyPort, @QueryParameter("zapProxyKey") final String zapProxyKey) throws IOException, ServletException {
+//	    try {
+//	        
+//	    	
+//	    	checkConnectionToZap(zapProxyHost, zapProxyPort ,timeoutInSec);
+//	    	
+//	    	
+//	    	
+//	        return FormValidation.ok("Success");
+//	        
+//			} catch (SocketTimeoutException ignore) {
+//			 
+//				return FormValidation.error("Unable to connect to ZAP's proxy after a timeout");
+//			
+//		} 
+//   
+//	}
 	
 	/**
 	 * Used to execute ZAP remotely.
