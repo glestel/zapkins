@@ -32,18 +32,21 @@ SOFTWARE.
 	-->
 	
 	<f:section title="${%Informations de connexion au serveur distant ZAP}">
-		<!--
-		<f:entry title="${%Workspace used}">
-			${it.workspace}
-		</f:entry>
-		-->
+
 		<f:advanced>
-		<f:entry name="protocolType" title="Type de protocole" field="protocolType">
-		<select name="protocolType">
-			<option value="http">HTTP</option>
-			<option value="https">HTTPS</option>
+	  
+		
+		<f:entry  title="Type de protocole" field="protocol">  
+		<select name="protocol">
+		    <option value="https" selected="${instance.protocol == 'https' }">HTTPS</option>
+			<option value="http" selected="${instance.protocol == 'http' }">HTTP</option>
+			
 		</select>
-		</f:entry>
+		</f:entry>   
+		
+	
+		
+		
 		<f:entry title="${%Adresse du serveur ZAP}" field="zapProxyHost"
 		description="L'adresse par défaut est : ${descriptor.zapProxyDefaultHost} (${%Configurée dans l'interface d'administration de Jenkins})">
 			<f:textbox clazz="required" default="${descriptor.zapProxyDefaultHost}" />
@@ -87,7 +90,7 @@ SOFTWARE.
 		</f:entry>	
 		</f:optionalBlock>
 		
-		<f:validateButton   title="${%Tester la connection}" progress="${%Connexion...}"   method="testZAPConnection" with="useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyHost,zapProxyPort,zapProxyKey" />
+		<f:validateButton   title="${%Tester la connection}" progress="${%Connexion...}"   method="testZAPConnection" with="protocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyHost,zapProxyPort,zapProxyKey" />
 		
 		
 		<f:entry title="${%Répertoire d'installation du serveur ZAP}" field="zapProxyDirectory"
@@ -118,6 +121,9 @@ SOFTWARE.
 			</f:entry>
 		</table>
 		</f:entry>	
+		
+		<f:validateButton   title="${%Tester la connection}" progress="${%Connexion...}"   method="testSSHConnection" with="zapProxyHost,zapSSHPort,zapSSHUser,zapSSHPassword" />
+		
 	
 		</f:optionalBlock>	
 		<f:optionalBlock title="${%Arrêter ZAP à la fin du scan}" field="stopZAPAtEnd" inline="true" />	

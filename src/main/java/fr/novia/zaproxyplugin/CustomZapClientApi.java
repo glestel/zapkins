@@ -6,17 +6,24 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.Authenticator;
+import java.net.HttpURLConnection;
+import java.net.Proxy;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.zaproxy.clientapi.core.ApiResponse;
 import org.zaproxy.clientapi.core.ApiResponseElement;
+import org.zaproxy.clientapi.core.ApiResponseFactory;
 import org.zaproxy.clientapi.core.ClientApiException;
 
 import fr.novia.zaproxyplugin.utilities.PropertyLoader;
@@ -36,8 +43,9 @@ public class CustomZapClientApi implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 3961600153488729709L;
+	private static final int MILLISECONDS_IN_SECOND = 1000;
 	private  String zapProxyKey =""; 
-	private CustomZapApi api;
+	public CustomZapApi api;
 	
 	private BuildListener listener ;
 	
@@ -78,10 +86,69 @@ public class CustomZapClientApi implements Serializable {
 
 		this.zapProxyKey =zapProxyKey;
 	
-		this.api = new CustomZapApi(zapProxyHost,String.valueOf(zapProxyPort));
+		this.api = new CustomZapApi(zapProxyHost,""+zapProxyPort+"");
 	}
 
+	public static  ApiResponse sendRequest(String protocol, String zapProxyHost, int  zapProxyPort,String format, String component,
+			String type, String method, Map<String, String> params , Proxy proxy, int timeoutInSec ) throws IOException, ParserConfigurationException, SAXException, ClientApiException{
+		URL url;
+	    StringBuilder sb1 =new StringBuilder();
+	
+								
+			StringBuilder sb = new StringBuilder();
+			sb.append(protocol+"://" + zapProxyHost + ":" + zapProxyPort + "/");
+			sb.append(format);
+			sb.append('/');
+			sb.append(component);
+			sb.append('/');
+			sb.append(type);
+			sb.append('/');
+			sb.append(method);
+			sb.append('/');
+			if (params != null) {
+				sb.append('?');
+				for (Map.Entry<String, String> p : params.entrySet()) {
+					sb.append(CustomZapApi.encodeQueryParam(p.getKey()));
+					sb.append('=');
+					if (p.getValue() != null) {
+						sb.append(CustomZapApi.encodeQueryParam(p.getValue()));
+					}
+					sb.append('&');
+				}
+			}
+			url=new URL(sb.toString());	
+			HttpURLConnection uc;
+			if(proxy!=null){
+			uc = (HttpURLConnection)url.openConnection(proxy);
+			}
+			
+			else {
+			uc = (HttpURLConnection)url.openConnection();
+			}
+			uc.setConnectTimeout(getMilliseconds(timeoutInSec));// 15 secondes
+		    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		    			
+		    DocumentBuilder db = dbf.newDocumentBuilder();
+		    	
+		    Document doc =db.parse(uc.getInputStream());
+		    return  ApiResponseFactory.getResponse(doc.getFirstChild());
+		    
+		    
+			
+	
+	
+	
 
+}
+	
+	/**
+	 * Converts seconds in milliseconds.
+	 * @param seconds the time in second to convert
+	 * @return the time in milliseconds
+	 */
+	private static int getMilliseconds(int seconds) {
+		return seconds * MILLISECONDS_IN_SECOND;
+	}
 	/***************************** USER CONFIG *************************************************************/
 	
 	public void listUserConfigInformation(String contextId, BuildListener listener)  {
@@ -124,24 +191,51 @@ public class CustomZapClientApi implements Serializable {
 		
  
 			ApiResponseList configParamsList;
-			StringBuilder sb = null; 
+			StringBuilder sb =new StringBuilder();
 			try {
 				configParamsList = (ApiResponseList) api.listScripts();
-				sb=new StringBuilder(); 	
+				 	
 				for (ApiResponse r : configParamsList.getItems()) {
 					ApiResponseSet set = (ApiResponseSet) r;
 					sb.append(set.getAttribute("name")+"\n") ;
 					 
 				}
-				
+				sb.append("scripts loaded correctly");
 				
 			} catch (ClientApiException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				sb.append("ERROR : "+e.getMessage()+"||"+e.getDetail()+"||"+e.getCode());
 			}
-			
+		
 		return sb.toString();
 	}
+	
+	public static  String getScripts(CustomZapApi api){
+		
+		
+		
+		 
+		ApiResponseList configParamsList = null;
+		StringBuilder sb =new StringBuilder();
+		try {
+			configParamsList = (ApiResponseList) api.listScripts();
+			 	
+			for (ApiResponse r : configParamsList.getItems()) {
+				ApiResponseSet set = (ApiResponseSet) r;
+				sb.append(set.getAttribute("name")+"\n") ;
+				 
+			}
+			sb.append("scripts loaded correctly");
+			
+		} catch (ClientApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			sb.append("ERROR : "+e.getMessage()+"||"+e.getDetail()+"||"+e.getCode()+"||");
+		}
+	
+	return sb.toString();
+}
 	
 	
 	/**
@@ -949,7 +1043,22 @@ public String getContextList()  {
 	 
 }
 
-
+/**
+ * List context names of current session
+ */
+public static String getContextList(CustomZapApi api)  {
+	
+	ApiResponse response = null;
+	try {
+		response = api.contextList();
+	} catch (ClientApiException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	
+	return ((ApiResponseElement)response).getValue();
+	 
+}
 
 /*************************************************** Spidering ******************************************************************/
 

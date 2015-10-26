@@ -32,8 +32,11 @@ public class CustomZapApi implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -3728827419473825213L;
-	public  String zapProxyHost="";
-	public  String zapProxyPort="";
+	private final String PROTOCOL="http";
+	private  final  String zapProxyHost;
+	private  final String zapProxyPort;
+
+
 	private  BuildListener listener;
 	
 	public CustomZapApi(String zapProxyHost, String zapProxyPort, BuildListener listener) {
@@ -43,7 +46,13 @@ public class CustomZapApi implements Serializable {
 		this.listener= listener;
 	}
 	
-	
+	public CustomZapApi(String PROTOCOL,String zapProxyHost, String zapProxyPort, BuildListener listener) {
+		super();
+		//this.PROTOCOL=PROTOCOL;
+		this.zapProxyHost = zapProxyHost;
+		this.zapProxyPort = zapProxyPort;
+		this.listener= listener;
+	}
 	 
 	
 	public CustomZapApi(String zapProxyHost, String zapProxyPort) {
@@ -51,11 +60,31 @@ public class CustomZapApi implements Serializable {
 		super();
 		this.zapProxyHost = zapProxyHost;
 		this.zapProxyPort = zapProxyPort;
-		this.listener= listener;
+		
+	}
+
+
+	/**
+	 * @return the zapProxyHost
+	 */
+	public String getZapProxyHost() {
+		return zapProxyHost;
 	}
 
 
 
+
+	/**
+	 * @return the zapProxyPort
+	 */
+	public String getZapProxyPort() {
+		return zapProxyPort;
+	}
+
+
+
+
+	
 
 	/**************************************** Methodes utilitaires ********************/
 	/****************** LIST SCRIPTS ****************************/
@@ -509,7 +538,7 @@ public class CustomZapApi implements Serializable {
 	public URL buildZapRequestUrl( String format, String component,
 			String type, String method, Map<String, String> params) throws MalformedURLException {
 		StringBuilder sb = new StringBuilder();
-		sb.append("http://" + this.zapProxyHost + ":" + this.zapProxyPort + "/");
+		sb.append(PROTOCOL+"://" + this.getZapProxyHost() + ":" + this.getZapProxyPort() + "/");
 		sb.append(format);
 		sb.append('/');
 		sb.append(component);
@@ -535,7 +564,7 @@ public class CustomZapApi implements Serializable {
 		return new URL(sb.toString());
 	}
 
-	private static String encodeQueryParam(String param) {
+	public static String encodeQueryParam(String param) {
 		try {
 			return URLEncoder.encode(param, "UTF-8");
 		} catch (UnsupportedEncodingException ignore) {
@@ -648,7 +677,7 @@ public class CustomZapApi implements Serializable {
 	
 	/************************************************************************************************************************/
 
-	private Document callApiDom (String component, String type, String method,
+	public Document callApiDom (String component, String type, String method,
 			Map<String, String> params) throws ClientApiException {
 		try {
 			URL url = buildZapRequestUrl("xml", component, type, method, params);
@@ -715,7 +744,7 @@ public class CustomZapApi implements Serializable {
 		return callApiOther("core", "other", "htmlreport", map);
 	}
 	
-	private  byte[] callApiOther (String component, String type, String method,
+	public   byte[] callApiOther (String component, String type, String method,
 			Map<String, String> params) throws ClientApiException {
 		try {
 			URL url = buildZapRequestUrl("other", component, type, method, params);

@@ -205,5 +205,73 @@ catch (IOException e) {
 	
 }
 
+public static void  testSSH(String HOST, int PORT, String USER, String PASSWORD  ) throws JSchException, IOException{
+	
+	JSch jsch = new JSch();
+ 
+
+		Session session = jsch.getSession(USER, HOST, PORT);
+		session.setPassword(PASSWORD);
+		session.setConfig("StrictHostKeyChecking", "no");
+		session.connect(30000); // making a connection with timeout.
+
+		
+		Channel channel = session.openChannel("shell");
+		// Enable agent-forwarding.
+	   // ((ChannelShell)channel).setAgentForwarding(true);
+		//((ChannelExec) channel).setCommand(command);
+//
+//		channel.setInputStream(null);
+//		((ChannelExec) channel).setErrStream(System.err);
+//		
+//		
+//		
+//		InputStream in = channel.getInputStream();
+
+		channel.connect();
+//
+//		byte[] tmp = new byte[1024];
+//		
+//		while (true) {
+//			while (in.available() > 0) {
+//				int i = in.read(tmp, 0, 1024);
+//				if (i < 0)
+//					break;
+//				System.out.print(new String(tmp, 0, i));
+//				//listener.getLogger().println(new String(tmp, 0, i));
+//				System.out.println("exit-status: " + channel.getExitStatus());
+//				//listener.getLogger().println("exit-status: " + channel.getExitStatus());
+//			}
+//			if (channel.isClosed()) {
+//				if (in.available() > 0)
+//					continue;
+//				System.out.println("exit-status: " + channel.getExitStatus());
+//			 
+//				break;
+//			}
+//			try {
+//				Thread.sleep(1000);
+//			} catch (Exception ee) {
+//			}
+//		}
+		
+		System.out.println("exit-status: " + channel.getExitStatus());
+		 
+		channel.disconnect();
+		session.disconnect();
+
+ 
+	
+	
+	
+	
+	
+ 
+	
+	
+	
+}
+
+
 
 }

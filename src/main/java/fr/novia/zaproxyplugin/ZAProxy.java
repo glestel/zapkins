@@ -29,7 +29,8 @@ package fr.novia.zaproxyplugin;
  
 import fr.novia.zaproxyplugin.report.ZAPreport;
 import fr.novia.zaproxyplugin.report.ZAPreportCollection;
-import fr.novia.zaproxyplugin.report.ZAPscannersCollection; 
+import fr.novia.zaproxyplugin.report.ZAPscannersCollection;
+import fr.novia.zaproxyplugin.utilities.ProxyAuthenticator;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.FilePath.FileCallable;
@@ -46,10 +47,21 @@ import hudson.util.ListBoxModel.Option;
 import java.io.File;
 import java.io.IOException; 
 import java.io.Serializable;
- import java.util.ArrayList;
+import java.net.Authenticator;
+import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.Proxy;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -58,6 +70,12 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.jenkinsci.remoting.RoleChecker;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+import org.zaproxy.clientapi.core.ApiResponse;
+import org.zaproxy.clientapi.core.ApiResponseFactory;
+import org.zaproxy.clientapi.core.ApiResponseList;
+import org.zaproxy.clientapi.core.ApiResponseSet;
 import org.zaproxy.clientapi.core.ClientApiException;
 
 /**
@@ -73,11 +91,19 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 	 * 
 	 */
 	private static final long serialVersionUID = 946509532597271579L;
-	private static final String user = "ZAP USER"; 
+	private  final String user = "ZAP USER"; 
 	public static final String FILE_SESSION_EXTENSION = ".session";	
 	public static final String FILE_SCRIPTS_EXTENSION = ".scripts";	
 	public static final String authenticationScriptsListFile="authenticationScriptsList.scripts";
 	public static final String sessionsListFile="sessionsListFile.session";
+	
+	
+	private final static int timeoutInSec=15;	
+	private static final int MILLISECONDS_IN_SECOND = 1000;
+	
+	
+	
+	
 	
 	public  String FILE_SEPARATOR="" ;
 
@@ -86,40 +112,40 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 
  
 	/** the scan mode (AUTHENTICATED/NOT_AUTHENTICATED) */
-	private String scanMode;	
+	private final String scanMode;	
 	
 	/* Charger la liste des scripts d'authentification */
-	private boolean loadAuthenticationsScripts;
+	//private boolean loadAuthenticationsScripts;
 	
 	/** the authentication mode (SCRIPT_BASED/FORM_BASED) */
-	private String authenticationMode;
+	private final String authenticationMode;
 	
 	/** Host configured when ZAProxy is used as proxy */
-	private String zapProxyHost;	
+	private  String zapProxyHost;	
 	/** Port configured when ZAProxy is used as proxy */
-	private int zapProxyPort;		
+	private  int zapProxyPort;		
 	/** the secret API key when ZAProxy is used */
 	private String zapProxyKey ;
 
-	private String zapProxyDirectory;
+	private  String zapProxyDirectory;
 	
 	
 	/** Use a web Proxy or not by ZAProxy */
-	private boolean useWebProxy;
+	private final boolean useWebProxy;
 	
 	
 	/* stop ZAP at the end of scan */
-	private boolean stopZAPAtEnd;
+	private final boolean stopZAPAtEnd;
 	 
 	
 	/** proxyWeb */
-	private String webProxyHost;
+	private  String webProxyHost;
 	/** proxyWeb */
-	private  int webProxyPort;
+	private   int webProxyPort;
 	/** proxyWeb */
-	private  String webProxyUser;
+	private   String webProxyUser;
 	/** proxyWeb */
-	private String webProxyPassword;	
+	private  String webProxyPassword;	
 	
 	
 	/** Use SSH connection **/
@@ -147,7 +173,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 	private final String targetURL;
 	
 	/** Realize a url spider or not by ZAProxy */
-	private boolean spiderURL;
+	private final boolean spiderURL;
 
 	/** Realize a url AjaxSpider or not by ZAProxy */
 	private final boolean ajaxSpiderURL;
@@ -159,7 +185,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 	private final boolean spiderAsUser;	
 	
 	/** Authentication script name*/	
-	private final String scriptName;	
+	private final  String scriptName;	
 
 	/** loggin url**/
 	private final String loginUrl;
@@ -266,7 +292,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 		
 	//ce constructeur est ajoute par moi meme
 	@DataBoundConstructor
-	public ZAProxy(ArrayList<String> chosenScanners,  Boolean loadAuthenticationsScripts,String scanMode,String authenticationMode, String zapProxyHost, int zapProxyPort, String zapProxyKey,   int zapSSHPort, String  zapSSHUser,String  zapSSHPassword,boolean useWebProxy, boolean stopZAPAtEnd, String webProxyHost, int webProxyPort,
+	public ZAProxy(ArrayList<String> chosenScanners,  String scanMode,String authenticationMode, String zapProxyHost, int zapProxyPort, String zapProxyKey,   int zapSSHPort, String  zapSSHUser,String  zapSSHPassword,boolean useWebProxy, boolean stopZAPAtEnd, String webProxyHost, int webProxyPort,
 			String webProxyUser, String webProxyPassword, String filenameLoadSession, String targetURL,
 			boolean spiderURL, boolean ajaxSpiderURL, boolean scanURL, boolean spiderAsUser, String scriptName,
 			String loginUrl, String contextName, String includedUrl, String excludedUrl, String formLoggedInIndicator,
@@ -277,7 +303,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 		super();
 		
 		this.chosenScanners=chosenScanners;
-		this.loadAuthenticationsScripts=loadAuthenticationsScripts;
+		//this.loadAuthenticationsScripts=loadAuthenticationsScripts;
 		this.scanMode=scanMode;
 		this.authenticationMode=authenticationMode;
 		
@@ -397,7 +423,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 	/**
 	 * @return the user
 	 */
-	public static String getUser() {
+	public  String getUser() {
 		return user;
 	}
 
@@ -677,12 +703,12 @@ public String getScriptLoggedOutIndicator() {
 		return authenticationMode;
 	}
 
-	/**
-	 * @return the loadAuthenticationsScripts
-	 */
-	public Boolean getLoadAuthenticationsScripts() {
-		return loadAuthenticationsScripts;
-	}
+//	/**
+//	 * @return the loadAuthenticationsScripts
+//	 */
+//	public Boolean getLoadAuthenticationsScripts() {
+//		return loadAuthenticationsScripts;
+//	}
 	
 	/**
 	 * @return the fILE_SEPARATOR
@@ -719,12 +745,7 @@ public String getScriptLoggedOutIndicator() {
 		return stopZAPAtEnd;
 	}
 
-	/**
-	 * @param stopZAPAtEnd the stopZAPAtEnd to set
-	 */
-	public void setStopZAPAtEnd(boolean stopZAPAtEnd) {
-		this.stopZAPAtEnd = stopZAPAtEnd;
-	}
+ 
 
 	/**
 	 * @param zapSSHPort the zapSSHPort to set
@@ -753,26 +774,15 @@ public String getScriptLoggedOutIndicator() {
 	public void setFILE_SEPARATOR(String fILE_SEPARATOR) {
 		FILE_SEPARATOR = fILE_SEPARATOR;
 	}
-	/**
-	 * @param loadAuthenticationsScripts the loadAuthenticationsScripts to set
-	 */
-	public void setLoadAuthenticationsScripts(Boolean loadAuthenticationsScripts) {
-		this.loadAuthenticationsScripts = loadAuthenticationsScripts;
-	}
+//	/**
+//	 * @param loadAuthenticationsScripts the loadAuthenticationsScripts to set
+//	 */
+//	public void setLoadAuthenticationsScripts(Boolean loadAuthenticationsScripts) {
+//		this.loadAuthenticationsScripts = loadAuthenticationsScripts;
+//	}
 
-	/**
-	 * @param authenticationMode the authenticationMode to set
-	 */
-	public void setAuthenticationMode(String authenticationMode) {
-		this.authenticationMode = authenticationMode;
-	}
-
-	/**
-	 * @param scanMode the scanMode to set
-	 */
-	public void setScanMode(String scanMode) {
-		this.scanMode = scanMode;
-	}
+ 
+ 
 
 	/*========================= SETTERS =============================*/
 	/**
@@ -814,12 +824,7 @@ public String getScriptLoggedOutIndicator() {
 		return useWebProxy;
 	}
 
-	/**
-	 * @param useWebProxy the useWebProxy to set
-	 */
-	public void setUseWebProxy(boolean useWebProxy) {
-		this.useWebProxy = useWebProxy;
-	}
+ 
 	
 
 	/**
@@ -984,24 +989,24 @@ public String getScriptLoggedOutIndicator() {
 			}
 			
 			
-			/* ======================================================= 
-			 * |                  AUTHENTICATION SCRIPTS LIST                       |
-			 * ======================================================= 
-			 */
-			
-			if (loadAuthenticationsScripts){
-				
-				String scripstList=zapClientAPI.getScripts();
-				File scriptsListFile = new File(workspace.getRemote(),authenticationScriptsListFile );
-				listener.getLogger().println("/***************************** Liste des scripts d'authentification ****************************************/");
-				listener.getLogger().println(scripstList);
-				listener.getLogger().println("/***********************************************************************************************************/");
-				
-				FileUtils.writeByteArrayToFile(scriptsListFile, scripstList.getBytes());
-				listener.getLogger().println("File ["+ scriptsListFile.getAbsolutePath() +"] saved");
-			}
-			else {
-				listener.getLogger().println("Skip loading authentication Scripts List");
+//			/* ======================================================= 
+//			 * |                  AUTHENTICATION SCRIPTS LIST                       |
+//			 * ======================================================= 
+//			 */
+//			
+//			if (loadAuthenticationsScripts){
+//				
+//				String scripstList=zapClientAPI.getScripts();
+//				File scriptsListFile = new File(workspace.getRemote(),authenticationScriptsListFile );
+//				listener.getLogger().println("/***************************** Liste des scripts d'authentification ****************************************/");
+//				listener.getLogger().println(scripstList);
+//				listener.getLogger().println("/***********************************************************************************************************/");
+//				
+//				FileUtils.writeByteArrayToFile(scriptsListFile, scripstList.getBytes());
+//				listener.getLogger().println("File ["+ scriptsListFile.getAbsolutePath() +"] saved");
+//			}
+//			else {
+//				listener.getLogger().println("Skip loading authentication Scripts List");
 			
 			/* ======================================================= 
 			 * |                  LOAD SESSION                        |
@@ -1223,7 +1228,7 @@ public String getScriptLoggedOutIndicator() {
 				listener.getLogger().println("Skip saveSession");
 			}
 			
-			}
+	//		}
 		} catch (Exception e) {
 			listener.error(ExceptionUtils.getStackTrace(e));
 			buildSuccess = false;
@@ -1257,13 +1262,6 @@ public String getScriptLoggedOutIndicator() {
     }
  
  
-
-	/**
-	 * @param spiderURL the spiderURL to set
-	 */
-	public void setSpiderURL(boolean spiderURL) {
-		this.spiderURL = spiderURL;
-	}
 
 	/**
 	 * Verify parameters of the build setup are correct (null, empty, negative ...)
@@ -1671,6 +1669,8 @@ public String getScriptLoggedOutIndicator() {
 		
 		private static final long serialVersionUID = 4028279269334325901L;
 		
+		 
+		
 		/**
 		 * To persist global configuration information,
 		 * simply store it in a field and call save().
@@ -1731,6 +1731,15 @@ public String getScriptLoggedOutIndicator() {
 			this.workspace = ws;
 		}
 		
+		
+//		/**
+//		 * Converts seconds in milliseconds.
+//		 * @param seconds the time in second to convert
+//		 * @return the time in milliseconds
+//		 */
+//		private static int getMilliseconds(int seconds) {
+//			return seconds * MILLISECONDS_IN_SECOND;
+//		}
 		/**
 		 * Performs on-the-fly validation of the form field 'filenameReports'.
 		 *
@@ -2000,7 +2009,185 @@ public ListBoxModel doFillScriptNameItems() throws IOException, InterruptedExcep
 		}
 	
 		
- 	
+		public FormValidation doLoadScriptsList(
+				@QueryParameter("protocol") final String  protocol,
+				@QueryParameter("useWebProxy") final boolean useWebProxy,
+				@QueryParameter("webProxyHost") final String webProxyHost,
+				@QueryParameter("webProxyPort") final int webProxyPort ,
+				@QueryParameter("webProxyUser") final String webProxyUser,
+				@QueryParameter("webProxyPassword") final String webProxyPassword,
+				@QueryParameter("zapProxyHost") final String zapProxyHost,
+		        @QueryParameter("zapProxyPort") final int  zapProxyPort, 
+		        @QueryParameter("zapProxyKey") final String zapProxyKey
+		        								
+				) {
+			
+//			String s = "";
+//			
+//			s += "\n--------------------------------------------------\n";  
+//			s += "useWebProxy ["+useWebProxy+"]\n";
+//			s += "webProxyHost ["+webProxyHost+"]\n";
+//			s += "webProxyPort ["+webProxyPort+"]\n";
+//			s += "webProxyUser ["+webProxyUser+"]\n";
+//			s += "webProxyPassword ["+webProxyPassword+"]\n";
+//			
+//			s += "protocol ["+protocol+"]\n";
+//			s += "zapProxyHost ["+zapProxyHost+"]\n";
+//			s += "zapProxyPort ["+zapProxyPort+"]\n";	
+//			s += "zapProxyKey ["+zapProxyKey+"]\n";	
+			
+			
+			/* ======================================================= 
+			 * |                 USE WEB PROXY                       |
+			 * ======================================================= 
+			 */
+			Proxy proxy=null;
+			if(useWebProxy){
+				    
+				//CustomZapClientApi.setWebProxyDetails(webProxyHost, webProxyPort, webProxyUser, webProxyPassword);
+				
+				Authenticator.setDefault(new ProxyAuthenticator(webProxyUser, webProxyPassword));					
+				proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(webProxyHost, webProxyPort));
+			}
+	    
+		
+			    StringBuilder sb1 =new StringBuilder();
+				try {
+							    			
+				    ApiResponseList configParamsList = null;
+				    
+					
+				    configParamsList = (ApiResponseList) CustomZapClientApi.sendRequest(protocol,zapProxyHost,zapProxyPort,"xml","script","view","listScripts",null,proxy,timeoutInSec);
+    			 	
+				    for (ApiResponse r : configParamsList.getItems()) {
+				    				ApiResponseSet set = (ApiResponseSet) r;
+				    				sb1.append(set.getAttribute("name")+"\n") ;
+				    				 
+				    }
+				    
+					
+				    String scripstList=sb1.toString();		
+					
+					
+			
+					File scriptsListFile = new File(workspace.getRemote(),authenticationScriptsListFile );
+					FileUtils.writeByteArrayToFile(scriptsListFile, scripstList.getBytes());
+					
+									
+					return FormValidation.okWithMarkup("<br><b><FONT COLOR=\"green\">Success : La liste des scripts est chargée."
+													 + "<br>Veuillez recharger la page afin d'accéder à cette liste</FONT></b></br>");
+					
+					
+				} catch (MalformedURLException e1) {
+				
+					e1.printStackTrace();
+				}
+				
+			    
+			     catch (ClientApiException e) {
+			    	
+			    			e.printStackTrace();
+			    			return FormValidation.error(e.getMessage());
+			    }
+				
+				
+			 catch (IOException e) {
+				 	e.printStackTrace();
+					return FormValidation.error(e.getMessage());
+					
+				} 
+
+				catch (ParserConfigurationException e) {
+				
+					e.printStackTrace();
+					return FormValidation.error(e.getMessage());
+				} catch (SAXException e) {
+					
+					e.printStackTrace();
+					return FormValidation.error(e.getMessage());
+				}
+				
+				return FormValidation.error("UNKNOWN ERROR");
+				
+			
+			
+	}
+
+		
+	
+		
+		
+		
+		
+		
+		
+//		private ApiResponse sendRequest(String protocol, String zapProxyHost, int  zapProxyPort,String format, String component,
+//				String type, String method, Map<String, String> params , Proxy proxy ) throws IOException, ParserConfigurationException, SAXException, ClientApiException{
+//			URL url;
+//		    StringBuilder sb1 =new StringBuilder();
+//		
+//									
+//				StringBuilder sb = new StringBuilder();
+//				sb.append(protocol+"://" + zapProxyHost + ":" + zapProxyPort + "/");
+//				sb.append(format);
+//				sb.append('/');
+//				sb.append(component);
+//				sb.append('/');
+//				sb.append(type);
+//				sb.append('/');
+//				sb.append(method);
+//				sb.append('/');
+//				if (params != null) {
+//					sb.append('?');
+//					for (Map.Entry<String, String> p : params.entrySet()) {
+//						sb.append(CustomZapApi.encodeQueryParam(p.getKey()));
+//						sb.append('=');
+//						if (p.getValue() != null) {
+//							sb.append(CustomZapApi.encodeQueryParam(p.getValue()));
+//						}
+//						sb.append('&');
+//					}
+//				}
+//				url=new URL(sb.toString());	
+//				HttpURLConnection uc;
+//				if(proxy!=null){
+//				uc = (HttpURLConnection)url.openConnection(proxy);
+//				}
+//				
+//				else {
+//				uc = (HttpURLConnection)url.openConnection();
+//				}
+//    			uc.setConnectTimeout(getMilliseconds(timeoutInSec));// 15 secondes
+//			    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+//			    			
+//			    DocumentBuilder db = dbf.newDocumentBuilder();
+//			    	
+//			    Document doc =db.parse(uc.getInputStream());
+//			    			
+//			    			
+//			    			
+//			    			
+//			    ApiResponseList configParamsList = null;
+//			    
+//				
+//			    configParamsList = (ApiResponseList) ApiResponseFactory.getResponse(doc.getFirstChild());
+//			    return configParamsList;
+//			    
+//				
+//		
+//		
+//		
+// 
+//	}
+
+		
+		
+		
+		
+		
+		
+		
+		
  
 	}
 

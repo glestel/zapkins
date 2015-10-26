@@ -30,7 +30,8 @@ SOFTWARE.
 	See global.jelly for a general discussion about jelly script.
 	-->
 
-<!-- la partie du code ci-dessous m'a fait tourné la tête, elle permet d'assigner une variable (workspace) avec une valeur à partir du viewer, faire attention --> ne pas oublier cette partie pour charger la session et la liste des scripts d'authentification -->
+<!-- la partie du code ci-dessous m'a fait tourné la tête, elle permet d'assigner une variable (workspace) avec une valeur à partir du viewer, faire attention --> 
+<!-- ne pas oublier cette partie pour charger la session et la liste des scripts d'authentification -->
 <j:invoke on="${descriptor}" method="setWorkspace" >
 			<j:arg type="hudson.FilePath" value="${it.someWorkspace}"/>
 </j:invoke>
@@ -39,7 +40,7 @@ SOFTWARE.
 <f:entry title="${%Charger la session}" field="filenameLoadSession">
 			<f:select />
 </f:entry> 
-<f:optionalBlock title="${%Charger la liste des scripts d'authentification}" field="loadAuthenticationsScripts" inline="true" />
+ 
 <!-- ======================================================== CONFIGURATION DU SCANNER ======================================================================================================================= -->
 <f:section title="${%Configuration du scanner}" >
 					
@@ -112,6 +113,20 @@ SOFTWARE.
 								<!-- <f:textbox clazz="required" /> -->
 								<f:select />
 						  </f:entry>
+	
+	
+	
+	<!-- =========================================================== ADVANCED : CHARGER LA LISTE DES SCRIPTS  ========================================================================= -->
+
+ 
+			
+		<f:validateButton   title="${%Charger la liste des scripts}" progress="${%Chargement...}"   method="loadScriptsList" with="protocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyHost,zapProxyPort,zapProxyKey" />
+	
+			
+		 
+		
+	<!-- =========================================================== FIN : CHARGER LA LISTE DES SCRIPTS  ========================================================================= -->
+
 						  
 						  <f:entry title="${%Nom de l'utilisateur}" field="scriptUsername">
 								<f:textbox clazz="required" />

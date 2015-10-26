@@ -36,6 +36,8 @@ import hudson.remoting.VirtualChannel;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
+import hudson.util.ListBoxModel;
+import hudson.util.ListBoxModel.Option;
 import net.sf.json.JSONObject; 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.tools.ant.BuildException;
@@ -43,17 +45,34 @@ import org.jenkinsci.remoting.RoleChecker;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+import org.xml.sax.SAXException;
+import org.zaproxy.clientapi.core.ApiResponse;
+import org.zaproxy.clientapi.core.ApiResponseElement;
+import org.zaproxy.clientapi.core.ApiResponseList;
+import org.zaproxy.clientapi.core.ClientApiException;
+
+import com.jcraft.jsch.JSchException;
+
 import hudson.slaves.SlaveComputer;
+import fr.novia.zaproxyplugin.utilities.ProxyAuthenticator;
 import fr.novia.zaproxyplugin.utilities.SSHConnexion;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
+import java.net.Authenticator;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.Proxy;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
+import javax.xml.parsers.ParserConfigurationException;
  
 
 /**
@@ -72,12 +91,14 @@ import javax.servlet.ServletException;
  */
 public class ZAProxyBuilder extends Builder {
 	
-	private final int timeoutInSec=15;	
+	private final static int timeoutInSec=15;	
 	private static final int MILLISECONDS_IN_SECOND = 1000;
-	private static final String PROTOCOL = "http";
+	
 	
 	
 	private BuildListener listener;
+	
+	private  final String protocol ;
 	
  	/** The objet to start and call ZAProxy methods */
 	private final ZAProxy zaproxy;
@@ -133,9 +154,11 @@ public class ZAProxyBuilder extends Builder {
 	
 	// Fields in fr/novia/zaproxyplugin/ZAProxyBuilder/config.jelly must match the parameter names in the "DataBoundConstructor"
 	@DataBoundConstructor 
-	public ZAProxyBuilder(ZAProxy zaproxy, String zapProxyHost, int zapProxyPort, int zapSSHPort, String zapSSHUser, String zapSSHPassword,  boolean startZAPFirst,boolean stopZAPAtEnd, boolean useWebProxy, String zapProxyDirectory,  String zapProxyKey,
+	public ZAProxyBuilder(String protocol,ZAProxy zaproxy, String zapProxyHost, int zapProxyPort, int zapSSHPort, String zapSSHUser, String zapSSHPassword,  boolean startZAPFirst,boolean stopZAPAtEnd, boolean useWebProxy, String zapProxyDirectory,  String zapProxyKey,
 			String webProxyHost, int webProxyPort, String webProxyUser, String webProxyPassword) {
 		super();
+		
+		this.protocol=protocol;
 		this.zaproxy = zaproxy;
 		this.zapProxyHost = zapProxyHost;
 		this.zapProxyPort = zapProxyPort;
@@ -153,7 +176,7 @@ public class ZAProxyBuilder extends Builder {
 		this.webProxyUser = webProxyUser;
 		this.webProxyPassword = webProxyPassword;
 		
-		this.zaproxy.setUseWebProxy(useWebProxy);
+	//	this.zaproxy.setUseWebProxy(useWebProxy);
 		this.zaproxy.setWebProxyHost(webProxyHost);
 		this.zaproxy.setWebProxyPort(webProxyPort);
 		this.zaproxy.setWebProxyUser(webProxyUser);
@@ -162,7 +185,7 @@ public class ZAProxyBuilder extends Builder {
 		this.startZAPFirst=startZAPFirst;
 		
 		this.stopZAPAtEnd=stopZAPAtEnd;
-		this.zaproxy.setStopZAPAtEnd(stopZAPAtEnd);
+	//	this.zaproxy.setStopZAPAtEnd(stopZAPAtEnd);
 		 
 		this.zapSSHPort=zapSSHPort;
 		this.zapSSHUser=zapSSHUser;
@@ -287,6 +310,15 @@ public class ZAProxyBuilder extends Builder {
 
 
 
+
+	/**
+	 * @return the pROTOCOL
+	 */
+	public String getProtocol() {
+		return protocol;
+	}
+
+	 
 
 	/**
 	 * @param zapSSHPort the zapSSHPort to set
@@ -447,7 +479,7 @@ public class ZAProxyBuilder extends Builder {
 		}
 		
 		
-		this.waitForSuccessfulConnectionToZap(zapProxyHost, zapProxyPort, timeoutInSec, listener);
+		this.waitForSuccessfulConnectionToZap(protocol, zapProxyHost, zapProxyPort, timeoutInSec, listener);
 		
 		try {
 				zaproxy.startZAP(build, listener, launcher);
@@ -481,7 +513,7 @@ public class ZAProxyBuilder extends Builder {
 	 * @see <a href="https://groups.google.com/forum/#!topic/zaproxy-develop/gZxYp8Og960">
 	 * 		https://groups.google.com/forum/#!topic/zaproxy-develop/gZxYp8Og960</a>
 	 */
-	private void waitForSuccessfulConnectionToZap(String zapProxyHost, int zapProxyPort , int timeout, BuildListener listener) {	
+	private void waitForSuccessfulConnectionToZap(String protocol, String zapProxyHost, int zapProxyPort , int timeout, BuildListener listener) {	
 			
 		int timeoutInMs = getMilliseconds(timeout);
 		int connectionTimeoutInMs = timeoutInMs;
@@ -493,7 +525,9 @@ public class ZAProxyBuilder extends Builder {
 
 		do {
 			try {
-				url = new URL(PROTOCOL+"://"+zapProxyHost+":"+zapProxyPort);
+				listener.getLogger().println(protocol+"://"+zapProxyHost+":"+zapProxyPort);
+				url = new URL(protocol+"://"+zapProxyHost+":"+zapProxyPort);
+				
 				connectionSuccessful=checkURL(url, connectionTimeoutInMs, listener);
 				
 
@@ -531,7 +565,7 @@ public class ZAProxyBuilder extends Builder {
 	 * @see <a href="https://groups.google.com/forum/#!topic/zaproxy-develop/gZxYp8Og960">
 	 * 		https://groups.google.com/forum/#!topic/zaproxy-develop/gZxYp8Og960</a>
 	 */
-	private static boolean checkConnectionToZap(String zapProxyHost, int zapProxyPort , int timeout) throws IOException {	
+	private static boolean checkConnectionToZap(String PROTOCOL, String zapProxyHost, int zapProxyPort , int timeout) throws IOException {	
 			
 		int timeoutInMs = getMilliseconds(timeout);
 		int connectionTimeoutInMs = timeoutInMs;
@@ -643,7 +677,11 @@ private static boolean  checkURL(URL url, int connectionTimeoutInMs ) throws IOE
 	 * for the actual HTML fragment for the configuration screen.
 	 */
 	@Extension // This indicates to Jenkins this is an implementation of an extension point.
-	public static final class ZAProxyBuilderDescriptorImpl extends BuildStepDescriptor<Builder> {
+	public static final class ZAProxyBuilderDescriptorImpl extends BuildStepDescriptor<Builder> implements Serializable{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 678902562211873984L;
 		/**
 		 * To persist global configuration information,
 		 * simply store it in a field and call save().
@@ -752,6 +790,7 @@ private static boolean  checkURL(URL url, int connectionTimeoutInMs ) throws IOE
 		
 		
 		public FormValidation doTestZAPConnection(
+				@QueryParameter("protocol") final String  protocol,
 				@QueryParameter("useWebProxy") final boolean useWebProxy,
 				@QueryParameter("webProxyHost") final String webProxyHost,
 				@QueryParameter("webProxyPort") final int webProxyPort ,
@@ -779,84 +818,184 @@ private static boolean  checkURL(URL url, int connectionTimeoutInMs ) throws IOE
 //			s += "zapProxyHost ["+zapProxyHost+"]\n";
 //			s += "zapProxyPort ["+zapProxyPort+"]\n";	
 //			s += "zapProxyKey ["+zapProxyKey+"]\n";	
-			/* ======================================================= 
-			 * |                 USE WEB PROXY                       |
-			 * ======================================================= 
-			 */
-			if(useWebProxy){
-				    
-				CustomZapClientApi.setWebProxyDetails(webProxyHost, webProxyPort, webProxyUser, webProxyPassword);
-			}
 			
-			URL url;
+			
+			int responseCode = 0;
 			try {
 				
+				URL url =new URL(protocol+"://"+zapProxyHost+":"+zapProxyPort);
 				
+				HttpURLConnection conn;
+			
+				/* ======================================================= 
+				 * |                 USE WEB PROXY                       |
+				 * ======================================================= 
+				 */
+				Proxy proxy=null;
+				if(useWebProxy){
+					Authenticator.setDefault(new ProxyAuthenticator(webProxyUser, webProxyPassword));					
+					proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(webProxyHost, webProxyPort));
+					
+					 conn = (HttpURLConnection) url.openConnection(proxy);
+					
+				}
 				
-				url = new URL(PROTOCOL+"://"+zapProxyHost+":"+zapProxyPort);
-				//s += "URL ["+url.toString()+"]\n";
+				else{
+					
+					conn = (HttpURLConnection) url.openConnection();
+				}
+			
+	             /* ******************************************************************************************** */
 				
-			    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+	 
 			    conn.setRequestMethod("GET");
-			    conn.setConnectTimeout(10);
+			    conn.setConnectTimeout(getMilliseconds(timeoutInSec));// 15 secondes
 			    System.out.println(String.format("Fetching %s ...", url));
-			  //  s += "["+String.format("Fetching %s ...", url)+"]\n";
-			    //listener.getLogger().println(String.format("Fetching %s ...", url));
-//			    try {
-			        int responseCode = conn.getResponseCode();
+
+			        responseCode = conn.getResponseCode();
 			        if (responseCode == 200) {
-			            System.out.println(String.format("Site is up, content length = %s", conn.getHeaderField("content-length")));
-			            //listener.getLogger().println(String.format("Site is up, content length = %s", conn.getHeaderField("content-length")));
-			            return FormValidation.okWithMarkup("<br><FONT COLOR=\"green\">Success : 200</FONT></br>");
+			        	
+			        	//faire des nouveaux tests pour valider la clé api
+			    		Map<String, String> map = null;
+						map = new HashMap<String, String>();
+						//String apikey="p5vocslricjcadf8333rnkv0e6";
+						if (zapProxyKey != null) {
+							map.put("apikey", zapProxyKey);
+						}
+						//http://10.107.2.102:8080/JSON/pscan/action/enableAllScanners/?zapapiformat=JSON&apikey=wbxvnvxcw%2Cwc
+						//http://10.107.2.102:8080/XML/core/view/version/?zapapiformat=XML
+						
+						ApiResponseElement response;
+						//si la clé n'est pas correcte, une exception est lancée
+						
+						try {
+						response = (ApiResponseElement) CustomZapClientApi.sendRequest(protocol,zapProxyHost,zapProxyPort,"xml","pscan","action","enableAllScanners",map,proxy,timeoutInSec);
+						}
+						catch (IOException e) {
+							return FormValidation.error("Invalid or missing API key");//+s.toString());	
+						}
+						
+			        	//si la clé est correcte on affiche la version de ZAP installée
+			        	response = (ApiResponseElement) CustomZapClientApi.sendRequest(protocol,zapProxyHost,zapProxyPort,"xml","core","view","version",null,proxy,timeoutInSec);
+			        	  	
+			        	
+			             
+			            return FormValidation.okWithMarkup("<br><b><FONT COLOR=\"green\">Success : 200\nSite is up"
+			            								 + "<br>"
+			            								 + "ZAP Proxy("+response.getName()+")="+response.getValue()+"</FONT></b></br>");           //+s.toString());
+			        
+			        
+			        
+			        
+			        
+			        
+			        
+			        
+			        
+			        
+			        
+			        
 			        } else {
 			            System.out.println(String.format("<br>Site is up, but returns non-ok status = %d", responseCode));
-			           // s += "Site is up, but returns non-ok status = ["+responseCode+"]\n";
-			            //listener.getLogger().println(String.format("Site is up, but returns non-ok status = %d", responseCode));
-			            return FormValidation.warning("Site is up, but returns non-ok status = "+responseCode);
+			            return FormValidation.warning("Site is up, but returns non-ok status = "+responseCode);//+s.toString());
 			        }	
 				
 				
 			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				//e.printStackTrace();
-				return FormValidation.error(e.getMessage());
+				
+				e.printStackTrace();
+				return FormValidation.error(e.getMessage()+"|| HTTP Response code="+responseCode);//+s.toString());
 				
 			} catch (IOException e) {
+				
+				e.printStackTrace();
+				return FormValidation.error(e.getMessage());//+s.toString());
+			} catch (ParserConfigurationException e) {
 				// TODO Auto-generated catch block
-				//e.printStackTrace();
-				return FormValidation.error(e.getMessage());
+				e.printStackTrace();
+				return FormValidation.error(e.getMessage()+"|| HTTP Response code="+responseCode);//+s.toString());
+			} catch (SAXException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return FormValidation.error(e.getMessage()+"|| HTTP Response code="+responseCode);//+s.toString());
+			} catch (ClientApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return FormValidation.error(e.getMessage()+"|| HTTP Response code="+responseCode);//+s.toString());
 			}
 
-//		    } catch (java.net.UnknownHostException e) {
-//		        System.out.println("Site is down");
-//		        listener.getLogger().println("Site is down");
-//		        return false; 
-//		    }
-			
-			
-			
-			//		    try {
-//		        
-//		    	
-//		    	if(checkConnectionToZap(zapProxyHost, zapProxyPort ,20))
-//		    		 return FormValidation.ok("Success");
-//		    	else 
-//		    		return FormValidation.error("1 --> Unable to connect to ZAP's proxy after a timeout");
-//		    	
-//		    	
-//		        
-//		        
-//				} catch (Exception ignore) {
-//				 
-//					return FormValidation.error("2 --> Unable to connect to ZAP's proxy after a timeout: "+ignore.getMessage()+"||"+ignore.getCause().getMessage()+"||"+ignore.getStackTrace().toString());
-//				
-//			} 
 	   
 		}
 		
 		
 		
 		
+		public FormValidation doTestSSHConnection(
+			 
+				@QueryParameter("zapProxyHost") final String  zapProxyHost,			 
+				@QueryParameter("zapSSHPort") final int zapSSHPort ,
+				@QueryParameter("zapSSHUser") final String zapSSHUser,
+				@QueryParameter("zapSSHPassword") final String zapSSHPassword
+			 
+		        								
+				) {
+
+			
+			
+			/******************************************/
+//			String s = "";
+//			
+//			s += "\n--------------------------------------------------\n";  
+//			s += "useWebProxy ["+useWebProxy+"]\n";
+//			s += "webProxyHost ["+webProxyHost+"]\n";
+//			s += "webProxyPort ["+webProxyPort+"]\n";
+//			s += "webProxyUser ["+webProxyUser+"]\n";
+//			s += "webProxyPassword ["+webProxyPassword+"]\n";
+//			
+//			
+//			s += "zapProxyHost ["+zapProxyHost+"]\n";
+//			s += "zapProxyPort ["+zapProxyPort+"]\n";	
+//			s += "zapProxyKey ["+zapProxyKey+"]\n";	
+			/* ======================================================= 
+			 * |                 USE WEB PROXY                       |
+			 * ======================================================= 
+			 */
+ 
+			try {
+				SSHConnexion.testSSH(zapProxyHost,zapSSHPort, zapSSHUser, zapSSHPassword);
+			} catch (JSchException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return FormValidation.error(e.getMessage()+" : Vérifier le login et le mot de passe de connextion SSH ! ");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return FormValidation.error(e.getMessage()+" : Vérifier l'adresse du serveur SSH et le numéro de port !");
+			}
+
+ 
+			return FormValidation.okWithMarkup("<br><b><font color=\"green\">Connection réuissie !</font></b><br>");
+		}	
+		
+		
+		
+		
+		
+		
+		
+		
+		
+//		
+//		
+//		public ListBoxModel doFillProtocolItems(
+//			    @QueryParameter String protocol
+//			) {
+//			    return new ListBoxModel(
+//			        new Option("HTTP", "http", protocol.matches("http") ),
+//			        new Option("HTTPS", "https", protocol.matches("https") ) 
+//			    );
+//			}	
+//		
 		
 		
 		
