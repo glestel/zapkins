@@ -35,16 +35,30 @@ SOFTWARE.
 
 		<f:advanced>
 	  
-		
+<!-- 		
 		<f:entry  title="Type de protocole" field="protocol">  
 		<select name="protocol">
 		    <option value="https" selected="${instance.protocol == 'https' }">HTTPS</option>
 			<option value="http" selected="${instance.protocol == 'http' }">HTTP</option>
 			
 		</select>
-		</f:entry>   
+		</f:entry>  -->  
 		
-	
+	    <f:entry  title="Type de protocole" field="protocol"> 	
+	<select name="protocol">
+      <j:choose>
+        <j:when test="${instance.protocol eq 'https'}">
+          <option value="https" selected="selected">HTTPS</option>
+		  <option value="http"  >HTTP</option>
+        </j:when>
+        <j:otherwise>
+		  <option value="http" selected="selected">HTTP</option>
+          <option value="https">HTTPS</option>
+        </j:otherwise>
+      </j:choose>
+          
+    </select>
+	</f:entry> 
 		
 		
 		<f:entry title="${%Adresse du serveur ZAP}" field="zapProxyHost"
@@ -60,6 +74,11 @@ SOFTWARE.
 		<f:entry title="${%Clé API du serveur ZAP}" field="zapProxyKey"
 		description="La clé par défaut est : ${descriptor.zapProxyDefaultApiKey} (${%Configurée dans l'interface d'administration de Jenkins})">
 			<f:textbox default="${descriptor.zapProxyDefaultApiKey}" clazz="required" />
+		</f:entry>
+		
+		<f:entry title="${%Délai d'attente de connexion (en secondes)}" field="timeoutInSec"
+		description="Le délais d'attente par défaut est : ${descriptor.zapProxyDefaultTimeoutInSec} (${%Configuré dans l'interface d'administration de Jenkins})">
+			<f:textbox default="${descriptor.zapProxyDefaultTimeoutInSec}" clazz="required positive-number" />
 		</f:entry>
 		
 	    <f:optionalBlock title="${%Utiliser un serveur proxy web}" field="useWebProxy" inline="true" >

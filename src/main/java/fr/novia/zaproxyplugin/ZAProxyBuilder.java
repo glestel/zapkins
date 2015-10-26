@@ -29,15 +29,12 @@ import hudson.FilePath;
 import hudson.FilePath.FileCallable;
 import hudson.Launcher; 
 import hudson.model.BuildListener;
-import hudson.model.Node;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject; 
 import hudson.remoting.VirtualChannel; 
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
-import hudson.util.ListBoxModel;
-import hudson.util.ListBoxModel.Option;
 import net.sf.json.JSONObject; 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.tools.ant.BuildException;
@@ -46,17 +43,11 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.xml.sax.SAXException;
-import org.zaproxy.clientapi.core.ApiResponse;
 import org.zaproxy.clientapi.core.ApiResponseElement;
-import org.zaproxy.clientapi.core.ApiResponseList;
 import org.zaproxy.clientapi.core.ClientApiException;
-
 import com.jcraft.jsch.JSchException;
-
-import hudson.slaves.SlaveComputer;
 import fr.novia.zaproxyplugin.utilities.ProxyAuthenticator;
 import fr.novia.zaproxyplugin.utilities.SSHConnexion;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -67,11 +58,8 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.servlet.ServletException;
 import javax.xml.parsers.ParserConfigurationException;
  
 
