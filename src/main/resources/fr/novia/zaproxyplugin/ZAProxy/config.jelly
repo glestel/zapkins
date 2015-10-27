@@ -120,7 +120,7 @@ SOFTWARE.
 
  
 			
-		<f:validateButton   title="${%Charger la liste des scripts}" progress="${%Chargement...}"   method="loadScriptsList" with="protocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyHost,zapProxyPort,zapProxyKey" />
+		<f:validateButton   title="${%Charger la liste des scripts}" progress="${%Chargement...}"   method="loadScriptsList" with="timeoutInSec,protocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyHost,zapProxyPort,zapProxyKey" />
 	
 			
 		 

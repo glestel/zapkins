@@ -49,6 +49,10 @@ SOFTWARE.
 			<f:textbox default="2q0ap4er4dhnlauq165mv43cht" clazz="required" />
 		</f:entry>
 		
+		<f:entry title="${%Délais d'attente de connexion serveur ZAP}" field="zapProxyDefaultTimeoutInSec">
+			<f:textbox default="2" clazz="required positive-number" />
+		</f:entry>
+		
 		<f:entry title="${%Répertoire d'installation du serveur ZAP}" field="zapDefaultDirectory">
 			<f:textbox default="/opt/ZAP_2.4.2/" clazz="required" />
 		</f:entry>
@@ -57,6 +61,10 @@ SOFTWARE.
 		<f:entry title="${%Port SSH par défaut du serveur ZAP}" field="zapDefaultSSHPort">
 			<f:number default="22" clazz="positive-number" />
 		</f:entry>
+		<f:entry title="${%Délais d'attente de connexion serveur ZAP}" field="zapProxyDefaultTimeoutSSHInSec">
+			<f:number default="2" clazz="positive-number" />
+		</f:entry>
+		
 		<f:entry title="${%Utilisateur SSH du serveur ZAP}" field="zapDefaultSSHUser">
 			<f:textbox default="user"   />
 		</f:entry>

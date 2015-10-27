@@ -125,7 +125,7 @@ public class CustomZapClientApi implements Serializable {
 			else {
 			uc = (HttpURLConnection)url.openConnection();
 			}
-			uc.setConnectTimeout(getMilliseconds(timeoutInSec));// 15 secondes
+			uc.setConnectTimeout(getMilliseconds(timeoutInSec));
 		    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		    			
 		    DocumentBuilder db = dbf.newDocumentBuilder();

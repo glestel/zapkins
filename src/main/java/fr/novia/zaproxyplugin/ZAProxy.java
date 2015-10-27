@@ -90,7 +90,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 	public static final String sessionsListFile="sessionsListFile.session";
 	
 	
-	private final static int timeoutInSec=15;	
+ 	
 	private static final int MILLISECONDS_IN_SECOND = 1000;
 	
 	
@@ -111,6 +111,12 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 	
 	/** the authentication mode (SCRIPT_BASED/FORM_BASED) */
 	private final String authenticationMode;
+	
+	
+	private int timeoutInSec;
+	
+	private int timeoutSSHInSec; 
+	
 	
 	/** Host configured when ZAProxy is used as proxy */
 	private  String zapProxyHost;	
@@ -211,10 +217,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 	
 	/** post data used to request the login URL without credentials */
 	private final String postData;
-	
-	/** cookie requiered to request the login URL*/
-	private final String cookie;
-	
+ 
 	/** Authentication information for conduct spider as a user*/
 	
 	/** user name for authentication (FormBasedAuthentication)*/
@@ -284,15 +287,19 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 		
 	//ce constructeur est ajoute par moi meme
 	@DataBoundConstructor
-	public ZAProxy(ArrayList<String> chosenScanners,  String scanMode,String authenticationMode, String zapProxyHost, int zapProxyPort, String zapProxyKey,   int zapSSHPort, String  zapSSHUser,String  zapSSHPassword,boolean useWebProxy, boolean stopZAPAtEnd, String webProxyHost, int webProxyPort,
+	public ZAProxy(int timeoutSSHInSec, int timeoutInSec,ArrayList<String> chosenScanners,  String scanMode,String authenticationMode, String zapProxyHost, int zapProxyPort, String zapProxyKey,   int zapSSHPort, String  zapSSHUser,String  zapSSHPassword,boolean useWebProxy, boolean stopZAPAtEnd, String webProxyHost, int webProxyPort,
 			String webProxyUser, String webProxyPassword, String filenameLoadSession, String targetURL,
 			boolean spiderURL, boolean ajaxSpiderURL, boolean scanURL, boolean spiderAsUser, String scriptName,
 			String loginUrl, String contextName, String includedUrl, String excludedUrl, String formLoggedInIndicator,
-			String formLoggedOutIndicator, String scriptLoggedInIndicator, String scriptLoggedOutIndicator,String postData, String cookie, String usernameParameter, String passwordParameter,String formUsername, String formPassword,String scriptUsername, String scriptPassword
+			String formLoggedOutIndicator, String scriptLoggedInIndicator, String scriptLoggedOutIndicator,String postData, String usernameParameter, String passwordParameter,String formUsername, String formPassword,String scriptUsername, String scriptPassword
 			, boolean ajaxSpiderURLAsUser, boolean scanURLAsUser, boolean saveReports, ArrayList<String> chosenFormats,
 			String filenameReports, boolean saveSession, String filenameSaveSession, String chosenPolicy,
 			String contextId, String userId, String scanId) {
 		super();
+		
+		
+		this.timeoutSSHInSec=timeoutSSHInSec;
+		this.timeoutInSec=timeoutInSec;
 		
 		this.chosenScanners=chosenScanners;
 		//this.loadAuthenticationsScripts=loadAuthenticationsScripts;
@@ -336,7 +343,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 		this.scriptLoggedOutIndicator = scriptLoggedOutIndicator;
 		
 		this.postData = postData;
-		this.cookie = cookie;
+	 
 		
 		this.usernameParameter=usernameParameter;
 		this.passwordParameter=passwordParameter;
@@ -381,7 +388,6 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 		s += "Authentication Script Name ["+scriptName+"]\n";
 		s += "loginUrl ["+loginUrl+"]\n";
 		s += "post Data ["+postData+"]\n";
-		s += "cookie ["+cookie+"]\n";
 		s += "formLoggedInIndicator ["+formLoggedInIndicator+"]\n";
 		s += "formLoggedOutIndicator ["+formLoggedOutIndicator+"]\n";
 		s += "scriptLoggedInIndicator ["+scriptLoggedInIndicator+"]\n";
@@ -546,12 +552,7 @@ public String getScriptLoggedOutIndicator() {
 		return postData;
 	}
 
-	/**
-	 * @return the cookie
-	 */
-	public String getCookie() {
-		return cookie;
-	}
+ 
 	
 	
 	/*
@@ -728,6 +729,34 @@ public String getScriptLoggedOutIndicator() {
 	 */
 	public String getZapSSHPassword() {
 		return zapSSHPassword;
+	}
+
+	/**
+	 * @return the timeoutInSec
+	 */
+	public int getTimeoutInSec() {
+		return timeoutInSec;
+	}
+
+	/**
+	 * @return the timeoutSSHInSec
+	 */
+	public int getTimeoutSSHInSec() {
+		return timeoutSSHInSec;
+	}
+
+	/**
+	 * @param timeoutSSHInSec the timeoutSSHInSec to set
+	 */
+	public void setTimeoutSSHInSec(int timeoutSSHInSec) {
+		this.timeoutSSHInSec = timeoutSSHInSec;
+	}
+
+	/**
+	 * @param timeoutInSec the timeoutInSec to set
+	 */
+	public void setTimeoutInSec(int timeoutInSec) {
+		this.timeoutInSec = timeoutInSec;
 	}
 
 	/**
@@ -2010,7 +2039,9 @@ public ListBoxModel doFillScriptNameItems() throws IOException, InterruptedExcep
 				@QueryParameter("webProxyPassword") final String webProxyPassword,
 				@QueryParameter("zapProxyHost") final String zapProxyHost,
 		        @QueryParameter("zapProxyPort") final int  zapProxyPort, 
-		        @QueryParameter("zapProxyKey") final String zapProxyKey
+		        @QueryParameter("zapProxyKey") final String zapProxyKey,
+		        @QueryParameter("timeoutInSec") final int timeoutInSec
+		        
 		        								
 				) {
 			

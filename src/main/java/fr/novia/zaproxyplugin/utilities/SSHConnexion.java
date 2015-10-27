@@ -205,7 +205,7 @@ catch (IOException e) {
 	
 }
 
-public static void  testSSH(String HOST, int PORT, String USER, String PASSWORD  ) throws JSchException, IOException{
+public static void  testSSH(String HOST, int PORT, String USER, String PASSWORD, int timeoutInMilliSec  ) throws JSchException, IOException{
 	
 	JSch jsch = new JSch();
  
@@ -213,7 +213,7 @@ public static void  testSSH(String HOST, int PORT, String USER, String PASSWORD 
 		Session session = jsch.getSession(USER, HOST, PORT);
 		session.setPassword(PASSWORD);
 		session.setConfig("StrictHostKeyChecking", "no");
-		session.connect(30000); // making a connection with timeout.
+		session.connect(timeoutInMilliSec); // making a connection with timeout.
 
 		
 		Channel channel = session.openChannel("shell");

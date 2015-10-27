@@ -34,31 +34,23 @@ SOFTWARE.
 	<f:section title="${%Informations de connexion au serveur distant ZAP}">
 
 		<f:advanced>
-	  
-<!-- 		
-		<f:entry  title="Type de protocole" field="protocol">  
-		<select name="protocol">
-		    <option value="https" selected="${instance.protocol == 'https' }">HTTPS</option>
-			<option value="http" selected="${instance.protocol == 'http' }">HTTP</option>
-			
-		</select>
-		</f:entry>  -->  
+   
 		
 	    <f:entry  title="Type de protocole" field="protocol"> 	
-	<select name="protocol">
-      <j:choose>
-        <j:when test="${instance.protocol eq 'https'}">
-          <option value="https" selected="selected">HTTPS</option>
-		  <option value="http"  >HTTP</option>
-        </j:when>
-        <j:otherwise>
-		  <option value="http" selected="selected">HTTP</option>
-          <option value="https">HTTPS</option>
-        </j:otherwise>
-      </j:choose>
-          
-    </select>
-	</f:entry> 
+		<select name="protocol">
+		  <j:choose>
+			<j:when test="${instance.protocol eq 'https'}">
+			  <option value="https" selected="selected">HTTPS</option>
+			  <option value="http"  >HTTP</option>
+			</j:when>
+			<j:otherwise>
+			  <option value="http" selected="selected">HTTP</option>
+			  <option value="https">HTTPS</option>
+			</j:otherwise>
+		  </j:choose>
+			  
+		</select>
+	   </f:entry> 
 		
 		
 		<f:entry title="${%Adresse du serveur ZAP}" field="zapProxyHost"
@@ -76,8 +68,8 @@ SOFTWARE.
 			<f:textbox default="${descriptor.zapProxyDefaultApiKey}" clazz="required" />
 		</f:entry>
 		
-		<f:entry title="${%Délai d'attente de connexion (en secondes)}" field="timeoutInSec"
-		description="Le délais d'attente par défaut est : ${descriptor.zapProxyDefaultTimeoutInSec} (${%Configuré dans l'interface d'administration de Jenkins})">
+ 		<f:entry title="${%Délais d'attente de connexion, en secondes}" field="timeoutInSec"
+		description="Le délais d'attente de connexion par défaut est : ${descriptor.zapProxyDefaultTimeoutInSec} (${%Configuré dans l'interface d'administration de Jenkins})">
 			<f:textbox default="${descriptor.zapProxyDefaultTimeoutInSec}" clazz="required positive-number" />
 		</f:entry>
 		
@@ -109,7 +101,7 @@ SOFTWARE.
 		</f:entry>	
 		</f:optionalBlock>
 		
-		<f:validateButton   title="${%Tester la connection}" progress="${%Connexion...}"   method="testZAPConnection" with="protocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyHost,zapProxyPort,zapProxyKey" />
+		<f:validateButton   title="${%Tester la connection}" progress="${%Connexion...}"   method="testZAPConnection" with="timeoutInSec,protocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyHost,zapProxyPort,zapProxyKey" />
 		
 		
 		<f:entry title="${%Répertoire d'installation du serveur ZAP}" field="zapProxyDirectory"
@@ -129,6 +121,11 @@ SOFTWARE.
 				<f:number default="${descriptor.zapDefaultSSHPort}" clazz="required positive-number" />
 			</f:entry>
 			
+			<f:entry title="${%Délais d'attente de connexion, en secondes}" field="timeoutSSHInSec"
+		description="Le délais d'attente de connexion par défaut est : ${descriptor.zapProxyDefaultTimeoutSSHInSec} (${%Configuré dans l'interface d'administration de Jenkins})">
+			<f:textbox default="${descriptor.zapProxyDefaultTimeoutSSHInSec}" clazz="required positive-number" />
+		</f:entry>
+			
 			<f:entry title="${%Nom d'utilisateur SSH}" field="zapSSHUser"
 			description="Le nom d'utilisateur par défaut est : ${descriptor.zapDefaultSSHUser} (${%Configuré dans l'interface d'administration de Jenkins})">
 			<f:textbox clazz="required" default="${descriptor.zapDefaultSSHUser}" />
@@ -141,7 +138,7 @@ SOFTWARE.
 		</table>
 		</f:entry>	
 		
-		<f:validateButton   title="${%Tester la connection}" progress="${%Connexion...}"   method="testSSHConnection" with="zapProxyHost,zapSSHPort,zapSSHUser,zapSSHPassword" />
+		<f:validateButton   title="${%Tester la connection}" progress="${%Connexion...}"   method="testSSHConnection" with="timeoutSSHInSec,zapProxyHost,zapSSHPort,zapSSHUser,zapSSHPassword" />
 		
 	
 		</f:optionalBlock>	
