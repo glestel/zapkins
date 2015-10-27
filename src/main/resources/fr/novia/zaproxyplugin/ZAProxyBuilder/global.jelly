@@ -38,7 +38,7 @@ SOFTWARE.
 	-->
 	<f:section title="Information de connexion au serveur ZAProxy">
 		<f:entry title="${%Adresse par défaut du serveur ZAP}" field="zapProxyDefaultHost">
-			<f:textbox default="10.107.2.102" clazz="required" />
+			<f:textbox default="xxx.xxx.xxx.xxx" clazz="required" />
 		</f:entry>
 
 		<f:entry title="${%Port par défaut du serveur ZAP}" field="zapProxyDefaultPort">
@@ -46,7 +46,7 @@ SOFTWARE.
 		</f:entry>
 		
 		<f:entry title="${%Clé API par défaut du serveur ZAP}" field="zapProxyDefaultApiKey">
-			<f:textbox default="2q0ap4er4dhnlauq165mv43cht" clazz="required" />
+			<f:textbox default="xxxxxxxxxxxxxxxxxxxxxx" clazz="required" />
 		</f:entry>
 		
 		<f:entry title="${%Délais d'attente de connexion serveur ZAP}" field="zapProxyDefaultTimeoutInSec">
