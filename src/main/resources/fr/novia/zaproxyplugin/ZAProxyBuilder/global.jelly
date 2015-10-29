@@ -38,23 +38,23 @@ SOFTWARE.
 	-->
 	<f:section title="Information de connexion au serveur ZAProxy">
 		<f:entry title="${%Adresse par défaut du serveur ZAP}" field="zapProxyDefaultHost">
-			<f:textbox default="xxx.xxx.xxx.xxx" clazz="required" />
+			<f:textbox default="xxx.xxx.xxx.xxx"  />
 		</f:entry>
 
 		<f:entry title="${%Port par défaut du serveur ZAP}" field="zapProxyDefaultPort">
-			<f:number default="8080" clazz="required positive-number" />
+			<f:number default="8080" clazz="positive-number" />
 		</f:entry>
 		
 		<f:entry title="${%Clé API par défaut du serveur ZAP}" field="zapProxyDefaultApiKey">
-			<f:textbox default="xxxxxxxxxxxxxxxxxxxxxx" clazz="required" />
+			<f:textbox default="xxxxxxxxxxxxxxxxxxxxxx"  />
 		</f:entry>
 		
 		<f:entry title="${%Délais d'attente de connexion serveur ZAP}" field="zapProxyDefaultTimeoutInSec">
-			<f:textbox default="2" clazz="required positive-number" />
+			<f:textbox default="2" clazz="positive-number" />
 		</f:entry>
 		
 		<f:entry title="${%Répertoire d'installation du serveur ZAP}" field="zapDefaultDirectory">
-			<f:textbox default="/opt/ZAP_2.4.2/" clazz="required" />
+			<f:textbox default="/opt/ZAP_2.4.2/"  />
 		</f:entry>
 	</f:section>	
 	<f:section title="Configuration SSH du serveur ZAProxy">
@@ -69,7 +69,7 @@ SOFTWARE.
 			<f:textbox default="user"   />
 		</f:entry>
 		<f:entry title="${%Mot de passe de l'utilisateur SSH du serveur ZAP}" field="zapDefaultSSHPassword">
-			<f:textbox default="password"  />
+			<f:password default="password"  />
 		</f:entry>
 		
 	</f:section>

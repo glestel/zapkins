@@ -28,6 +28,6 @@ SOFTWARE.
 This view is used to render the installed plugins page.
 -->
 <div>
-Ce plugin est une récriture du plugin développé par Ludovic ROUCOUX, il permet de séparer la partie client/serveur (moteur) dont ZAp afin de pouvoir utiliser JENKINS pour intérroger
+Ce plugin est une réécriture du plugin développé par Ludovic ROUCOUX, il permet de séparer la partie client/serveur (moteur) dans ZAP afin de pouvoir utiliser JENKINS pour intérroger
 le serveur ZAP distant
 </div>
