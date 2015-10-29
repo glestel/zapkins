@@ -269,7 +269,6 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy>   implements Seria
 		this.timeoutInSec=timeoutInSec;
 		
 		this.chosenScanners=chosenScanners;
-		//this.loadAuthenticationsScripts=loadAuthenticationsScripts;
 		this.scanMode=scanMode;
 		this.authenticationMode=authenticationMode;
 		
@@ -518,9 +517,6 @@ public String getScriptLoggedOutIndicator() {
 	public String getPostData() {
 		return postData;
 	}
-
- 
-	
 	
 	/*
 	 * Getters allows to load members variables into UI.
@@ -790,8 +786,7 @@ public String getScriptLoggedOutIndicator() {
 	 */
 	public void setZapProxyKey(String zapProxyKey) {
 		this.zapProxyKey = zapProxyKey;
-	}
-	
+	}	
 
 	public void setZapProxyDirectory(String zapProxyDirectory) {
 		// TODO Auto-generated method stub
@@ -976,6 +971,8 @@ public String getScriptLoggedOutIndicator() {
 				zapClientAPI.loadSession(sessionFile);
 			} else {
 				listener.getLogger().println("Skip loadSession");
+		
+						
 			}
 			
 			
@@ -983,20 +980,22 @@ public String getScriptLoggedOutIndicator() {
 			/* ========================== PREPARE THE SCANNER ============================== */ 
 			
 			
-		/* ============================================================================================= */	
-			
-			/* ======================================================= 
-			 * |                  SET Up CONTEXT                         |
-			 * ======================================================= 
-			 */
-			
-				setUpContexte(zapClientAPI, listener);
+			/* ============================================================================================= */	
 				
-			 /* ======================================================= 
-			  * |                 SET UP SCANNER                          |
-			  * ======================================================= 
-			  */
-				setUpScanner(zapClientAPI,  listener);
+				/* ======================================================= 
+				 * |                  SET Up CONTEXT                         |
+				 * ======================================================= 
+				 */
+				
+					setUpContexte(zapClientAPI, listener);
+					
+				 /* ======================================================= 
+				  * |                 SET UP SCANNER                          |
+				  * ======================================================= 
+				  */
+					setUpScanner(zapClientAPI,  listener);
+			
+
 								
 				
 			
@@ -1029,7 +1028,9 @@ public String getScriptLoggedOutIndicator() {
 			 * |                VIEW SPIDER RESULTS                       |
 			 * ======================================================= 
 			 */
+			if (spiderURL || ajaxSpiderURL){
 			zapClientAPI.viewSpiderResults(scanId, listener);
+			}
 			/* ======================================================= 
 			 * |                  SCAN URL                            |
 			 * ======================================================= 
@@ -1044,6 +1045,12 @@ public String getScriptLoggedOutIndicator() {
 			}
 	
 	case "AUTHENTICATED" :{
+		
+		
+		
+		
+		if(filenameLoadSession == null || filenameLoadSession.length() == 0){
+		
 		   listener.getLogger().println("SCANMOD : AUTHENTICATED");
 			/* =============================== MODE AVEC AUTHENTIFICATION ============================================================== */	
 			
@@ -1063,6 +1070,13 @@ public String getScriptLoggedOutIndicator() {
 			 
 			
 		   }
+		   
+		   
+	} 
+		   
+		   
+		   
+		   
 			
 			/* ======================================================= 
 			 * |                  SPIDER URL AS USER                      |
@@ -1095,7 +1109,10 @@ public String getScriptLoggedOutIndicator() {
 			 * |                VIEW SPIDER RESULTS                       |
 			 * ======================================================= 
 			 */
+			
+			if(spiderAsUser || ajaxSpiderURLAsUser ){
 			zapClientAPI.viewSpiderResults(scanId, listener);
+			}
 			
 			/* ======================================================= 
 			 * |                  SCAN URL  As USER                          |
@@ -1111,7 +1128,13 @@ public String getScriptLoggedOutIndicator() {
 			
 			break;
 			
-			}
+	}
+	
+	
+	
+	
+	
+	
 			/* ======================================= ACTIONS POST AUDIT ====================================================== */
 			
 			}
@@ -1241,7 +1264,7 @@ public String getScriptLoggedOutIndicator() {
 	 */
 	private void saveReport(String pathReports,String filenameReports, String  format, BuildListener listener, FilePath workspace, CustomZapClientApi clientApi)   {
 		
-		final String fullFileName = pathReports+this.getFILE_SEPARATOR()+format+this.getFILE_SEPARATOR()+filenameReports + "." + format;
+		final String fullFileName = pathReports+getFILE_SEPARATOR()+format+getFILE_SEPARATOR()+filenameReports + "." + format;
 		File reportsFile = new File(workspace.getRemote(), fullFileName);
 		 
 		switch (format ) {
@@ -1251,12 +1274,12 @@ public String getScriptLoggedOutIndicator() {
 				FileUtils.writeByteArrayToFile(reportsFile, clientApi.generateXmlReport());
 				listener.getLogger().println("File ["+ reportsFile.getAbsolutePath() +"] saved");
 				break;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
+			} catch (IOException e) {				
 				e.printStackTrace();
+				listener.error(ExceptionUtils.getStackTrace(e));
 			} catch (ClientApiException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				listener.error(ExceptionUtils.getStackTrace(e));
 			}  
 			
 		}
@@ -1267,8 +1290,8 @@ public String getScriptLoggedOutIndicator() {
 				listener.getLogger().println("File ["+ reportsFile.getAbsolutePath() +"] saved");
 				break;
 			} catch (IOException | ClientApiException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				listener.error(ExceptionUtils.getStackTrace(e));
 			}
 			
 			
@@ -1509,11 +1532,7 @@ public String getScriptLoggedOutIndicator() {
 	 
 	private void spiderURLAsUser(final String url, BuildListener listener, CustomZapClientApi zapClientAPI, 
 				String contextId, String userId)
-				throws InterruptedException {
-		
-		
-		
-		
+				throws InterruptedException {	
 		
 		String scanId=zapClientAPI.spiderAsUserURL(url, this.getContextId(), this.getUserId(), "0", listener);
 		this.setScanId(scanId);

@@ -662,14 +662,14 @@ public class CustomZapApi implements Serializable {
 		return callApi("ascan", "action", "setScannerAttackStrength", map);
 	}
 
-	public ApiResponse setScannerAlertThreshold(String apikey, String id, String attackstrength, String scanpolicyname) throws ClientApiException {
+	public ApiResponse setScannerAlertThreshold(String apikey, String id, String alertThreshold, String scanpolicyname) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
 		map.put("id", id);
-		map.put("attackStrength", attackstrength);
+		map.put("alertThreshold", alertThreshold);
 		map.put("scanPolicyName", scanpolicyname);
 		return callApi("ascan", "action", "setScannerAlertThreshold", map);
 	}
