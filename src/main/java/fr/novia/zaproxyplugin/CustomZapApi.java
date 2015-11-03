@@ -35,31 +35,35 @@ public class CustomZapApi implements Serializable {
 	private final String PROTOCOL="http";
 	private  final  String zapProxyHost;
 	private  final String zapProxyPort;
+	private  final boolean  debug;
 
 
 	private  BuildListener listener;
 	
-	public CustomZapApi(String zapProxyHost, String zapProxyPort, BuildListener listener) {
+	public CustomZapApi(String zapProxyHost, String zapProxyPort, BuildListener listener, boolean  debug) {
 		super();
 		this.zapProxyHost = zapProxyHost;
 		this.zapProxyPort = zapProxyPort;
 		this.listener= listener;
+		this.debug=debug;
 	}
 	
-	public CustomZapApi(String PROTOCOL,String zapProxyHost, String zapProxyPort, BuildListener listener) {
+	public CustomZapApi(String PROTOCOL,String zapProxyHost, String zapProxyPort, BuildListener listener, boolean  debug) {
 		super();
 		//this.PROTOCOL=PROTOCOL;
 		this.zapProxyHost = zapProxyHost;
 		this.zapProxyPort = zapProxyPort;
 		this.listener= listener;
+		this.debug=debug;
 	}
 	 
 	
-	public CustomZapApi(String zapProxyHost, String zapProxyPort) {
+	public CustomZapApi(String zapProxyHost, String zapProxyPort, boolean  debug) {
 		// TODO Auto-generated constructor stub
 		super();
 		this.zapProxyHost = zapProxyHost;
 		this.zapProxyPort = zapProxyPort;
+		this.debug=debug;
 		
 	}
 
@@ -82,20 +86,6 @@ public class CustomZapApi implements Serializable {
 	}
 
 
-
-
-	
-
-	/**************************************** Methodes utilitaires ********************/
-	/****************** LIST SCRIPTS ****************************/
-	/**
-	 * Lists the scripts available, with its engine, name, description, type and error state.
-	 */
-	public ApiResponse listScripts() throws ClientApiException {
-		Map<String, String> map = null;
-		return callApi("script", "view", "listScripts", map);
-	}
-	
 	
 	/**
 	 * @return the listener
@@ -104,28 +94,38 @@ public class CustomZapApi implements Serializable {
 		return listener;
 	}
 
-
-
-
 	/**
 	 * @param listener the listener to set
 	 */
 	public void setListener(BuildListener listener) {
 		this.listener = listener;
 	}
-
-
-
-
-	/************************* HOME DIRECTORY *******************************************/
 	
-	public ApiResponse homeDirectory() throws ClientApiException {
+	
+/**************************************** || VIEWS || ******************************************/
+	
+	
+	
+/****************** LIST SCRIPTS *************************/
+	
+	
+	/**
+	 * Lists the scripts available, with its engine, name, description, type and error state.
+	 */
+	public ApiResponse listScripts() throws ClientApiException {
+		Map<String, String> map = null;
+		return callApi("script", "view", "listScripts", map);
+	}
+
+/***************** HOME DIRECTORY *************************/
+	
+	public ApiResponse getZAPHomeDirectory() throws ClientApiException {
 		Map<String, String> map = null;
 		return callApi("core", "view", "homeDirectory", map);
 	}
 	
 	
-	/************************* Authentification ******************************/
+/************************* Authentification ****************/
 	
 	public ApiResponse getSupportedAuthenticationMethods() throws ClientApiException {
 		Map<String, String> map = null;
@@ -146,6 +146,87 @@ public class CustomZapApi implements Serializable {
 		return callApi("users", "view", "getAuthenticationCredentialsConfigParams", map);
 	}
 	
+	public ApiResponse getLoggedInIndicator(String contextid) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("contextId", contextid);
+		return callApi("authentication", "view", "getLoggedInIndicator", map);
+	}
+	
+	public ApiResponse getLoggedOutIndicator(String contextid) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("contextId", contextid);
+		return callApi("authentication", "view", "getLoggedOutIndicator", map);
+	}
+	
+	public ApiResponse getAuthenticationMethod(String contextid) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("contextId", contextid);
+		return callApi("authentication", "view", "getAuthenticationMethod", map);
+	}
+	
+	
+	public ApiResponse usersList(String contextid) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("contextId", contextid);
+		return callApi("users", "view", "usersList", map);
+	}
+	
+	
+	public ApiResponse getUserById(String contextid, String userid) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("contextId", contextid);
+		map.put("userId", userid);
+		return callApi("users", "view", "getUserById", map);
+	}
+	
+	
+	
+	public ApiResponse isForcedUserModeEnabled() throws ClientApiException {
+		Map<String, String> map = null;
+		return callApi("forcedUser", "view", "isForcedUserModeEnabled", map);
+	}
+
+	public ApiResponse getForcedUser(String contextid) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("contextId", contextid);
+		return callApi("forcedUser", "view", "getForcedUser", map);
+	}
+	
+	public ApiResponse scanPolicyNames() throws ClientApiException {
+		Map<String, String> map = null;
+		return callApi("ascan", "view", "scanPolicyNames", map);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**************************************** || ACTIONS || ******************************************/	
+	
 	public ApiResponse setLoggedInIndicator(String apikey, String contextid, String loggedinindicatorregex) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -155,13 +236,6 @@ public class CustomZapApi implements Serializable {
 		map.put("contextId", contextid);
 		map.put("loggedInIndicatorRegex", loggedinindicatorregex);
 		return callApi("authentication", "action", "setLoggedInIndicator", map);
-	}
-	
-	public ApiResponse getLoggedInIndicator(String contextid) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		map.put("contextId", contextid);
-		return callApi("authentication", "view", "getLoggedInIndicator", map);
 	}
 	
 	public ApiResponse setLoggedOutIndicator(String apikey, String contextid, String loggedoutindicatorregex) throws ClientApiException {
@@ -174,13 +248,7 @@ public class CustomZapApi implements Serializable {
 		map.put("loggedOutIndicatorRegex", loggedoutindicatorregex);
 		return callApi("authentication", "action", "setLoggedOutIndicator", map);
 	}
-	public ApiResponse getLoggedOutIndicator(String contextid) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		map.put("contextId", contextid);
-		return callApi("authentication", "view", "getLoggedOutIndicator", map);
-	}
-	
+
 	public ApiResponse setAuthenticationMethod(String apikey, String contextid, String authmethodname, String authmethodconfigparams) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -192,14 +260,7 @@ public class CustomZapApi implements Serializable {
 		map.put("authMethodConfigParams", authmethodconfigparams);
 		return callApi("authentication", "action", "setAuthenticationMethod", map);
 	}
-	
-	public ApiResponse getAuthenticationMethod(String contextid) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		map.put("contextId", contextid);
-		return callApi("authentication", "view", "getAuthenticationMethod", map);
-	}
-	
+		
 	public ApiResponse newUser(String apikey, String contextid, String name) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -209,7 +270,7 @@ public class CustomZapApi implements Serializable {
 		map.put("contextId", contextid);
 		map.put("name", name);
 		return callApi("users", "action", "newUser", map);
-	}
+	}	
 	
 	public ApiResponse setAuthenticationCredentials(String apikey, String contextid, String userid, String authcredentialsconfigparams) throws ClientApiException {
 		Map<String, String> map = null;
@@ -222,14 +283,7 @@ public class CustomZapApi implements Serializable {
 		map.put("authCredentialsConfigParams", authcredentialsconfigparams);
 		return callApi("users", "action", "setAuthenticationCredentials", map);
 	}
-	
-	public ApiResponse getUserById(String contextid, String userid) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		map.put("contextId", contextid);
-		map.put("userId", userid);
-		return callApi("users", "view", "getUserById", map);
-	}
+
 	
 	/******************************************* AjaxSpider.java ***********************************************************/
 	
@@ -316,18 +370,7 @@ public class CustomZapApi implements Serializable {
 	}
 	
 	/********************************************** ForcedUser.java *************************************************************/
-	
-	public ApiResponse isForcedUserModeEnabled() throws ClientApiException {
-		Map<String, String> map = null;
-		return callApi("forcedUser", "view", "isForcedUserModeEnabled", map);
-	}
 
-	public ApiResponse getForcedUser(String contextid) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		map.put("contextId", contextid);
-		return callApi("forcedUser", "view", "getForcedUser", map);
-	}
 
 	public ApiResponse setForcedUser(String apikey, String contextid, String userid) throws ClientApiException {
 		Map<String, String> map = null;
@@ -394,13 +437,10 @@ public class CustomZapApi implements Serializable {
 		map.put("maxChildren", maxchildren);
 		return callApi("spider", "action", "scan", map);
 	}
-	
 
 	
-	public ApiResponse scanPolicyNames() throws ClientApiException {
-		Map<String, String> map = null;
-		return callApi("ascan", "view", "scanPolicyNames", map);
-	}
+	
+	/********************** SESSION ************************/
 
 	/**
 	 * Loads the session with the given name. If a relative path is specified it will be resolved against the "session" directory in ZAP "home" dir.
@@ -429,6 +469,21 @@ public class CustomZapApi implements Serializable {
         map.put("overwrite", overwrite);
         return callApi("core", "action", "saveSession", map);
 }
+	
+	
+	/**
+	 * Creates a new session, optionally overwriting existing files. If a relative path is specified it will be resolved against the "session" directory in ZAP "home" dir.
+	 */
+	public ApiResponse newSession(String apikey, String name, String overwrite) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("name", name);
+		map.put("overwrite", overwrite);
+		return callApi("core", "action", "newSession", map);
+	}
 
 	
 	
@@ -560,7 +615,10 @@ public class CustomZapApi implements Serializable {
 		}
 		//debug=true
         //System.out.println(sb.toString());
+		
+		if(debug == true )
 		this.listener.getLogger().println(sb.toString());
+		
 		return new URL(sb.toString());
 	}
 

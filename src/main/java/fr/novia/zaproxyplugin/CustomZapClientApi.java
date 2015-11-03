@@ -43,6 +43,7 @@ public class CustomZapClientApi implements Serializable {
 	private static final int MILLISECONDS_IN_SECOND = 1000;
 	private final String zapProxyKey;
 	public final CustomZapApi api;
+	private  final boolean  debug;
 
 	private BuildListener listener;
 
@@ -50,22 +51,23 @@ public class CustomZapClientApi implements Serializable {
 	 * Constructeurs de classe
 	 *****************************************************/
 
-	public CustomZapClientApi(String ZAP_ADDRESS, int zapProxyPort, String ZAP_API_KEY, BuildListener listener) {
+	public CustomZapClientApi(String ZAP_ADDRESS, int zapProxyPort, String ZAP_API_KEY, BuildListener listener, boolean debug) {
 		super();
 
 		this.zapProxyKey = ZAP_API_KEY;
 		this.listener = listener;
+		this.debug=debug;
 
-		this.api = new CustomZapApi(ZAP_ADDRESS, "" + zapProxyPort + "", listener);
+		this.api = new CustomZapApi(ZAP_ADDRESS, "" + zapProxyPort + "", listener, debug);
 	}
 
-	public CustomZapClientApi(String zapProxyHost, int zapProxyPort, String zapProxyKey) {
+	public CustomZapClientApi(String zapProxyHost, int zapProxyPort, String zapProxyKey, boolean debug) {
 		// TODO Auto-generated constructor stub
 		super();
 
 		this.zapProxyKey = zapProxyKey;
-
-		this.api = new CustomZapApi(zapProxyHost, "" + zapProxyPort + "");
+		this.debug=debug;
+		this.api = new CustomZapApi(zapProxyHost, "" + zapProxyPort + "", debug);
 	}
 
 	/***************************************************************************************************************************/
@@ -232,7 +234,7 @@ public class CustomZapClientApi implements Serializable {
 
 		ApiResponseElement set = null;
 		try {
-			set = (ApiResponseElement) api.homeDirectory();
+			set = (ApiResponseElement) api.getZAPHomeDirectory();
 
 		} catch (ClientApiException e) {
 			// TODO Auto-generated catch block
@@ -272,6 +274,36 @@ public class CustomZapClientApi implements Serializable {
 			// e.printStackTrace();
 		}
 		return null;
+	}
+	
+	
+	public String  getUserId(String contextid, BuildListener listener) throws ClientApiException {
+		
+		
+		ApiResponseList userParamsList = (ApiResponseList) api.usersList(contextid);
+		String userId = null;
+		StringBuilder sb = new StringBuilder("Users' config params: \n");
+		//{"usersList":[{"id":"0","enabled":"true","contextId":"2","name":"ZAP USER","credentials":{"username":"test","type":"UsernamePasswordAuthenticationCredentials","password":"test"}}]}
+		for (ApiResponse r : userParamsList.getItems()) {
+			ApiResponseSet set = (ApiResponseSet) r;
+			userId=set.getAttribute("id");
+			sb.append("id="+set.getAttribute("id"));
+			sb.append("\n");
+			
+			sb.append("enabled="+set.getAttribute("enabled"));
+			sb.append("\n");
+			
+			sb.append("contextId="+set.getAttribute("contextId"));
+			sb.append("\n");
+			
+			sb.append("name="+set.getAttribute("name"));
+			sb.append("\n");
+			sb.append("/************************/");
+			 
+		}
+		listener.getLogger().println(sb);
+			return userId;
+		 
 	}
 
 	/****************************
@@ -684,9 +716,31 @@ public class CustomZapClientApi implements Serializable {
 			 
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
+			
 		}
 		return "KO";
 	}
+	
+	/**
+	 * Creates a new session, optionally overwriting existing files. If a relative path is specified it will be resolved against the "session" directory in ZAP "home" dir.
+	 */
+	public String newSession(String name, String overwrite, BuildListener listener)   {
+		try {
+		ApiResponse status = api.newSession(zapProxyKey, name, overwrite);
+		listener.getLogger().println(((ApiResponseElement) status).getValue());
+
+		return ((ApiResponseElement) status).getValue();
+		
+	} catch (ClientApiException e) {
+		 
+		e.printStackTrace();
+		listener.error(ExceptionUtils.getStackTrace(e));
+		
+	}
+	return "KO";
+	
+	}
+
 
 	/**************************************************************************/
 
