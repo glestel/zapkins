@@ -109,9 +109,6 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	/** Use a web Proxy or not by ZAProxy */
 	private final boolean useWebProxy;
 
-	/** stop ZAP at the end of scan */
-	private final boolean stopZAPAtEnd;
-
 	/**
 	 * Filename to load ZAProxy session. Contains the absolute path to the
 	 * session
@@ -218,7 +215,11 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	 * (without extension)
 	 */
 	private final String chosenPolicy;
-
+	
+	
+	
+	/** stop ZAP at the end of scan */
+	private  boolean stopZAPAtEnd;
 	/**
 	 * Temps d'attente d'établissement de connexion au serveur ZAP en secondes
 	 */
@@ -719,6 +720,13 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	}
 
 	/**
+	 * @param stopZAPAtEnd the stopZAPAtEnd to set
+	 */
+	public void setStopZAPAtEnd(boolean stopZAPAtEnd) {
+		this.stopZAPAtEnd = stopZAPAtEnd;
+	}
+
+	/**
 	 * @return the useWebProxy
 	 */
 	public boolean isUseWebProxy() {
@@ -965,9 +973,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		try {
 
 			/*
-			 * ======================================================= | ZAP
-			 * FILE PATH SEPARATOR |
-			 * =======================================================
+			 * ======================================================= | ZAP FILE PATH SEPARATOR | =======================================================
 			 */
 
 			String zapHomeDirectory = zapClientAPI.getZapHomeDirectory();
@@ -1016,7 +1022,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		} finally {
 
 			if (stopZAPAtEnd) {
-
+				
 				stopZAP(zapClientAPI, listener);
 			}
 
@@ -1421,7 +1427,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	 * @throws IOException
 	 */
 	private void saveReport(String pathReports, String filenameReports, String format, BuildListener listener,
-			FilePath workspace, CustomZapClientApi clientApi) {
+			FilePath workspace, CustomZapClientApi clientApi) throws IOException, ClientApiException {
 
 		final String fullFileName = pathReports + getFILE_SEPARATOR() + format + getFILE_SEPARATOR() + filenameReports
 				+ "." + format;
@@ -1430,29 +1436,20 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		switch (format) {
 
 		case "xml": {
-			try {
+			 
 				FileUtils.writeByteArrayToFile(reportsFile, clientApi.generateXmlReport());
 				listener.getLogger().println("File [" + reportsFile.getAbsolutePath() + "] saved");
 				break;
-			} catch (IOException e) {
-				e.printStackTrace();
-				listener.error(ExceptionUtils.getStackTrace(e));
-			} catch (ClientApiException e) {
-				e.printStackTrace();
-				listener.error(ExceptionUtils.getStackTrace(e));
-			}
+			 
 
 		}
 
 		case "html": {
-			try {
+			 
 				FileUtils.writeByteArrayToFile(reportsFile, clientApi.generateHtmlReport());
 				listener.getLogger().println("File [" + reportsFile.getAbsolutePath() + "] saved");
 				break;
-			} catch (IOException | ClientApiException e) {
-				e.printStackTrace();
-				listener.error(ExceptionUtils.getStackTrace(e));
-			}
+			 
 
 		}
 

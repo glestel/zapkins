@@ -2,12 +2,14 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
+  
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
     <version>1.580.1</version>
     <relativePath></relativePath>
   </parent>
+  
   <groupId>fr.novia</groupId>
   <artifactId>zaproxy</artifactId>
   <version>1.1.8-SNAPSHOT</version>
@@ -168,11 +170,11 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.jenkins-ci.plugins</groupId>
-      <artifactId>credentials</artifactId>
-      <version>1.9.4</version>
-      <scope>compile</scope>
+       <groupId>org.jenkins-ci.plugins</groupId>
+       <artifactId>ssh-credentials</artifactId>
+       <version>1.9</version>
     </dependency>
+         
     <dependency>
       <groupId>org.zaproxy</groupId>
       <artifactId>zap-api</artifactId>
@@ -180,12 +182,11 @@
       <classifier>v6</classifier>
       <scope>compile</scope>
     </dependency>
-    <dependency>
+   <dependency>
       <groupId>com.jcraft</groupId>
       <artifactId>jsch</artifactId>
-      <version>0.1.53</version>
-      <scope>compile</scope>
-    </dependency>
+      <version>0.1.52</version>
+    </dependency> 
     <dependency>
       <groupId>org.jenkins-ci.main</groupId>
       <artifactId>jenkins-war</artifactId>
@@ -853,7 +854,6 @@
       <plugin>
         <groupId>com.cloudbees</groupId>
         <artifactId>maven-license-plugin</artifactId>
-        <version>1.7</version>
         <executions>
           <execution>
             <phase>prepare-package</phase>
