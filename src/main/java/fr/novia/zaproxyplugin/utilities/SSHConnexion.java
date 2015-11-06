@@ -134,55 +134,58 @@ public static boolean execCommand(String HOST, int PORT, String USER, String PAS
 	
 	JSch jsch = new JSch();
 	try {
-
+		//session
 		Session session = jsch.getSession(USER, HOST, PORT);
 		session.setPassword(PASSWORD);
 		session.setConfig("StrictHostKeyChecking", "no");
-		session.connect(3000); // making a connection with timeout.
-
+		session.connect(2000); // making a connection with timeout.		
 		
+		//channel
 		Channel channel = session.openChannel("exec");
-		// Enable agent-forwarding.
-	   // ((ChannelShell)channel).setAgentForwarding(true);
-		((ChannelExec) channel).setCommand(command);
-
 		channel.setInputStream(null);
-		((ChannelExec) channel).setErrStream(System.err);
 		
+		//channel exec 
+		ChannelExec channelExec = (ChannelExec) channel ; 
+		channelExec.setCommand(command);
+		channelExec.setErrStream(System.err);
 		
 		
 		InputStream in = channel.getInputStream();
-
 		channel.connect();
 
-		byte[] tmp = new byte[1024];
 		
-		while (true) {
-			while (in.available() > 0) {
-				int i = in.read(tmp, 0, 1024);
-				if (i < 0)
-					break;
-				System.out.print(new String(tmp, 0, i));
-				//listener.getLogger().println(new String(tmp, 0, i));
-				System.out.println("exit-status: " + channel.getExitStatus());
-				//listener.getLogger().println("exit-status: " + channel.getExitStatus());
-			}
-			if (channel.isClosed()) {
-				if (in.available() > 0)
-					continue;
-				System.out.println("exit-status: " + channel.getExitStatus());
-				listener.getLogger().println("exit-status: " + channel.getExitStatus());
-				break;
-			}
+		byte[] tmp = new byte[1024];
+		 
+		
+//		while (true) {
+//			while (in.available() > 0) {
+//				int i = in.read(tmp, 0, 1024);
+//				if (i < 0)
+//					break;
+//				System.out.print(new String(tmp, 0, i));
+//				listener.getLogger().println(new String(tmp, 0, i));
+//				
+//				System.out.println("exit-status: " + channel.getExitStatus());
+//				listener.getLogger().println("exit-status: " + channel.getExitStatus());
+//			}
+//			if (channel.isClosed()) {
+//				if (in.available() > 0)
+//					continue;
+//				System.out.println("exit-status (channel is closed): " + channel.getExitStatus());
+//				listener.getLogger().println("exit-status (channel is closed): " + channel.getExitStatus());
+//				break;
+//			}
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(5000);// 1 seconde
 			} catch (Exception ee) {
 				listener.error(ExceptionUtils.getStackTrace(ee));
+				ee.printStackTrace();
 			}
-		}
+//		}
 		
-		System.out.println("exit-status: " + channel.getExitStatus());
-		listener.getLogger().println("exit-status: " + channel.getExitStatus());
+		System.out.println("exit-status (FIN): " + channel.getExitStatus());
+		listener.getLogger().println("exit-status (FIN): " + channel.getExitStatus());
+		
 		channel.disconnect();
 		session.disconnect();
 
@@ -279,7 +282,6 @@ public static String getQueryShell(String HOST, int PORT, String USER, String PA
 //        String password = PASSWORD;
 
         Session session=jsch.getSession(USER,HOST,PORT);
-
         java.util.Properties config = new java.util.Properties();
         config.put("StrictHostKeyChecking","no");
         session.setConfig(config);

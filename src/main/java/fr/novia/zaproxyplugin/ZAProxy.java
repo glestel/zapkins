@@ -1023,6 +1023,13 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 
 			if (stopZAPAtEnd) {
 				
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 				stopZAP(zapClientAPI, listener);
 			}
 

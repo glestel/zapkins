@@ -67,7 +67,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 
-import fr.novia.zaproxyplugin.utilities.CredentialsSSHSiteOld ;
+
 
 /**
  * 
@@ -525,7 +525,8 @@ public class ZAProxyBuilder extends Builder {
 			listener.getLogger().println("------- START Prebuild -------");
 
 			listener.getLogger().println("Perform ZAProxy");
-			final String linuxCommand = "ls -l";//sh " +this.getZapProxyDirectory() + "zap.sh -daemon";
+			//Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh /opt/ZAP_2.4.2/zap.sh -daemon
+			final String linuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " +this.getZapProxyDirectory() + "zap.sh -daemon -port "+this.getZapProxyPort();
 			final String WindowsCommand = this.getZapProxyDirectory() + "zap.bat -daemon";
 			 
 			
@@ -537,75 +538,17 @@ public class ZAProxyBuilder extends Builder {
 			listener.getLogger().println("Starting ZAP remotely (SSH)");
 			listener.getLogger().println("SSH PORT : " + this.getZapSSHPort());
 			listener.getLogger().println("SSH USER : " + this.getZapSSHUser());
+			listener.getLogger().println("SSH PASSWORD : " + getZapSSHPassword());
+			listener.getLogger().println("COMMAND : " + linuxCommand);
+			listener.getLogger().println("LISTENER : " + listener);			
 			listener.getLogger().println("ZAP DIRECTORY : " + this.getZapProxyDirectory());
+			
+			
 			//SSHConnexion.execCommand(getZapProxyHost(), getZapSSHPort(), getZapSSHUser(), getZapSSHPassword(),linuxCommand, getListener());
-						
-			
-			
-			CredentialsSSHSiteOld site = new CredentialsSSHSiteOld(getZapProxyHost(),getZapSSHPort(), getZapSSHUser(),getZapSSHPassword(),"0","0");
-			// Get the build variables and make sure we substitute the current SSH Server host name
-			try {
-				site.setResolvedHostname(build.getEnvironment(listener).expand(site.getHostname()));
-			} catch (IOException | InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				listener.error(ExceptionUtils.getStackTrace(e1));
-			}
-			
-			
-			
-
-//			Map<String, String> vars = new HashMap<String, String>(); 
-//			vars.putAll(build.getEnvironment(listener));
-//			vars.putAll(build.getBuildVariables());
-//			String runtime_cmd = VariableReplacerUtil.replace(linuxCommand, vars);
-//			String scrubbed_cmd = VariableReplacerUtil.scrub(runtime_cmd, vars, build.getSensitiveBuildVariables());
-
-			if (linuxCommand != null && linuxCommand.trim().length() > 0) {
-//				if (execEachLine) {
-//					listener.getLogger().printf("[SSH] commands:%n%s%n", scrubbed_cmd);
-//				}
-//				else {
-//					listener.getLogger().printf("[SSH] script:%n%s%n", scrubbed_cmd);
-//				}
-				listener.getLogger().printf("%n[SSH] executing...%n");
-				try {
-					return site.executeCommand(listener.getLogger(), linuxCommand,false)==0;
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					listener.error(ExceptionUtils.getStackTrace(e));
-				}//, execEachLine) == 0;
-			}
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
 
 //			Thread queryThread = new Thread() {
 //				public void run() {
-					//SSHConnexion.execCommand(getZapProxyHost(), getZapSSHPort(), getZapSSHUser(), getZapSSHPassword(),linuxCommand, getListener());
+			SSHConnexion.execCommand(getZapProxyHost(), getZapSSHPort(), getZapSSHUser(), getZapSSHPassword(),linuxCommand, listener);
 					//SSHConnexion.getQueryShell(getZapProxyHost(), getZapSSHPort(), getZapSSHUser(), getZapSSHPassword(),linuxCommand);
 					
 //				}
