@@ -218,6 +218,9 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	
 	
 	
+	
+	
+	private  String protocol;
 	/** stop ZAP at the end of scan */
 	private  boolean stopZAPAtEnd;
 	/**
@@ -720,6 +723,20 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	}
 
 	/**
+	 * @return the protocol
+	 */
+	public String getProtocol() {
+		return protocol;
+	}
+
+	/**
+	 * @param protocol the protocol to set
+	 */
+	public void setProtocol(String protocol) {
+		this.protocol = protocol;
+	}
+
+	/**
 	 * @param stopZAPAtEnd the stopZAPAtEnd to set
 	 */
 	public void setStopZAPAtEnd(boolean stopZAPAtEnd) {
@@ -964,7 +981,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 
 	public boolean executeZAP(FilePath workspace, BuildListener listener) {
 
-		CustomZapClientApi zapClientAPI = new CustomZapClientApi(zapProxyHost, zapProxyPort, zapProxyKey, listener,debug);
+		CustomZapClientApi zapClientAPI = new CustomZapClientApi(getProtocol(),zapProxyHost, zapProxyPort, zapProxyKey, listener,debug);
 		boolean buildSuccess = true;
 
 		// Try/catch here because I need to stopZAP in finally block and for
@@ -983,6 +1000,13 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			} else {
 				setFILE_SEPARATOR("\\");
 			}
+			
+			/*
+			 * ======================================================= | PERSISIT SESSION | =======================================================
+			 */
+			//Une première action à faire 
+			
+			
 
 			/*
 			 * ======================================================= | LOAD SESSION | =======================================================

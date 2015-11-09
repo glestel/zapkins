@@ -31,13 +31,12 @@ public class CustomZapApi implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -3728827419473825213L;
-	private final String PROTOCOL="http";
+	private static final long serialVersionUID = -3728827419473825213L;	
 	private  final  String zapProxyHost;
 	private  final String zapProxyPort;
 	private  final boolean  debug;
 
-
+	private  String PROTOCOL="http";
 	private  BuildListener listener;
 	
 	public CustomZapApi(String zapProxyHost, String zapProxyPort, BuildListener listener, boolean  debug) {
@@ -50,7 +49,7 @@ public class CustomZapApi implements Serializable {
 	
 	public CustomZapApi(String PROTOCOL,String zapProxyHost, String zapProxyPort, BuildListener listener, boolean  debug) {
 		super();
-		//this.PROTOCOL=PROTOCOL;
+		this.PROTOCOL=PROTOCOL;
 		this.zapProxyHost = zapProxyHost;
 		this.zapProxyPort = zapProxyPort;
 		this.listener= listener;

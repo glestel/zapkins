@@ -161,7 +161,10 @@ public class ZAProxyBuilder extends Builder {
 		this.zaproxy.setTimeoutSSHInSec(timeoutSSHInSec);
 		
         /***************** ZAP PROXY *******************************/
-		this.protocol = protocol;		
+		this.protocol = protocol;
+		this.zaproxy.setProtocol(protocol);
+		
+		
 		this.zapProxyHost = zapProxyHost;
 		this.zapProxyPort = zapProxyPort;
 		this.zapProxyKey = zapProxyKey;

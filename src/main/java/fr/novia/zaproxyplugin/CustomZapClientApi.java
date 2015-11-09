@@ -42,18 +42,20 @@ public class CustomZapClientApi implements Serializable {
 	private static final long serialVersionUID = 3961600153488729709L;
 	private static final int MILLISECONDS_IN_SECOND = 1000;
 	private final String zapProxyKey;
+	
+	
 	public final CustomZapApi api;
 	private  final boolean  debug;
 
 	private BuildListener listener;
-
+	private  String PROTOCOL;	
 	/*******************************************
 	 * Constructeurs de classe
 	 *****************************************************/
 
 	public CustomZapClientApi(String ZAP_ADDRESS, int zapProxyPort, String ZAP_API_KEY, BuildListener listener, boolean debug) {
 		super();
-
+		
 		this.zapProxyKey = ZAP_API_KEY;
 		this.listener = listener;
 		this.debug=debug;
@@ -61,6 +63,15 @@ public class CustomZapClientApi implements Serializable {
 		this.api = new CustomZapApi(ZAP_ADDRESS, "" + zapProxyPort + "", listener, debug);
 	}
 
+	public CustomZapClientApi(String PROTOCOL,String ZAP_ADDRESS, int zapProxyPort, String ZAP_API_KEY, BuildListener listener, boolean debug) {
+		super();
+		this.PROTOCOL=PROTOCOL;
+		this.zapProxyKey = ZAP_API_KEY;
+		this.listener = listener;
+		this.debug=debug;
+
+		this.api = new CustomZapApi(PROTOCOL, ZAP_ADDRESS, "" + zapProxyPort + "", listener, debug);
+	}
 	public CustomZapClientApi(String zapProxyHost, int zapProxyPort, String zapProxyKey, boolean debug) {
 		// TODO Auto-generated constructor stub
 		super();
