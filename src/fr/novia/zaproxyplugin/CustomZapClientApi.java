@@ -27,9 +27,9 @@ import org.zaproxy.clientapi.core.ApiResponseElement;
 import org.zaproxy.clientapi.core.ApiResponseFactory;
 import org.zaproxy.clientapi.core.ClientApiException;
 
-import fr.novia.zaproxyplugin.utilities.PropertyLoader;
-import fr.novia.zaproxyplugin.utilities.ProxyAuthenticator;
+ 
 import hudson.model.BuildListener;
+import  fr.novia.zaproxyplugin.utilities.ProxyAuthenticator;
 
 import org.zaproxy.clientapi.core.ApiResponseList;
 import org.zaproxy.clientapi.core.ApiResponseSet;

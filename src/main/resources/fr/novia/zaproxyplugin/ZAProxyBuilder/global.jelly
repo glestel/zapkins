@@ -37,6 +37,22 @@ SOFTWARE.
 	so it should be straightforward to find them.
 	-->
 	<f:section title="Information de connexion au serveur ZAProxy">
+			
+	    <f:entry  title="Type de protocole" field="defaultProtocol"> 	
+		<select name="defaultProtocol">
+		  <j:choose>
+			<j:when test="${instance.defaultProtocol eq 'https'}">
+			  <option value="https" selected="selected">HTTPS</option>
+			  <option value="http"  >HTTP</option>
+			</j:when>
+			<j:otherwise>
+			  <option value="http" selected="selected">HTTP</option>
+			  <option value="https">HTTPS</option>
+			</j:otherwise>
+		  </j:choose>
+			  
+		</select>
+	   </f:entry> 
 		<f:entry title="${%Adresse par défaut du serveur ZAP}" field="zapProxyDefaultHost">
 			<f:textbox default="xxx.xxx.xxx.xxx"  />
 		</f:entry>
@@ -57,21 +73,81 @@ SOFTWARE.
 			<f:textbox default="/opt/ZAP_2.4.2/"  />
 		</f:entry>
 	</f:section>	
-	<f:section title="Configuration SSH du serveur ZAProxy">
-		<f:entry title="${%Port SSH par défaut du serveur ZAP}" field="zapDefaultSSHPort">
-			<f:number default="22" clazz="positive-number" />
-		</f:entry>
-		<f:entry title="${%Délais d'attente de connexion serveur ZAP}" field="zapProxyDefaultTimeoutSSHInSec">
-			<f:number default="2" clazz="positive-number" />
-		</f:entry>
+	
+	<f:advanced>		
+	    <f:optionalBlock title="${%Utiliser un serveur proxy web}" field="useWebProxy" inline="true" >
+		<f:entry>
+		<table width="100%">
 		
-		<f:entry title="${%Utilisateur SSH du serveur ZAP}" field="zapDefaultSSHUser">
-			<f:textbox default="user"   />
-		</f:entry>
-		<f:entry title="${%Mot de passe de l'utilisateur SSH du serveur ZAP}" field="zapDefaultSSHPassword">
-			<f:password default="password"  />
-		</f:entry>
+			<f:entry title="${%Adresse du serveur proxy web}" field="webProxyHost"
+			description="Entrer L'adresse du serveur proxy web">
+				<f:textbox default="10.234.168.99" clazz="required" />
+			</f:entry>
+			
+			<f:entry title="${%Port du serveur proxy web}" field="webProxyPort"
+			description="Entrer Le numéro de port du serveur proxy web">
+				<f:number default="8080" clazz="required positive-number" />
+			</f:entry>
+			
+			<f:entry title="${%Nom de l'utilisateur}" field="webProxyUser"
+			description="Entrer Le nom de l'utilisateur">
+				<f:textbox default="username" clazz="required" />
+			</f:entry>
+			
+			<f:entry title="${%Mot de passe de l'utilisateur}" field="webProxyPassword"
+			description="Entrer Le mot de passe de l'utilisateur">
+				<f:password default="password" clazz="required" />
+			</f:entry>
+ 
+		</table>
+		</f:entry>	
+		</f:optionalBlock>
 		
-	</f:section>
+		<f:validateButton   title="${%Tester la connection}" progress="${%Connexion...}"   method="testZAPConnection" with="zapProxyDefaultTimeoutInSec,defaultProtocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyDefaultHost,zapProxyDefaultPort,zapProxyDefaultApiKey" />
+		<!-- ******************************************************************************** -->
+			
+		<f:optionalBlock title="${%Démarrer ZAP à distance}" field="startZAPFirst" inline="true" >	
+		
+		<f:entry>
+		<table width="100%">
+		
+			<f:entry title="${%Numéro de port SSH du serveur ZAP}" field="zapDefaultSSHPort">
+				<f:number default="22" clazz="required positive-number" />
+			</f:entry>
+					
+			<f:entry title="${%Nom d'utilisateur SSH}" field="zapDefaultSSHUser">
+			<f:textbox clazz="required" default="jenkins" />
+			</f:entry>
+			
+			<f:entry title="${%Mot de passe d'utilisateur SSH}" field="zapDefaultSSHPassword">
+			<f:password clazz="required"  />
+			</f:entry>
+			
+			<f:entry title="${%Délais d'attente de connexion, en secondes}" field="zapProxyDefaultTimeoutSSHInSec">
+			<f:textbox default="2" clazz="required positive-number" />
+		</f:entry>
+		</table>
+		</f:entry>	
+		
+		<f:validateButton   title="${%Tester la connection}" progress="${%Connexion...}"   method="testSSHConnection" with="zapProxyDefaultTimeoutSSHInSec,zapProxyDefaultHost,zapDefaultSSHPort,zapDefaultSSHUser,zapDefaultSSHPassword" />
+		<!-- ******************************************************************************** -->
+	
+		</f:optionalBlock>	
+		<f:optionalBlock title="${%Arrêter ZAP à la fin du scan}" field="stopZAPAtEnd" inline="true" />				
+		</f:advanced>
+		<!-- ******************************************************************************** -->
+	<f:section title="URLS autorisées pour lancer les scans de vulnérabilités">
+	<f:entry title="${%URLS autorisés}" field="authorizedURLs" description="Un ensemble d'URLS peut être représenté via une regex. e.g:^.*orange.fr$">
+			<f:textarea clazz="required" />
+		</f:entry>
+	
+	</f:section>	
+	
+	
+	
+	
+	
+	
+	
 </j:jelly>
 	

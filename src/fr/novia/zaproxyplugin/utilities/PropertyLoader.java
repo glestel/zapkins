@@ -1,4 +1,4 @@
-package fr.novia.zaproxyplugin.utilities;
+package  fr.novia.zaproxyplugin.utilities;
 
 import java.util.Properties;
 import java.io.IOException;

@@ -10,9 +10,9 @@
     <relativePath></relativePath>
   </parent>
   
-  <groupId>fr.novia</groupId>
-  <artifactId>zaproxy</artifactId>
-  <version>1.1.8-SNAPSHOT</version>
+  <groupId>fr.orange</groupId>
+  <artifactId>zapkins</artifactId>
+  <version>1.1.2</version>
   <packaging>hpi</packaging>
   <name>ZAProxy Plugin</name>
   <description>Ce plugin permet de lancer ZAP à travers Jenkins. Il s'agit d'une réecriture du plugin existant développé par ludovic ROUCOUX</description>

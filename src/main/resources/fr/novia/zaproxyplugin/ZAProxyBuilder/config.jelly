@@ -30,7 +30,7 @@ SOFTWARE.
 
 	See global.jelly for a general discussion about jelly script.
 	-->
-	
+<!-- 	
 	<f:section title="${%Informations de connexion au serveur distant ZAP}">
 
 		<f:advanced>
@@ -150,7 +150,7 @@ SOFTWARE.
 		</f:advanced>
 
 		
-	</f:section>
+	</f:section> -->
 		
 	<f:section title="${%Options pré-audit}" />
 	<!--	<f:optionalBlock title="${%Start ZAProxy in a pre-build step}" field="startZAPFirst" inline="true" />  -->

@@ -23,12 +23,9 @@
  * SOFTWARE.
  */
 
-package fr.novia.zaproxyplugin;
+package  fr.novia.zaproxyplugin;
 
-import fr.novia.zaproxyplugin.report.ZAPreport;
-import fr.novia.zaproxyplugin.report.ZAPreportCollection;
-import fr.novia.zaproxyplugin.report.ZAPscannersCollection;
-import fr.novia.zaproxyplugin.utilities.ProxyAuthenticator;
+ 
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.FilePath.FileCallable;
@@ -42,6 +39,11 @@ import hudson.remoting.VirtualChannel;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.ListBoxModel.Option;
+import  fr.novia.zaproxyplugin.report.ZAPreport;
+import  fr.novia.zaproxyplugin.report.ZAPreportCollection;
+import  fr.novia.zaproxyplugin.report.ZAPscannersCollection;
+import  fr.novia.zaproxyplugin.utilities.ProxyAuthenticator;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -68,6 +70,8 @@ import org.zaproxy.clientapi.core.ApiResponseElement;
 import org.zaproxy.clientapi.core.ApiResponseList;
 import org.zaproxy.clientapi.core.ApiResponseSet;
 import org.zaproxy.clientapi.core.ClientApiException;
+
+ 
 
 /**
  * Contains methods to start and execute ZAProxy. Members variables are bind to
@@ -106,8 +110,6 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	/** the authentication mode (SCRIPT_BASED/FORM_BASED) */
 	private final String authenticationMode;
 
-	/** Use a web Proxy or not by ZAProxy */
-	private final boolean useWebProxy;
 
 	/**
 	 * Filename to load ZAProxy session. Contains the absolute path to the
@@ -218,8 +220,10 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	
 	
 	
-	
-	
+	/** Use a web Proxy or not by ZAProxy */
+	private boolean useWebProxy;
+
+	private String authorizedURL;
 	private  String protocol;
 	/** stop ZAP at the end of scan */
 	private  boolean stopZAPAtEnd;
@@ -262,87 +266,172 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	/** Id of the newly created scan */
 	private String scanId;
 
+//	// ce constructeur est ajoute par moi meme
+//	@DataBoundConstructor
+//	public ZAProxy(int timeoutSSHInSec, int timeoutInSec, ArrayList<String> chosenScanners, String scanMode,
+//			String authenticationMode, String zapProxyHost, int zapProxyPort, String zapProxyKey, int zapSSHPort,
+//			String zapSSHUser, String zapSSHPassword, boolean useWebProxy, boolean stopZAPAtEnd, String webProxyHost,
+//			int webProxyPort, String webProxyUser, String webProxyPassword, String filenameLoadSession,
+//			String targetURL, boolean spiderURL, boolean ajaxSpiderURL, boolean scanURL, boolean spiderAsUser,
+//			String scriptName, String loginUrl, String contextName, String includedUrl, String excludedUrl,
+//			String formLoggedInIndicator, String formLoggedOutIndicator, String scriptLoggedInIndicator,
+//			String scriptLoggedOutIndicator, String postData, String usernameParameter, String passwordParameter,
+//			String formUsername, String formPassword, String scriptUsername, String scriptPassword,
+//			boolean ajaxSpiderURLAsUser, boolean scanURLAsUser, boolean saveReports, ArrayList<String> chosenFormats,
+//			String filenameReports, boolean saveSession, String filenameSaveSession, String chosenPolicy,
+//			String contextId, String userId, String scanId) {
+//		super();
+//
+//		this.timeoutSSHInSec = timeoutSSHInSec;
+//		this.timeoutInSec = timeoutInSec;
+//
+//		this.chosenScanners = chosenScanners;
+//		this.scanMode = scanMode;
+//		this.authenticationMode = authenticationMode;
+//
+//		this.zapProxyHost = zapProxyHost;
+//		this.zapProxyPort = zapProxyPort;
+//		this.zapProxyKey = zapProxyKey;
+//
+//		this.zapSSHPort = zapSSHPort;
+//		this.zapSSHUser = zapSSHUser;
+//		this.zapSSHPassword = zapSSHPassword;
+//
+//		this.useWebProxy = useWebProxy;
+//		this.stopZAPAtEnd = stopZAPAtEnd;
+//
+//		this.webProxyHost = webProxyHost;
+//		this.webProxyPort = webProxyPort;
+//		this.webProxyUser = webProxyUser;
+//		this.webProxyPassword = webProxyPassword;
+//
+//		this.filenameLoadSession = filenameLoadSession;
+//		this.targetURL = targetURL;
+//		this.spiderURL = spiderURL;
+//		this.ajaxSpiderURL = ajaxSpiderURL;
+//		this.scanURL = scanURL;
+//		this.spiderAsUser = spiderAsUser;
+//		this.scriptName = scriptName;
+//		this.loginUrl = loginUrl;
+//		this.contextName = contextName;
+//		this.includedUrl = includedUrl;
+//		this.excludedUrl = excludedUrl;
+//
+//		this.formLoggedInIndicator = formLoggedInIndicator;
+//		this.formLoggedOutIndicator = formLoggedOutIndicator;
+//
+//		this.scriptLoggedInIndicator = scriptLoggedInIndicator;
+//		this.scriptLoggedOutIndicator = scriptLoggedOutIndicator;
+//
+//		this.postData = postData;
+//
+//		this.usernameParameter = usernameParameter;
+//		this.passwordParameter = passwordParameter;
+//
+//		this.formUsername = formUsername;
+//		this.formPassword = formPassword;
+//
+//		this.scriptUsername = scriptUsername;
+//		this.scriptPassword = scriptPassword;
+//
+//		this.ajaxSpiderURLAsUser = ajaxSpiderURLAsUser;
+//		this.scanURLAsUser = scanURLAsUser;
+//		this.saveReports = saveReports;
+//		this.chosenFormats = chosenFormats;
+//		this.filenameReports = filenameReports;
+//		this.saveSession = saveSession;
+//		this.filenameSaveSession = filenameSaveSession;
+//		this.chosenPolicy = chosenPolicy;
+//		this.contextId = contextId;
+//		this.userId = userId;
+//		this.scanId = scanId;
+//		System.out.println(this.toString());
+//	}
+	
 	// ce constructeur est ajoute par moi meme
-	@DataBoundConstructor
-	public ZAProxy(int timeoutSSHInSec, int timeoutInSec, ArrayList<String> chosenScanners, String scanMode,
-			String authenticationMode, String zapProxyHost, int zapProxyPort, String zapProxyKey, int zapSSHPort,
-			String zapSSHUser, String zapSSHPassword, boolean useWebProxy, boolean stopZAPAtEnd, String webProxyHost,
-			int webProxyPort, String webProxyUser, String webProxyPassword, String filenameLoadSession,
-			String targetURL, boolean spiderURL, boolean ajaxSpiderURL, boolean scanURL, boolean spiderAsUser,
-			String scriptName, String loginUrl, String contextName, String includedUrl, String excludedUrl,
-			String formLoggedInIndicator, String formLoggedOutIndicator, String scriptLoggedInIndicator,
-			String scriptLoggedOutIndicator, String postData, String usernameParameter, String passwordParameter,
-			String formUsername, String formPassword, String scriptUsername, String scriptPassword,
-			boolean ajaxSpiderURLAsUser, boolean scanURLAsUser, boolean saveReports, ArrayList<String> chosenFormats,
-			String filenameReports, boolean saveSession, String filenameSaveSession, String chosenPolicy,
-			String contextId, String userId, String scanId) {
-		super();
+		@DataBoundConstructor
+		public ZAProxy( ArrayList<String> chosenScanners, String scanMode,
+				String authenticationMode,   String filenameLoadSession,
+				String targetURL, boolean spiderURL, boolean ajaxSpiderURL, boolean scanURL, boolean spiderAsUser,
+				String scriptName, String loginUrl, String contextName, String includedUrl, String excludedUrl,
+				String formLoggedInIndicator, String formLoggedOutIndicator, String scriptLoggedInIndicator,
+				String scriptLoggedOutIndicator, String postData, String usernameParameter, String passwordParameter,
+				String formUsername, String formPassword, String scriptUsername, String scriptPassword,
+				boolean ajaxSpiderURLAsUser, boolean scanURLAsUser, boolean saveReports, ArrayList<String> chosenFormats,
+				String filenameReports, boolean saveSession, String filenameSaveSession, String chosenPolicy,
+				String contextId, String userId, String scanId) {
+			super();
+			
+			
 
-		this.timeoutSSHInSec = timeoutSSHInSec;
-		this.timeoutInSec = timeoutInSec;
 
-		this.chosenScanners = chosenScanners;
-		this.scanMode = scanMode;
-		this.authenticationMode = authenticationMode;
 
-		this.zapProxyHost = zapProxyHost;
-		this.zapProxyPort = zapProxyPort;
-		this.zapProxyKey = zapProxyKey;
+			this.chosenScanners = chosenScanners;
+			this.scanMode = scanMode;
+			this.authenticationMode = authenticationMode;
+			
+//			
+//			this.timeoutSSHInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutSSHInSec();
+//			this.timeoutInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
+//			this.protocol=ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
+//			this.zapProxyHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();
+//			this.zapProxyPort = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultPort();
+//			this.zapProxyKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
+//
+//			this.zapSSHPort = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPort();
+//			this.zapSSHUser = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHUser();
+//			this.zapSSHPassword = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPassword();
+//
+//			this.useWebProxy = ZAProxyBuilder.DESCRIPTOR.isUseWebProxy();
+//			this.stopZAPAtEnd = ZAProxyBuilder.DESCRIPTOR.isStopZAPAtEnd();
+//
+//			this.webProxyHost = ZAProxyBuilder.DESCRIPTOR.getWebProxyHost();
+//			this.webProxyPort = ZAProxyBuilder.DESCRIPTOR.getWebProxyPort();
+//			this.webProxyUser = ZAProxyBuilder.DESCRIPTOR.getWebProxyUser();
+//			this.webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
 
-		this.zapSSHPort = zapSSHPort;
-		this.zapSSHUser = zapSSHUser;
-		this.zapSSHPassword = zapSSHPassword;
+			this.filenameLoadSession = filenameLoadSession;
+			this.targetURL = targetURL;
+			this.spiderURL = spiderURL;
+			this.ajaxSpiderURL = ajaxSpiderURL;
+			this.scanURL = scanURL;
+			this.spiderAsUser = spiderAsUser;
+			this.scriptName = scriptName;
+			this.loginUrl = loginUrl;
+			this.contextName = contextName;
+			this.includedUrl = includedUrl;
+			this.excludedUrl = excludedUrl;
 
-		this.useWebProxy = useWebProxy;
-		this.stopZAPAtEnd = stopZAPAtEnd;
+			this.formLoggedInIndicator = formLoggedInIndicator;
+			this.formLoggedOutIndicator = formLoggedOutIndicator;
 
-		this.webProxyHost = webProxyHost;
-		this.webProxyPort = webProxyPort;
-		this.webProxyUser = webProxyUser;
-		this.webProxyPassword = webProxyPassword;
+			this.scriptLoggedInIndicator = scriptLoggedInIndicator;
+			this.scriptLoggedOutIndicator = scriptLoggedOutIndicator;
 
-		this.filenameLoadSession = filenameLoadSession;
-		this.targetURL = targetURL;
-		this.spiderURL = spiderURL;
-		this.ajaxSpiderURL = ajaxSpiderURL;
-		this.scanURL = scanURL;
-		this.spiderAsUser = spiderAsUser;
-		this.scriptName = scriptName;
-		this.loginUrl = loginUrl;
-		this.contextName = contextName;
-		this.includedUrl = includedUrl;
-		this.excludedUrl = excludedUrl;
+			this.postData = postData;
 
-		this.formLoggedInIndicator = formLoggedInIndicator;
-		this.formLoggedOutIndicator = formLoggedOutIndicator;
+			this.usernameParameter = usernameParameter;
+			this.passwordParameter = passwordParameter;
 
-		this.scriptLoggedInIndicator = scriptLoggedInIndicator;
-		this.scriptLoggedOutIndicator = scriptLoggedOutIndicator;
+			this.formUsername = formUsername;
+			this.formPassword = formPassword;
 
-		this.postData = postData;
+			this.scriptUsername = scriptUsername;
+			this.scriptPassword = scriptPassword;
 
-		this.usernameParameter = usernameParameter;
-		this.passwordParameter = passwordParameter;
-
-		this.formUsername = formUsername;
-		this.formPassword = formPassword;
-
-		this.scriptUsername = scriptUsername;
-		this.scriptPassword = scriptPassword;
-
-		this.ajaxSpiderURLAsUser = ajaxSpiderURLAsUser;
-		this.scanURLAsUser = scanURLAsUser;
-		this.saveReports = saveReports;
-		this.chosenFormats = chosenFormats;
-		this.filenameReports = filenameReports;
-		this.saveSession = saveSession;
-		this.filenameSaveSession = filenameSaveSession;
-		this.chosenPolicy = chosenPolicy;
-		this.contextId = contextId;
-		this.userId = userId;
-		this.scanId = scanId;
-		System.out.println(this.toString());
-	}
+			this.ajaxSpiderURLAsUser = ajaxSpiderURLAsUser;
+			this.scanURLAsUser = scanURLAsUser;
+			this.saveReports = saveReports;
+			this.chosenFormats = chosenFormats;
+			this.filenameReports = filenameReports;
+			this.saveSession = saveSession;
+			this.filenameSaveSession = filenameSaveSession;
+			this.chosenPolicy = chosenPolicy;
+			this.contextId = contextId;
+			this.userId = userId;
+			this.scanId = scanId;
+			System.out.println(this.toString());
+		}
 
 	@Override
 	public String toString() {
@@ -766,45 +855,45 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 
 	/* ========================= SETTERS ============================= */
 
-	/**
-	 * @param timeoutSSHInSec
-	 *            the timeoutSSHInSec to set
-	 */
-	public void setTimeoutSSHInSec(int timeoutSSHInSec) {
-		this.timeoutSSHInSec = timeoutSSHInSec;
-	}
-
-	/**
-	 * @param timeoutInSec
-	 *            the timeoutInSec to set
-	 */
-	public void setTimeoutInSec(int timeoutInSec) {
-		this.timeoutInSec = timeoutInSec;
-	}
-
-	/**
-	 * @param zapSSHPort
-	 *            the zapSSHPort to set
-	 */
-	public void setZapSSHPort(int zapSSHPort) {
-		this.zapSSHPort = zapSSHPort;
-	}
-
-	/**
-	 * @param zapSSHUser
-	 *            the zapSSHUser to set
-	 */
-	public void setZapSSHUser(String zapSSHUser) {
-		this.zapSSHUser = zapSSHUser;
-	}
-
-	/**
-	 * @param zapSSHPassword
-	 *            the zapSSHPassword to set
-	 */
-	public void setZapSSHPassword(String zapSSHPassword) {
-		this.zapSSHPassword = zapSSHPassword;
-	}
+//	/**
+//	 * @param timeoutSSHInSec
+//	 *            the timeoutSSHInSec to set
+//	 */
+//	public void setTimeoutSSHInSec(int timeoutSSHInSec) {
+//		this.timeoutSSHInSec = timeoutSSHInSec;
+//	}
+//
+//	/**
+//	 * @param timeoutInSec
+//	 *            the timeoutInSec to set
+//	 */
+//	public void setTimeoutInSec(int timeoutInSec) {
+//		this.timeoutInSec = timeoutInSec;
+//	}
+//
+//	/**
+//	 * @param zapSSHPort
+//	 *            the zapSSHPort to set
+//	 */
+//	public void setZapSSHPort(int zapSSHPort) {
+//		this.zapSSHPort = zapSSHPort;
+//	}
+//
+//	/**
+//	 * @param zapSSHUser
+//	 *            the zapSSHUser to set
+//	 */
+//	public void setZapSSHUser(String zapSSHUser) {
+//		this.zapSSHUser = zapSSHUser;
+//	}
+//
+//	/**
+//	 * @param zapSSHPassword
+//	 *            the zapSSHPassword to set
+//	 */
+//	public void setZapSSHPassword(String zapSSHPassword) {
+//		this.zapSSHPassword = zapSSHPassword;
+//	}
 
 	/**
 	 * @param fILE_SEPARATOR
@@ -813,39 +902,39 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	public static void setFILE_SEPARATOR(String fILE_SEPARATOR) {
 		FILE_SEPARATOR = fILE_SEPARATOR;
 	}
-
-	/**
-	 * @param zapProxyKey
-	 *            the zapProxyKey to set
-	 */
-	public void setZapProxyKey(String zapProxyKey) {
-		this.zapProxyKey = zapProxyKey;
-	}
-
-	public void setZapProxyDirectory(String zapProxyDirectory) {
-		// TODO Auto-generated method stub
-		this.zapProxyDirectory = zapProxyDirectory;
-	}
-
-	public void setWebProxyHost(String webProxyHost) {
-
-		this.webProxyHost = webProxyHost;
-	}
-
-	public void setWebProxyPort(int webProxyPort) {
-
-		this.webProxyPort = webProxyPort;
-	}
-
-	public void setWebProxyUser(String webProxyUser) {
-
-		this.webProxyUser = webProxyUser;
-	}
-
-	public void setWebProxyPassword(String webProxyPassword) {
-
-		this.webProxyPassword = webProxyPassword;
-	}
+//
+//	/**
+//	 * @param zapProxyKey
+//	 *            the zapProxyKey to set
+//	 */
+//	public void setZapProxyKey(String zapProxyKey) {
+//		this.zapProxyKey = zapProxyKey;
+//	}
+//
+//	public void setZapProxyDirectory(String zapProxyDirectory) {
+//		// TODO Auto-generated method stub
+//		this.zapProxyDirectory = zapProxyDirectory;
+//	}
+//
+//	public void setWebProxyHost(String webProxyHost) {
+//
+//		this.webProxyHost = webProxyHost;
+//	}
+//
+//	public void setWebProxyPort(int webProxyPort) {
+//
+//		this.webProxyPort = webProxyPort;
+//	}
+//
+//	public void setWebProxyUser(String webProxyUser) {
+//
+//		this.webProxyUser = webProxyUser;
+//	}
+//
+//	public void setWebProxyPassword(String webProxyPassword) {
+//
+//		this.webProxyPassword = webProxyPassword;
+//	}
 
 	/**
 	 * @param contextId
@@ -863,17 +952,17 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		this.userId = userId;
 	}
 
-	public void setZapProxyHost(String zapProxyHost) {
-		this.zapProxyHost = zapProxyHost;
-	}
-
-	public void setZapProxyPort(int zapProxyPort) {
-		this.zapProxyPort = zapProxyPort;
-	}
-
-	public void setZapProxyApiKey(String zapProxyKey) {
-		this.zapProxyKey = zapProxyKey;
-	}
+//	public void setZapProxyHost(String zapProxyHost) {
+//		this.zapProxyHost = zapProxyHost;
+//	}
+//
+//	public void setZapProxyPort(int zapProxyPort) {
+//		this.zapProxyPort = zapProxyPort;
+//	}
+//
+//	public void setZapProxyApiKey(String zapProxyKey) {
+//		this.zapProxyKey = zapProxyKey;
+//	}
 
 	// /**
 	// * Start ZAProxy using command line. It uses host and port configured in
@@ -981,7 +1070,12 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 
 	public boolean executeZAP(FilePath workspace, BuildListener listener) {
 
-		CustomZapClientApi zapClientAPI = new CustomZapClientApi(getProtocol(),zapProxyHost, zapProxyPort, zapProxyKey, listener,debug);
+		CustomZapClientApi zapClientAPI = new CustomZapClientApi(protocol,zapProxyHost, zapProxyPort, zapProxyKey, listener,debug);
+		
+		//CustomZapClientApi zapClientAPI = new CustomZapClientApi(getProtocol(),ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost(), zapProxyPort, zapProxyKey, listener,debug);
+
+		 
+		
 		boolean buildSuccess = true;
 
 		// Try/catch here because I need to stopZAP in finally block and for
@@ -1047,12 +1141,12 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 
 			if (stopZAPAtEnd) {
 				
-				try {
-					Thread.sleep(5000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+//				try {
+//					Thread.sleep(5000);
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
 				
 				stopZAP(zapClientAPI, listener);
 			}
@@ -1196,7 +1290,8 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	}
 
 	private void executeZAPSessionNotLoaded(FilePath workspace, BuildListener listener) throws IOException {
-		CustomZapClientApi zapClientAPI = new CustomZapClientApi(zapProxyHost, zapProxyPort, zapProxyKey, listener, debug);
+		//CustomZapClientApi zapClientAPI = new CustomZapClientApi(zapProxyHost, zapProxyPort, zapProxyKey, listener, debug);
+		CustomZapClientApi zapClientAPI = new CustomZapClientApi( zapProxyHost, zapProxyPort, zapProxyKey, listener, debug);
 		 
 		
 		listener.getLogger().println("Skip loadSession");
@@ -1403,43 +1498,43 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		return this.authenticationMode.equalsIgnoreCase(testTypeName) ? "true" : "";
 	}
 
-	/**
-	 * Verify parameters of the build setup are correct (null, empty, negative
-	 * ...)
-	 * 
-	 * @param build
-	 * @param listener
-	 *            the listener to display log during the job execution in
-	 *            jenkins
-	 * @throws InterruptedException
-	 * @throws IOException
-	 * @throws Exception
-	 *             throw an exception if a parameter is invalid.
-	 */
-	private void checkParams(AbstractBuild<?, ?> build, BuildListener listener)
-			throws IllegalArgumentException, IOException, InterruptedException {
-
-		// if(targetURL == null || targetURL.isEmpty()) {
-		// throw new IllegalArgumentException("targetURL is missing");
-		// } else
-		// listener.getLogger().println("targetURL = " + targetURL);
-
-		if (zapProxyHost == null || zapProxyHost.isEmpty()) {
-			throw new IllegalArgumentException("zapProxy Host is missing");
-		} else
-			listener.getLogger().println("zapProxyHost = " + zapProxyHost);
-
-		if (zapProxyPort < 0) {
-			throw new IllegalArgumentException("zapProxy Port is less than 0");
-		} else
-			listener.getLogger().println("zapProxyPort = " + zapProxyPort);
-
-		if (zapProxyKey == null) {
-			throw new IllegalArgumentException("zapProxy API Key is missing");
-		} else
-			listener.getLogger().println("zapProxyKey = " + zapProxyKey);
-
-	}
+//	/**
+//	 * Verify parameters of the build setup are correct (null, empty, negative
+//	 * ...)
+//	 * 
+//	 * @param build
+//	 * @param listener
+//	 *            the listener to display log during the job execution in
+//	 *            jenkins
+//	 * @throws InterruptedException
+//	 * @throws IOException
+//	 * @throws Exception
+//	 *             throw an exception if a parameter is invalid.
+//	 */
+//	private void checkParams(AbstractBuild<?, ?> build, BuildListener listener)
+//			throws IllegalArgumentException, IOException, InterruptedException {
+//
+//		// if(targetURL == null || targetURL.isEmpty()) {
+//		// throw new IllegalArgumentException("targetURL is missing");
+//		// } else
+//		// listener.getLogger().println("targetURL = " + targetURL);
+//
+//		if (zapProxyHost == null || zapProxyHost.isEmpty()) {
+//			throw new IllegalArgumentException("zapProxy Host is missing");
+//		} else
+//			listener.getLogger().println("zapProxyHost = " + zapProxyHost);
+//
+//		if (zapProxyPort < 0) {
+//			throw new IllegalArgumentException("zapProxy Port is less than 0");
+//		} else
+//			listener.getLogger().println("zapProxyPort = " + zapProxyPort);
+//
+//		if (zapProxyKey == null) {
+//			throw new IllegalArgumentException("zapProxy API Key is missing");
+//		} else
+//			listener.getLogger().println("zapProxyKey = " + zapProxyKey);
+//
+//	}
 
 	/**
 	 * Generates security report for one format. Reports are saved into build's
