@@ -22,47 +22,26 @@
  * SOFTWARE.
  */
 
-package  fr.novia.zaproxyplugin.report;
+package  fr.orange.zaproxyplugin.report;
 
 import org.zaproxy.clientapi.core.ClientApi;
 import org.zaproxy.clientapi.core.ClientApiException;
 
-import java.io.Serializable;
-
 /**
- * This abstract class is used to generate report in ZAP available format.
+ * Used to generate ZAP report in html. 
  * 
  * @author ludovic.roucoux
  *
  */
-public abstract class ZAPreport implements Serializable {
+public class ZAPreportHTML extends ZAPreport {
 
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2241940678203529066L;
-	protected static final String REPORT_FORMAT_XML = "xml";
-	protected static final String REPORT_FORMAT_HTML = "html";
-	
-	/** The report format */
-	protected String format;
-		
-	/**
-	 * Generate a ZAP report in the format of daughter class.
-	 * @param clientApi the ZAP api to call the method to generate report
-	 * @param apikey ZAP apikey. Can be null.
-	 * @return an array of byte containing the report.
-	 * @throws ClientApiException
-	 */
-	public abstract byte[] generateReport(ClientApi clientApi, String apikey) throws ClientApiException;
-	
-	public String getFormat() {
-		return format;
+	public ZAPreportHTML() {
+		this.format = ZAPreport.REPORT_FORMAT_HTML;
 	}
-	
+
 	@Override
-	public String toString() {
-		return getFormat();
+	public byte[] generateReport(ClientApi clientApi, String apikey) throws ClientApiException {
+		return clientApi.core.htmlreport(apikey);
 	}
+
 }

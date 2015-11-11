@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package  fr.novia.zaproxyplugin.report;
+package  fr.orange.zaproxyplugin.report;
 
 import java.io.Serializable;
 import java.util.HashMap;

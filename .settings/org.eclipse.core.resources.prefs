@@ -1,7 +1,5 @@
 eclipse.preferences.version=1
-encoding//src/main/java=Cp1252
 encoding//src/main/resources=UTF-8
-encoding//src/test/java=Cp1252
 encoding//target/generated-sources/localizer=Cp1252
 encoding//target/inject-tests=Cp1252
 encoding/<project>=UTF-8

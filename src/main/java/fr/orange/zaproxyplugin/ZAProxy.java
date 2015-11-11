@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-package  fr.novia.zaproxyplugin;
+package  fr.orange.zaproxyplugin;
 
  
 import hudson.Extension;
@@ -39,10 +39,10 @@ import hudson.remoting.VirtualChannel;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.ListBoxModel.Option;
-import  fr.novia.zaproxyplugin.report.ZAPreport;
-import  fr.novia.zaproxyplugin.report.ZAPreportCollection;
-import  fr.novia.zaproxyplugin.report.ZAPscannersCollection;
-import  fr.novia.zaproxyplugin.utilities.ProxyAuthenticator;
+import  fr.orange.zaproxyplugin.report.ZAPreport;
+import  fr.orange.zaproxyplugin.report.ZAPreportCollection;
+import  fr.orange.zaproxyplugin.report.ZAPscannersCollection;
+import  fr.orange.zaproxyplugin.utilities.ProxyAuthenticator;
 
 import java.io.File;
 import java.io.IOException;

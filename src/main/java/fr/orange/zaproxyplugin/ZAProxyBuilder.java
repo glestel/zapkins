@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package  fr.novia.zaproxyplugin;
+package  fr.orange.zaproxyplugin;
 
 import hudson.Extension;
 import hudson.FilePath;
@@ -39,8 +39,8 @@ import hudson.remoting.VirtualChannel;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
-import  fr.novia.zaproxyplugin.utilities.ProxyAuthenticator;
-import  fr.novia.zaproxyplugin.utilities.SSHConnexion;
+import  fr.orange.zaproxyplugin.utilities.ProxyAuthenticator;
+import  fr.orange.zaproxyplugin.utilities.SSHConnexion;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.tools.ant.BuildException;
@@ -985,9 +985,9 @@ public class ZAProxyBuilder extends Builder {
 	 * <tt>src/main/resources/fr/novia/zaproxyplugin/ZAProxyBuilder/*.jelly</tt>
 	 * for the actual HTML fragment for the configuration screen.
 	 */
+	@Extension 
 	public static final ZAProxyBuilderDescriptorImpl DESCRIPTOR = new ZAProxyBuilderDescriptorImpl();
 	// This indicates to Jenkins this is an implementation of an extension point.
-	@Extension 
 	public static final class ZAProxyBuilderDescriptorImpl extends BuildStepDescriptor<Builder>
 			implements Serializable {
 		/**

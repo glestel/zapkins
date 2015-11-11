@@ -1,5 +1,5 @@
 
-package fr.novia.zaproxyplugin;
+package fr.orange.zaproxyplugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +29,7 @@ import org.zaproxy.clientapi.core.ClientApiException;
 
  
 import hudson.model.BuildListener;
-import  fr.novia.zaproxyplugin.utilities.ProxyAuthenticator;
+import  fr.orange.zaproxyplugin.utilities.ProxyAuthenticator;
 
 import org.zaproxy.clientapi.core.ApiResponseList;
 import org.zaproxy.clientapi.core.ApiResponseSet;

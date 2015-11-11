@@ -1,4 +1,4 @@
-package fr.novia.zaproxyplugin;
+package fr.orange.zaproxyplugin;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
