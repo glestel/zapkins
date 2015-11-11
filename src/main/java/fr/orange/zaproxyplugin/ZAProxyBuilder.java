@@ -225,31 +225,32 @@ public class ZAProxyBuilder extends Builder {
 		super();
 		this.zaproxy = zaproxy;
 		
-		this.defaultProtocol=defaultProtocol;
-		
-		this.zapDefaultDirectory=zapDefaultDirectory;
-		
-		this.zapProxyDefaultTimeoutSSHInSec = zapProxyDefaultTimeoutSSHInSec;
-		this.zapProxyDefaultTimeoutInSec = zapProxyDefaultTimeoutInSec;
-		
-		this.zapProxyDefaultHost = zapProxyDefaultHost;
-		this.zapProxyDefaultPort = zapProxyDefaultPort;
-		this.zapProxyDefaultApiKey = zapProxyDefaultApiKey;
+		this.zapProxyDefaultTimeoutSSHInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutSSHInSec();
+		this.zapProxyDefaultTimeoutInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
+		this.defaultProtocol=ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
+		this.zapProxyDefaultHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();
+		this.zapProxyDefaultPort = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultPort();
+		this.zapProxyDefaultApiKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
 
-		this.zapDefaultSSHPort = zapDefaultSSHPort;
-		this.zapDefaultSSHUser = zapDefaultSSHUser;
-		this.zapDefaultSSHPassword = zapDefaultSSHPassword;
+		this.zapDefaultSSHPort = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPort();
+		this.zapDefaultSSHUser = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHUser();
+		this.zapDefaultSSHPassword = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPassword();
 
-		this.useWebProxy = useWebProxy;
-		this.stopZAPAtEnd = stopZAPAtEnd;
-		this.startZAPFirst=startZAPFirst;
+		this.useWebProxy = ZAProxyBuilder.DESCRIPTOR.isUseWebProxy();
+		this.stopZAPAtEnd = ZAProxyBuilder.DESCRIPTOR.isStopZAPAtEnd();
+		this.startZAPFirst=ZAProxyBuilder.DESCRIPTOR.isStartZAPFirst();
 
-		this.webProxyHost = webProxyHost;
-		this.webProxyPort = webProxyPort;
-		this.webProxyUser = webProxyUser;
-		this.webProxyPassword = webProxyPassword;
+		this.webProxyHost = ZAProxyBuilder.DESCRIPTOR.getWebProxyHost();
+		this.webProxyPort = ZAProxyBuilder.DESCRIPTOR.getWebProxyPort();
+		this.webProxyUser = ZAProxyBuilder.DESCRIPTOR.getWebProxyUser();
+		this.webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
 		
-		this.authorizedURLs=authorizedURLs;
+	
+		
+		this.zapDefaultDirectory=ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();
+ 
+		
+		this.authorizedURLs=ZAProxyBuilder.DESCRIPTOR.getAuthorizedURLs();
 
 	}
 
@@ -713,6 +714,38 @@ public class ZAProxyBuilder extends Builder {
 	// Methode appelée pendant le build, c'est ici que zap est lancé
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+		
+		this.zapProxyDefaultTimeoutSSHInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutSSHInSec();
+		this.zapProxyDefaultTimeoutInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
+		this.defaultProtocol=ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
+		this.zapProxyDefaultHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();
+		this.zapProxyDefaultPort = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultPort();
+		this.zapProxyDefaultApiKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
+
+		this.zapDefaultSSHPort = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPort();
+		this.zapDefaultSSHUser = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHUser();
+		this.zapDefaultSSHPassword = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPassword();
+
+		this.useWebProxy = ZAProxyBuilder.DESCRIPTOR.isUseWebProxy();
+		this.stopZAPAtEnd = ZAProxyBuilder.DESCRIPTOR.isStopZAPAtEnd();
+		this.startZAPFirst=ZAProxyBuilder.DESCRIPTOR.isStartZAPFirst();
+
+		this.webProxyHost = ZAProxyBuilder.DESCRIPTOR.getWebProxyHost();
+		this.webProxyPort = ZAProxyBuilder.DESCRIPTOR.getWebProxyPort();
+		this.webProxyUser = ZAProxyBuilder.DESCRIPTOR.getWebProxyUser();
+		this.webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
+		
+	
+		
+		this.zapDefaultDirectory=ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();
+ 
+		
+		this.authorizedURLs=ZAProxyBuilder.DESCRIPTOR.getAuthorizedURLs();
+		
+		
+		
+		
+		
 
 		if (startZAPFirst) {
 			listener.getLogger().println("------- START Prebuild -------");

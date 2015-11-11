@@ -370,25 +370,25 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			this.scanMode = scanMode;
 			this.authenticationMode = authenticationMode;
 			
-//			
-//			this.timeoutSSHInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutSSHInSec();
-//			this.timeoutInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
-//			this.protocol=ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
-//			this.zapProxyHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();
-//			this.zapProxyPort = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultPort();
-//			this.zapProxyKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
-//
-//			this.zapSSHPort = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPort();
-//			this.zapSSHUser = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHUser();
-//			this.zapSSHPassword = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPassword();
-//
-//			this.useWebProxy = ZAProxyBuilder.DESCRIPTOR.isUseWebProxy();
-//			this.stopZAPAtEnd = ZAProxyBuilder.DESCRIPTOR.isStopZAPAtEnd();
-//
-//			this.webProxyHost = ZAProxyBuilder.DESCRIPTOR.getWebProxyHost();
-//			this.webProxyPort = ZAProxyBuilder.DESCRIPTOR.getWebProxyPort();
-//			this.webProxyUser = ZAProxyBuilder.DESCRIPTOR.getWebProxyUser();
-//			this.webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
+			
+			this.timeoutSSHInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutSSHInSec();
+			this.timeoutInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
+			this.protocol=ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
+			this.zapProxyHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();
+			this.zapProxyPort = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultPort();
+			this.zapProxyKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
+
+			this.zapSSHPort = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPort();
+			this.zapSSHUser = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHUser();
+			this.zapSSHPassword = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPassword();
+
+			this.useWebProxy = ZAProxyBuilder.DESCRIPTOR.isUseWebProxy();
+			this.stopZAPAtEnd = ZAProxyBuilder.DESCRIPTOR.isStopZAPAtEnd();
+
+			this.webProxyHost = ZAProxyBuilder.DESCRIPTOR.getWebProxyHost();
+			this.webProxyPort = ZAProxyBuilder.DESCRIPTOR.getWebProxyPort();
+			this.webProxyUser = ZAProxyBuilder.DESCRIPTOR.getWebProxyUser();
+			this.webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
 
 			this.filenameLoadSession = filenameLoadSession;
 			this.targetURL = targetURL;
