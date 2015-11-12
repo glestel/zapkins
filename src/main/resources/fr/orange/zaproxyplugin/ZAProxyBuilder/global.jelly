@@ -36,7 +36,7 @@ SOFTWARE.
 	tags they use. Views are always organized according to its owner class,
 	so it should be straightforward to find them.
 	-->
-	<f:section title="Information de connexion au serveur ZAProxy">
+	<f:section title="Paramètrage de base du serveur ZAProxy">
 			
 	    <f:entry  title="Type de protocole" field="defaultProtocol"> 	
 		<select name="defaultProtocol">
@@ -136,12 +136,12 @@ SOFTWARE.
 		<f:optionalBlock title="${%Arrêter ZAP à la fin du scan}" field="stopZAPAtEnd" inline="true" />				
 		</f:advanced>
 		<!-- ******************************************************************************** -->
-	<f:section title="URLS autorisées pour lancer les scans de vulnérabilités">
-	<f:entry title="${%URLS autorisés}" field="authorizedURLs" description="Un ensemble d'URLS peut être représenté via une regex. e.g:^.*orange.fr$">
+ 
+	<f:entry title="${%URLs ou domaines autorisés}" field="authorizedURLs" description="Un ensemble d'URLS peut être représenté via une regex. e.g:tout le domaine orange => ^.*orange.fr$">
 			<f:textarea clazz="required" />
 		</f:entry>
 	
-	</f:section>	
+	 	
 	
 	
 	

@@ -271,7 +271,7 @@ public class CustomZapClientApi implements Serializable {
 			// System.out.println("Context dose not exist\nIt will be
 			// created...");
 			listener.getLogger().println("Context dose not exist\nIt will be created...");
-			listener.error(ExceptionUtils.getStackTrace(e));
+			//listener.error(ExceptionUtils.getStackTrace(e));
 			try {
 				api.newContext(zapProxyKey, contextname);
 				// System.out.println("Context created...");

@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
-package  fr.orange.zaproxyplugin;
 
+package fr.orange.zaproxyplugin;
  
 import hudson.Extension;
 import hudson.FilePath;
@@ -39,20 +39,28 @@ import hudson.remoting.VirtualChannel;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.ListBoxModel.Option;
+import fr.orange.zaproxyplugin.CustomZapClientApi;
+import 	fr.orange.zaproxyplugin.ZAProxyBuilder;
 import  fr.orange.zaproxyplugin.report.ZAPreport;
 import  fr.orange.zaproxyplugin.report.ZAPreportCollection;
 import  fr.orange.zaproxyplugin.report.ZAPscannersCollection;
 import  fr.orange.zaproxyplugin.utilities.ProxyAuthenticator;
+import fr.orange.zaproxyplugin.utilities.SSHConnexion;
+import fr.orange.zaproxyplugin.utilities.Security;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.Authenticator;
+import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.Proxy;
+import java.net.SocketTimeoutException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
@@ -61,6 +69,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.tools.ant.BuildException;
 import org.jenkinsci.remoting.RoleChecker;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -221,7 +230,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	
 	
 	/** Use a web Proxy or not by ZAProxy */
-	private boolean useWebProxy;
+	//private boolean useWebProxy;
 
 	private String authorizedURL;
 	private  String protocol;
@@ -230,12 +239,12 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	/**
 	 * Temps d'attente d'établissement de connexion au serveur ZAP en secondes
 	 */
-	private int timeoutInSec;
+	//private int timeoutInSec;
 	/**
 	 * Temps d'attente d'établissement de connexion SSH au serveur ZAP en
 	 * secondes
 	 */
-	private int timeoutSSHInSec;
+//	private int timeoutSSHInSec;
 	/** Host configured when ZAProxy is used as proxy */
 	private String zapProxyHost;
 	/** Port configured when ZAProxy is used as proxy */
@@ -244,21 +253,21 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	private String zapProxyKey;
 	/** répertoire d'installation du moteur ZAP Proxy */
 	private String zapProxyDirectory;
-	/** proxyWeb */
-	private String webProxyHost;
-	/** proxyWeb */
-	private int webProxyPort;
-	/** proxyWeb */
-	private String webProxyUser;
-	/** proxyWeb */
-	private String webProxyPassword;
-	/** Use SSH connection **/
-	/** SSH PORT configured when ZAProxy is used as proxy */
-	private int zapSSHPort;
-	/** SSH USER configured when ZAProxy is used as proxy */
-	private String zapSSHUser;
-	/** SSH PASSWORD configured when ZAProxy is used as proxy */
-	private String zapSSHPassword;
+//	/** proxyWeb */
+//	private String webProxyHost;
+//	/** proxyWeb */
+//	private int webProxyPort;
+//	/** proxyWeb */
+//	private String webProxyUser;
+//	/** proxyWeb */
+//	private String webProxyPassword;
+//	/** Use SSH connection **/
+//	/** SSH PORT configured when ZAProxy is used as proxy */
+//	private int zapSSHPort;
+//	/** SSH USER configured when ZAProxy is used as proxy */
+//	private String zapSSHUser;
+//	/** SSH PASSWORD configured when ZAProxy is used as proxy */
+//	private String zapSSHPassword;
 	/** Id of the newly created context */
 	private String contextId;
 	/** Id of the newly created user */
@@ -370,25 +379,26 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			this.scanMode = scanMode;
 			this.authenticationMode = authenticationMode;
 			
-			
-			this.timeoutSSHInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutSSHInSec();
-			this.timeoutInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
+			this.authorizedURL=ZAProxyBuilder.DESCRIPTOR.getAuthorizedURLs();
+//			this.timeoutSSHInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutSSHInSec();
+//			this.timeoutInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
 			this.protocol=ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
 			this.zapProxyHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();
 			this.zapProxyPort = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultPort();
 			this.zapProxyKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
-
-			this.zapSSHPort = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPort();
-			this.zapSSHUser = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHUser();
-			this.zapSSHPassword = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPassword();
-
-			this.useWebProxy = ZAProxyBuilder.DESCRIPTOR.isUseWebProxy();
+			this.zapProxyDirectory=ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();
+//
+//			this.zapSSHPort = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPort();
+//			this.zapSSHUser = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHUser();
+//			this.zapSSHPassword = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPassword();
+//
+//			this.useWebProxy = ZAProxyBuilder.DESCRIPTOR.isUseWebProxy();
 			this.stopZAPAtEnd = ZAProxyBuilder.DESCRIPTOR.isStopZAPAtEnd();
 
-			this.webProxyHost = ZAProxyBuilder.DESCRIPTOR.getWebProxyHost();
-			this.webProxyPort = ZAProxyBuilder.DESCRIPTOR.getWebProxyPort();
-			this.webProxyUser = ZAProxyBuilder.DESCRIPTOR.getWebProxyUser();
-			this.webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
+//			this.webProxyHost = ZAProxyBuilder.DESCRIPTOR.getWebProxyHost();
+//			this.webProxyPort = ZAProxyBuilder.DESCRIPTOR.getWebProxyPort();
+//			this.webProxyUser = ZAProxyBuilder.DESCRIPTOR.getWebProxyUser();
+//			this.webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
 
 			this.filenameLoadSession = filenameLoadSession;
 			this.targetURL = targetURL;
@@ -514,6 +524,13 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	 */
 	public String getZapProxyKey() {
 		return zapProxyKey;
+	}
+
+	/**
+	 * @return the zapProxyDirectory
+	 */
+	public String getZapProxyDirectory() {
+		return zapProxyDirectory;
 	}
 
 	/**
@@ -713,33 +730,33 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		return userId;
 	}
 
-	/**
-	 * @return the webProxyHost
-	 */
-	public String getWebProxyHost() {
-		return webProxyHost;
-	}
-
-	/**
-	 * @return the webProxyPort
-	 */
-	public int getWebProxyPort() {
-		return webProxyPort;
-	}
-
-	/**
-	 * @return the webProxyUser
-	 */
-	public String getWebProxyUser() {
-		return webProxyUser;
-	}
-
-	/**
-	 * @return the webProxyPassword
-	 */
-	public String getWebProxyPassword() {
-		return webProxyPassword;
-	}
+//	/**
+//	 * @return the webProxyHost
+//	 */
+//	public String getWebProxyHost() {
+//		return webProxyHost;
+//	}
+//
+//	/**
+//	 * @return the webProxyPort
+//	 */
+//	public int getWebProxyPort() {
+//		return webProxyPort;
+//	}
+//
+//	/**
+//	 * @return the webProxyUser
+//	 */
+//	public String getWebProxyUser() {
+//		return webProxyUser;
+//	}
+//
+//	/**
+//	 * @return the webProxyPassword
+//	 */
+//	public String getWebProxyPassword() {
+//		return webProxyPassword;
+//	}
 
 	/**
 	 * @return the scanMode
@@ -769,40 +786,40 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		return FILE_SEPARATOR;
 	}
 
-	/**
-	 * @return the zapSSHPort
-	 */
-	public int getZapSSHPort() {
-		return zapSSHPort;
-	}
-
-	/**
-	 * @return the zapSSHUser
-	 */
-	public String getZapSSHUser() {
-		return zapSSHUser;
-	}
-
-	/**
-	 * @return the zapSSHPassword
-	 */
-	public String getZapSSHPassword() {
-		return zapSSHPassword;
-	}
-
-	/**
-	 * @return the timeoutInSec
-	 */
-	public int getTimeoutInSec() {
-		return timeoutInSec;
-	}
-
-	/**
-	 * @return the timeoutSSHInSec
-	 */
-	public int getTimeoutSSHInSec() {
-		return timeoutSSHInSec;
-	}
+//	/**
+//	 * @return the zapSSHPort
+//	 */
+//	public int getZapSSHPort() {
+//		return zapSSHPort;
+//	}
+//
+//	/**
+//	 * @return the zapSSHUser
+//	 */
+//	public String getZapSSHUser() {
+//		return zapSSHUser;
+//	}
+//
+//	/**
+//	 * @return the zapSSHPassword
+//	 */
+//	public String getZapSSHPassword() {
+//		return zapSSHPassword;
+//	}
+//
+//	/**
+//	 * @return the timeoutInSec
+//	 */
+//	public int getTimeoutInSec() {
+//		return timeoutInSec;
+//	}
+//
+//	/**
+//	 * @return the timeoutSSHInSec
+//	 */
+//	public int getTimeoutSSHInSec() {
+//		return timeoutSSHInSec;
+//	}
 
 	/**
 	 * @return the stopZAPAtEnd
@@ -831,13 +848,13 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	public void setStopZAPAtEnd(boolean stopZAPAtEnd) {
 		this.stopZAPAtEnd = stopZAPAtEnd;
 	}
-
-	/**
-	 * @return the useWebProxy
-	 */
-	public boolean isUseWebProxy() {
-		return useWebProxy;
-	}
+//
+//	/**
+//	 * @return the useWebProxy
+//	 */
+//	public boolean isUseWebProxy() {
+//		return useWebProxy;
+//	}
 
 	/**
 	 * @return the ajaxSpiderURLAsUser
@@ -1067,8 +1084,19 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	//// // Call waitForSuccessfulConnectionToZap(int, BuildListener) remotely
 	//// build.getWorkspace().act(new WaitZAProxyInitCallable(this, listener));
 	// }
-
+    
 	public boolean executeZAP(FilePath workspace, BuildListener listener) {
+		
+		
+		listener.getLogger().println("targetURL : " + targetURL);
+		listener.getLogger().println("authorizedURL : " + authorizedURL);
+		
+		if(!Security.isScannable(targetURL, authorizedURL)){
+			
+			throw new BuildException("L'url ciblée n'est pas autorisée, veuillez vous rapprochez de l'équipe sécurité pour justifier votre choix");
+		}
+		
+		
 
 		CustomZapClientApi zapClientAPI = new CustomZapClientApi(protocol,zapProxyHost, zapProxyPort, zapProxyKey, listener,debug);
 		
@@ -1932,7 +1960,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	public static class ZAProxyDescriptorImpl extends Descriptor<ZAProxy> implements Serializable {
 
 		private static final long serialVersionUID = 4028279269334325901L;
-
+		private static final int MILLISECONDS_IN_SECOND = 1000;
 		/**
 		 * To persist global configuration information, simply store it in a
 		 * field and call save().
@@ -1995,6 +2023,25 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 
 		public void setWorkspace(FilePath ws) {
 			this.workspace = ws;
+		}
+		
+		
+		
+		
+		
+		public FormValidation doCheckTargetURL(@QueryParameter("targetURL") final String targetURL) {
+			
+			
+			String  authorizedURL=ZAProxyBuilder.DESCRIPTOR.getAuthorizedURLs();
+			
+			if(!Security.isScannable(targetURL, authorizedURL)){
+				
+				return FormValidation.error("URL hors scope (non authorisée)");
+			}
+			
+			return FormValidation.ok();
+			
+		
 		}
 
 		/**
@@ -2191,22 +2238,35 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			return items;
 		}
 
-		public FormValidation doLoadScriptsList(@QueryParameter("protocol") final String protocol,
-				@QueryParameter("useWebProxy") final boolean useWebProxy,
-				@QueryParameter("webProxyHost") final String webProxyHost,
-				@QueryParameter("webProxyPort") final int webProxyPort,
-				@QueryParameter("webProxyUser") final String webProxyUser,
-				@QueryParameter("webProxyPassword") final String webProxyPassword,
-				@QueryParameter("zapProxyHost") final String zapProxyHost,
-				@QueryParameter("zapProxyPort") final int zapProxyPort,
-				@QueryParameter("zapProxyKey") final String zapProxyKey,
-				@QueryParameter("timeoutInSec") final int timeoutInSec
+		public FormValidation doLoadScriptsList() {
+			
+			
+		 
+			int zapProxyDefaultTimeoutInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
+			String defaultProtocol = ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
+			String zapProxyDefaultHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();
+			int zapProxyDefaultPort = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultPort();
+			String zapProxyDefaultApiKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
 
-		) {
+			int zapDefaultSSHPort = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPort();
+			String zapDefaultSSHUser = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHUser();
+			String zapDefaultSSHPassword = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPassword();
+
+			boolean useWebProxy = ZAProxyBuilder.DESCRIPTOR.isUseWebProxy();
+		 
+ 
+
+			String webProxyHost = ZAProxyBuilder.DESCRIPTOR.getWebProxyHost();
+			int webProxyPort = ZAProxyBuilder.DESCRIPTOR.getWebProxyPort();
+			String webProxyUser = ZAProxyBuilder.DESCRIPTOR.getWebProxyUser();
+			String webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
+
+			String zapDefaultDirectory = ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();
+
+ 
 
 			/*
-			 * ======================================================= | USE WEB
-			 * PROXY | =======================================================
+			 * ======================================================= | USE WEB PROXY | =======================================================
 			 */
 			Proxy proxy = null;
 			if (useWebProxy) {
@@ -2216,15 +2276,29 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 				// proxy à toutes les appels issus de la même JVM
 				proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(webProxyHost, webProxyPort));
 			}
+			
+			
 			/*
-			 * ======================================================= | ZAP
-			 * FILE PATH SEPARATOR |
-			 * =======================================================
+			 * ======================================================= | start ZAP | =======================================================
+			 */			
+			
+			final String linuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapDefaultDirectory+ "zap.sh -daemon -port " + zapProxyDefaultPort;
+			final String WindowsCommand = zapDefaultDirectory + "zap.bat -daemon"; 
+ 
+			SSHConnexion.execCommand(zapProxyDefaultHost, zapDefaultSSHPort, zapDefaultSSHUser, zapDefaultSSHPassword,linuxCommand);
+ 
+		
+			waitForSuccessfulConnectionToZap(proxy,defaultProtocol, zapProxyDefaultHost, zapProxyDefaultPort,zapProxyDefaultTimeoutInSec);
+			
+			
+			
+			/*
+			 * ======================================================= | ZAP FILE PATH SEPARATOR | =======================================================
 			 */
 			try {
 
-				ApiResponseElement set = (ApiResponseElement) CustomZapClientApi.sendRequest(protocol, zapProxyHost,
-						zapProxyPort, "xml", "core", "view", "homeDirectory", null, proxy, timeoutInSec);
+				ApiResponseElement set = (ApiResponseElement) CustomZapClientApi.sendRequest(defaultProtocol, zapProxyDefaultHost,
+						zapProxyDefaultPort, "xml", "core", "view", "homeDirectory", null, proxy, zapProxyDefaultTimeoutInSec);
 				String zapHomeDirectory = set.getValue();
 
 				if (zapHomeDirectory.startsWith("/")) {
@@ -2238,8 +2312,8 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 				StringBuilder sb1 = new StringBuilder();
 
 				ApiResponseList configParamsList = null;
-				configParamsList = (ApiResponseList) CustomZapClientApi.sendRequest(protocol, zapProxyHost,
-						zapProxyPort, "xml", "script", "view", "listScripts", null, proxy, timeoutInSec);
+				configParamsList = (ApiResponseList) CustomZapClientApi.sendRequest(defaultProtocol, zapProxyDefaultHost,
+						zapProxyDefaultPort, "xml", "script", "view", "listScripts", null, proxy, zapProxyDefaultTimeoutInSec);
 
 				for (ApiResponse r : configParamsList.getItems()) {
 					ApiResponseSet set1 = (ApiResponseSet) r;
@@ -2296,8 +2370,133 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 				e.printStackTrace();
 				return FormValidation.error(e.getMessage());
 			}
+			
+			finally{
+				
+				/*
+				 * ======================================================= | Stop ZAP | =======================================================
+				 */	
+			 
+				Map<String, String> map = null;
+				map = new HashMap<String, String>();
+				map.put("apikey", zapProxyDefaultApiKey);
+				try {
+					ApiResponseElement set = (ApiResponseElement) CustomZapClientApi.sendRequest(defaultProtocol, zapProxyDefaultHost,
+							zapProxyDefaultPort, "xml", "core", "action", "shutdown", map, proxy, zapProxyDefaultTimeoutInSec);
+				} catch (IOException | ParserConfigurationException | SAXException | ClientApiException e) {
+					 
+					e.printStackTrace();
+				}
+				 
+			}
+			
+			
 
 		}
+		
+		
+		/**
+		 * Wait for ZAProxy initialization, so it's ready to use at the end of this
+		 * method (otherwise, catch exception). This method is launched on the
+		 * remote machine (if there is one)
+		 * 
+		 * @param timeout
+		 *            the time in sec to try to connect at zap proxy.
+		 * @param listener
+		 *            the listener to display log during the job execution in
+		 *            jenkins
+		 * @see <a href=
+		 *      "https://groups.google.com/forum/#!topic/zaproxy-develop/gZxYp8Og960">
+		 *      https://groups.google.com/forum/#!topic/zaproxy-develop/gZxYp8Og960
+		 *      </a>
+		 */
+		private void waitForSuccessfulConnectionToZap(Proxy proxy,String protocol, String zapProxyHost, int zapProxyPort, int timeout) {
+
+			int timeoutInMs = getMilliseconds(timeout);
+			int connectionTimeoutInMs = timeoutInMs;
+			int pollingIntervalInMs = getMilliseconds(1);
+			boolean connectionSuccessful = false;
+			long startTime = System.currentTimeMillis();
+
+			URL url;
+
+			do {
+				try {
+					 
+					url = new URL(protocol + "://" + zapProxyHost + ":" + zapProxyPort);
+
+					connectionSuccessful = checkURL(proxy,url, connectionTimeoutInMs );
+
+				} catch (SocketTimeoutException ignore) {
+
+					throw new BuildException("Unable to connect to ZAP's proxy after " + timeout + " seconds.");
+
+				} catch (IOException ignore) {
+					// and keep trying but wait some time first...
+					try {
+						Thread.sleep(pollingIntervalInMs);
+					} catch (InterruptedException e) {
+
+						throw new BuildException("The task was interrupted while sleeping between connection polling.", e);
+					}
+
+					long ellapsedTime = System.currentTimeMillis() - startTime;
+					if (ellapsedTime >= timeoutInMs) {
+
+						throw new BuildException("Unable to connect to ZAP's proxy after " + timeout + " seconds.");
+					}
+					connectionTimeoutInMs = (int) (timeoutInMs - ellapsedTime);
+				}
+			} while (!connectionSuccessful);
+		}
+
+		 
+
+		/**
+		 * Converts seconds in milliseconds.
+		 * 
+		 * @param seconds
+		 *            the time in second to convert
+		 * @return the time in milliseconds
+		 */
+		private static int getMilliseconds(int seconds) {
+			return seconds * MILLISECONDS_IN_SECOND;
+		}
+
+		private boolean checkURL(Proxy proxy,URL url, int connectionTimeoutInMs ) throws IOException {
+
+			/******************************************/
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection(proxy);
+			conn.setRequestMethod("GET");
+			conn.setConnectTimeout(connectionTimeoutInMs);
+			System.out.println(String.format("Fetching %s ...", url));
+			 
+			// try {
+			int responseCode = conn.getResponseCode();
+			if (responseCode == 200) {
+				System.out.println(String.format("Site is up, content length = %s", conn.getHeaderField("content-length")));
+				 
+				return true;
+			} else {
+				System.out.println(String.format("Site is up, but returns non-ok status = %d", responseCode));
+				 
+				return false;
+			}
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 
 	}
 

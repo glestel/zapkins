@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package  fr.orange.zaproxyplugin;
+package fr.orange.zaproxyplugin;
 
 import hudson.Extension;
 import hudson.FilePath;
@@ -39,8 +39,10 @@ import hudson.remoting.VirtualChannel;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
-import  fr.orange.zaproxyplugin.utilities.ProxyAuthenticator;
-import  fr.orange.zaproxyplugin.utilities.SSHConnexion;
+import fr.orange.zaproxyplugin.CustomZapClientApi;
+import fr.orange.zaproxyplugin.ZAProxy;
+import fr.orange.zaproxyplugin.utilities.ProxyAuthenticator;
+import fr.orange.zaproxyplugin.utilities.SSHConnexion;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.tools.ant.BuildException;
@@ -79,300 +81,23 @@ import javax.xml.parsers.ParserConfigurationException;
 public class ZAProxyBuilder extends Builder {
 
 	private static final int MILLISECONDS_IN_SECOND = 1000;
-
-	private String defaultProtocol;
-
-	private int zapProxyDefaultTimeoutInSec;
-
-	private int zapProxyDefaultTimeoutSSHInSec;
-
 	/** The objet to start and call ZAProxy methods */
 	private final ZAProxy zaproxy;
-	
-	
-
-	/** Host configured when ZAProxy is used as proxy */
-	private String zapProxyDefaultHost;
-
-	/** Port configured when ZAProxy is used as proxy */
-	private int zapProxyDefaultPort;
-
-	/** API Key configured when ZAProxy is used as proxy */
-	private String zapProxyDefaultApiKey;
-
-	/** ZAP Directory configured when ZAProxy is used as proxy */
-	private String zapDefaultDirectory;
-	
-	
-	
-	
-	/** proxyWeb host */
-	private String webProxyHost;
-	/** proxyWeb port */
-	private int webProxyPort;
-	/** proxyWeb username */
-	private String webProxyUser;
-	/** proxyWeb password */
-	private String webProxyPassword;
-
-	/** use or not a proxyWeb */
-	private boolean useWebProxy;
-
-	/** start ZAP remotely */
-	private boolean startZAPFirst;
-
-	/** stop ZAP At the end of scan */
-	private boolean stopZAPAtEnd;
-
-	/************ SSH ****************/
-	/** SSH PORT configured when ZAProxy is used as proxy */
-	private int zapDefaultSSHPort;
-
-	/** SSH USER configured when ZAProxy is used as proxy */
-	private String zapDefaultSSHUser;
-
-	/** SSH PASSWORD configured when ZAProxy is used as proxy */
-	private String zapDefaultSSHPassword;
-	
-	private String authorizedURLs;
-
-
-
 	// On ne peut pas rendre ce champs final, car on ne peut l'initialiser à
 	// travers le constructeur
 	private BuildListener listener;
 
-	// Fields in fr/novia/zaproxyplugin/ZAProxyBuilder/config.jelly must match
-	// the parameter names in the "DataBoundConstructor"
-	// @DataBoundConstructor
-	// public ZAProxyBuilder(int timeoutSSHInSec, int timeoutInSec, String
-	// protocol, ZAProxy zaproxy, String zapProxyHost, int zapProxyPort,
-	// int zapSSHPort, String zapSSHUser, String zapSSHPassword, boolean
-	// startZAPFirst, boolean stopZAPAtEnd,
-	// boolean useWebProxy, String zapProxyDirectory, String zapProxyKey, String
-	// webProxyHost, int webProxyPort,
-	// String webProxyUser, String webProxyPassword) {
-	//
-	//
-	// super();
-	// this.zaproxy = zaproxy;
-	//
-	// this.startZAPFirst = startZAPFirst;
-	// this.stopZAPAtEnd = stopZAPAtEnd;
-	// this.zaproxy.setStopZAPAtEnd(stopZAPAtEnd);
-	//
-	//
-	// /***************** TIME OUT *******************************/
-	// this.timeoutSSHInSec=timeoutSSHInSec;
-	// this.timeoutInSec = timeoutInSec;
-	// this.zaproxy.setTimeoutInSec(timeoutInSec);
-	// this.zaproxy.setTimeoutSSHInSec(timeoutSSHInSec);
-	//
-	// /***************** ZAP PROXY *******************************/
-	// this.protocol = protocol;
-	// this.zaproxy.setProtocol(protocol);
-	//
-	//
-	// this.zapProxyHost = zapProxyHost;
-	// this.zapProxyPort = zapProxyPort;
-	// this.zapProxyKey = zapProxyKey;
-	// this.zapProxyDirectory = zapProxyDirectory;
-	// this.zaproxy.setZapProxyHost(zapProxyHost);
-	// this.zaproxy.setZapProxyPort(zapProxyPort);
-	// this.zaproxy.setZapProxyApiKey(zapProxyKey);
-	// this.zaproxy.setZapProxyDirectory(zapProxyDirectory);
-	//
-	// /****************** WEB PROXY ******************************/
-	// this.useWebProxy = useWebProxy;
-	// this.webProxyHost = webProxyHost;
-	// this.webProxyPort = webProxyPort;
-	// this.webProxyUser = webProxyUser;
-	// this.webProxyPassword = webProxyPassword;
-	// this.zaproxy.setWebProxyHost(webProxyHost);
-	// this.zaproxy.setWebProxyPort(webProxyPort);
-	// this.zaproxy.setWebProxyUser(webProxyUser);
-	// this.zaproxy.setWebProxyPassword(webProxyPassword);
-	//
-	// /****************** SSH SERVICE ******************************/
-	// this.zapSSHPort = zapSSHPort;
-	// this.zapSSHUser = zapSSHUser;
-	// this.zapSSHPassword = zapSSHPassword;
-	// this.zaproxy.setZapSSHPort(zapSSHPort);
-	// this.zaproxy.setZapSSHUser(zapSSHUser);
-	// this.zaproxy.setZapSSHPassword(zapSSHPassword);
-	// /************************************************/
-	//
-	//
-	//
-	//
-	//
-	//
-	// }
-
 	@DataBoundConstructor
-	public ZAProxyBuilder(  ZAProxy zaproxy, String defaultProtocol,
-							String zapProxyDefaultHost,int zapProxyDefaultPort,
-							String zapProxyDefaultApiKey,int zapProxyDefaultTimeoutInSec,
-							String zapDefaultDirectory,	boolean useWebProxy,
-							String webProxyHost,int webProxyPort,
-							String webProxyUser,String webProxyPassword,
-							boolean startZAPFirst,int zapDefaultSSHPort,
-							String zapDefaultSSHUser,String zapDefaultSSHPassword,
-							int zapProxyDefaultTimeoutSSHInSec,	boolean stopZAPAtEnd,
-							String authorizedURLs) {
-		
-		
+	public ZAProxyBuilder(ZAProxy zaproxy) {
+
 		super();
 		this.zaproxy = zaproxy;
-		
-		this.zapProxyDefaultTimeoutSSHInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutSSHInSec();
-		this.zapProxyDefaultTimeoutInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
-		this.defaultProtocol=ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
-		this.zapProxyDefaultHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();
-		this.zapProxyDefaultPort = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultPort();
-		this.zapProxyDefaultApiKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
-
-		this.zapDefaultSSHPort = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPort();
-		this.zapDefaultSSHUser = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHUser();
-		this.zapDefaultSSHPassword = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPassword();
-
-		this.useWebProxy = ZAProxyBuilder.DESCRIPTOR.isUseWebProxy();
-		this.stopZAPAtEnd = ZAProxyBuilder.DESCRIPTOR.isStopZAPAtEnd();
-		this.startZAPFirst=ZAProxyBuilder.DESCRIPTOR.isStartZAPFirst();
-
-		this.webProxyHost = ZAProxyBuilder.DESCRIPTOR.getWebProxyHost();
-		this.webProxyPort = ZAProxyBuilder.DESCRIPTOR.getWebProxyPort();
-		this.webProxyUser = ZAProxyBuilder.DESCRIPTOR.getWebProxyUser();
-		this.webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
-		
-	
-		
-		this.zapDefaultDirectory=ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();
- 
-		
-		this.authorizedURLs=ZAProxyBuilder.DESCRIPTOR.getAuthorizedURLs();
 
 	}
 
-	// /*
-	// * Getters allows to access member via UI (config.jelly)
-	// */
-	//
-	// public int getTimeoutInSec() {
-	// return timeoutInSec;
-	// }
-	//
-	// /**
-	// * @return the timeoutSSHInSec
-	// */
-	// public int getTimeoutSSHInSec() {
-	// return timeoutSSHInSec;
-	// }
-	//
-	// /**
-	// * @return the useWebProxy
-	// */
-	// public boolean isUseWebProxy() {
-	// return useWebProxy;
-	// }
-	//
-	// /**
-	// * @return the startZAP
-	// */
-	// public boolean isStartZAPFirst() {
-	// return startZAPFirst;
-	// }
-	//
-	// /**
-	// * @return the stopZAPAtEnd
-	// */
-	// public boolean isStopZAPAtEnd() {
-	// return stopZAPAtEnd;
-	// }
-	/**
-	 * @return the authorizedURLs
-	 */
-	public String getAuthorizedURLs() {
-		return authorizedURLs;
-	}
 	public ZAProxy getZaproxy() {
 		return zaproxy;
 	}
-
-	// public String getZapProxyHost() {
-	// return zapProxyHost;
-	// }
-	//
-	// public int getZapProxyPort() {
-	// return zapProxyPort;
-	// }
-	//
-	// public String getZapProxyKey() {
-	// return zapProxyKey;
-	// }
-	//
-	// /**
-	// * @return the zapSSHPort
-	// */
-	// public int getZapSSHPort() {
-	// return zapSSHPort;
-	// }
-	//
-	// /**
-	// * @return the zapSSHUser
-	// */
-	// public String getZapSSHUser() {
-	// return zapSSHUser;
-	// }
-	//
-	// /**
-	// * @return the zapSSHPassword
-	// */
-	// public String getZapSSHPassword() {
-	// return zapSSHPassword;
-	// }
-	//
-	// /**
-	// * @return the zapProxyDirectory
-	// */
-	// public String getZapProxyDirectory() {
-	// return zapProxyDirectory;
-	// }
-	//
-	// /**
-	// * @return the webProxyHost
-	// */
-	// public String getWebProxyHost() {
-	// return webProxyHost;
-	// }
-	//
-	// /**
-	// * @return the webProxyPort
-	// */
-	// public int getWebProxyPort() {
-	// return webProxyPort;
-	// }
-	//
-	// /**
-	// * @return the webProxyUser
-	// */
-	// public String getWebProxyUser() {
-	// return webProxyUser;
-	// }
-	//
-	// /**
-	// * @return the webProxyPassword
-	// */
-	// public String getWebProxyPassword() {
-	// return webProxyPassword;
-	// }
-	//
-	// /**
-	// * @return the pROTOCOL
-	// */
-	// public String getProtocol() {
-	// return protocol;
-	// }
 
 	/**
 	 * @return the listener
@@ -381,132 +106,13 @@ public class ZAProxyBuilder extends Builder {
 		return listener;
 	}
 
-	/**
-	 * @return the defaultProtocol
-	 */
-	public String getDefaultProtocol() {
-		return defaultProtocol;
-	}
-
-	/**
-	 * @return the zapProxyDefaultTimeoutInSec
-	 */
-	public int getZapProxyDefaultTimeoutInSec() {
-		return zapProxyDefaultTimeoutInSec;
-	}
-
-	/**
-	 * @return the zapProxyDefaultTimeoutSSHInSec
-	 */
-	public int getZapProxyDefaultTimeoutSSHInSec() {
-		return zapProxyDefaultTimeoutSSHInSec;
-	}
-
-	/**
-	 * @return the zapProxyDefaultHost
-	 */
-	public String getZapProxyDefaultHost() {
-		return zapProxyDefaultHost;
-	}
-
-	/**
-	 * @return the zapProxyDefaultPort
-	 */
-	public int getZapProxyDefaultPort() {
-		return zapProxyDefaultPort;
-	}
-
-	/**
-	 * @return the zapProxyDefaultApiKey
-	 */
-	public String getZapProxyDefaultApiKey() {
-		return zapProxyDefaultApiKey;
-	}
-
-	/**
-	 * @return the zapDefaultDirectory
-	 */
-	public String getZapDefaultDirectory() {
-		return zapDefaultDirectory;
-	}
-
-	/**
-	 * @return the webProxyHost
-	 */
-	public String getWebProxyHost() {
-		return webProxyHost;
-	}
-
-	/**
-	 * @return the webProxyPort
-	 */
-	public int getWebProxyPort() {
-		return webProxyPort;
-	}
-
-	/**
-	 * @return the webProxyUser
-	 */
-	public String getWebProxyUser() {
-		return webProxyUser;
-	}
-
-	/**
-	 * @return the webProxyPassword
-	 */
-	public String getWebProxyPassword() {
-		return webProxyPassword;
-	}
-
-	/**
-	 * @return the startZAPFirst
-	 */
-	public boolean isStartZAPFirst() {
-		return startZAPFirst;
-	}
-
-	/**
-	 * @return the stopZAPAtEnd
-	 */
-	public boolean isStopZAPAtEnd() {
-		return stopZAPAtEnd;
-	}
-
-	/**
-	 * @return the zapDefaultSSHPort
-	 */
-	public int getZapDefaultSSHPort() {
-		return zapDefaultSSHPort;
-	}
-
-	/**
-	 * @return the zapDefaultSSHUser
-	 */
-	public String getZapDefaultSSHUser() {
-		return zapDefaultSSHUser;
-	}
-
-	/**
-	 * @return the zapDefaultSSHPassword
-	 */
-	public String getZapDefaultSSHPassword() {
-		return zapDefaultSSHPassword;
-	}
-
-	/**
-	 * @param useWebProxy the useWebProxy to set
-	 */
-	public void setUseWebProxy(boolean useWebProxy) {
-		this.useWebProxy = useWebProxy;
-	}
-
-	/**
-	 * @param listener
-	 *            the listener to set
-	 */
-	public void setListener(BuildListener listener) {
-		this.listener = listener;
-	}
+//	/**
+//	 * @param listener
+//	 *            the listener to set
+//	 */
+//	public void setListener(BuildListener listener) {
+//		this.listener = listener;
+//	}
 
 	// Overridden for better type safety.
 	// If your plugin doesn't really define any property on Descriptor,
@@ -516,231 +122,39 @@ public class ZAProxyBuilder extends Builder {
 		return (ZAProxyBuilderDescriptorImpl) super.getDescriptor();
 	}
 
-	// /**
-	// * @param zapSSHPort
-	// * the zapSSHPort to set
-	// */
-	// public void setZapSSHPort(int zapSSHPort) {
-	// this.zapSSHPort = zapSSHPort;
-	// }
-	//
-	// /**
-	// * @param zapSSHUser
-	// * the zapSSHUser to set
-	// */
-	// public void setZapSSHUser(String zapSSHUser) {
-	// this.zapSSHUser = zapSSHUser;
-	// }
-	//
-	// /**
-	// * @param zapSSHPassword
-	// * the zapSSHPassword to set
-	// */
-	// public void setZapSSHPassword(String zapSSHPassword) {
-	// this.zapSSHPassword = zapSSHPassword;
-	// }
-
 	// Method called before launching the build
 	public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {
 
-		// if(startZAPFirst) {
-		// listener.getLogger().println("------- START Prebuild -------");
-		//
-		// try {
-		// Launcher launcher = null;
-		// Node node = build.getBuiltOn();
-		//
-		// // Create launcher according to the build's location (Master or
-		// Slave) and the build's OS
-		//
-		// if("".equals(node.getNodeName())) { // Build on master
-		// launcher = new LocalLauncher(listener,
-		// build.getWorkspace().getChannel());
-		// } else { // Build on slave
-		// boolean isUnix;
-		// if(
-		// "Unix".equals(((SlaveComputer)node.toComputer()).getOSDescription())
-		// ) {
-		// isUnix = true;
-		// } else {
-		// isUnix = false;
-		// }
-		// launcher = new RemoteLauncher(listener,
-		// build.getWorkspace().getChannel(), isUnix);
-		// }
-		//
-		//
-		//
-		//
-		// zaproxy.startZAP(build, listener, launcher);
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// listener.error(ExceptionUtils.getStackTrace(e));
-		// return false;
-		// }
-		// listener.getLogger().println("------- END Prebuild -------");
-		// }
-		// return true;
-
-		// if (startZAPFirst) {
-		// listener.getLogger().println("------- START Prebuild -------");
-		//
-		// listener.getLogger().println("Perform ZAProxy");
-		// final String linuxCommand = "sh " +this.getZapProxyDirectory() +
-		// "zap.sh -daemon";
-		// final String WindowsCommand = this.getZapProxyDirectory() + "zap.bat
-		// -daemon";
-		//
-		//
-		// /*
-		// * ======================================================= | start
-		// * ZAP | =======================================================
-		// */
-		//
-		// listener.getLogger().println("Starting ZAP remotely (SSH)");
-		// listener.getLogger().println("SSH PORT : " + this.getZapSSHPort());
-		// listener.getLogger().println("SSH USER : " + this.getZapSSHUser());
-		// listener.getLogger().println("ZAP DIRECTORY : " +
-		// this.getZapProxyDirectory());
-		// //SSHConnexion.execCommand(getZapProxyHost(), getZapSSHPort(),
-		// getZapSSHUser(), getZapSSHPassword(),linuxCommand, getListener());
-		//
-		//
-		//
-		// CredentialsSSHSite site = new
-		// CredentialsSSHSite(getZapProxyHost(),getZapSSHPort(),
-		// getZapSSHUser(),getZapSSHPassword(),"0","0");
-		// // Get the build variables and make sure we substitute the current
-		// SSH Server host name
-		// try {
-		// site.setResolvedHostname(build.getEnvironment(listener).expand(site.getHostname()));
-		// } catch (IOException | InterruptedException e1) {
-		// // TODO Auto-generated catch block
-		// e1.printStackTrace();
-		// listener.error(ExceptionUtils.getStackTrace(e1));
-		// }
-		//
-		//
-		//
-		//
-		//// Map<String, String> vars = new HashMap<String, String>();
-		//// vars.putAll(build.getEnvironment(listener));
-		//// vars.putAll(build.getBuildVariables());
-		//// String runtime_cmd = VariableReplacerUtil.replace(linuxCommand,
-		// vars);
-		//// String scrubbed_cmd = VariableReplacerUtil.scrub(runtime_cmd, vars,
-		// build.getSensitiveBuildVariables());
-		//
-		// if (linuxCommand != null && linuxCommand.trim().length() > 0) {
-		//// if (execEachLine) {
-		//// listener.getLogger().printf("[SSH] commands:%n%s%n", scrubbed_cmd);
-		//// }
-		//// else {
-		//// listener.getLogger().printf("[SSH] script:%n%s%n", scrubbed_cmd);
-		//// }
-		// listener.getLogger().printf("%n[SSH] executing...%n");
-		// try {
-		// return site.executeCommand(listener.getLogger(),
-		// linuxCommand,false)==0;
-		// } catch (InterruptedException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// listener.error(ExceptionUtils.getStackTrace(e));
-		// }//, execEachLine) == 0;
-		// }
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//// Thread queryThread = new Thread() {
-		//// public void run() {
-		// //SSHConnexion.execCommand(getZapProxyHost(), getZapSSHPort(),
-		// getZapSSHUser(), getZapSSHPassword(),linuxCommand, getListener());
-		// //SSHConnexion.getQueryShell(getZapProxyHost(), getZapSSHPort(),
-		// getZapSSHUser(), getZapSSHPassword(),linuxCommand);
-		//
-		//// }
-		//// };
-		//// queryThread.start();
-		//
-		//
-		// listener.getLogger().println("------- END Prebuild -------");
-		// }
-		//
-		// else {
-		// listener.getLogger().println("Skip starting ZAP remotely");
-		// listener.getLogger().println("startZAPFirst : " + startZAPFirst);
-		// }
 		return true;
 	}
 
 	// Methode appelée pendant le build, c'est ici que zap est lancé
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
-		
-		this.zapProxyDefaultTimeoutSSHInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutSSHInSec();
-		this.zapProxyDefaultTimeoutInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
-		this.defaultProtocol=ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
-		this.zapProxyDefaultHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();
-		this.zapProxyDefaultPort = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultPort();
-		this.zapProxyDefaultApiKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
 
-		this.zapDefaultSSHPort = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPort();
-		this.zapDefaultSSHUser = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHUser();
-		this.zapDefaultSSHPassword = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPassword();
+		int zapProxyDefaultTimeoutSSHInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutSSHInSec();
+		int zapProxyDefaultTimeoutInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
+		String defaultProtocol = ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
+		String zapProxyDefaultHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();
+		int zapProxyDefaultPort = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultPort();
+		String zapProxyDefaultApiKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
 
-		this.useWebProxy = ZAProxyBuilder.DESCRIPTOR.isUseWebProxy();
-		this.stopZAPAtEnd = ZAProxyBuilder.DESCRIPTOR.isStopZAPAtEnd();
-		this.startZAPFirst=ZAProxyBuilder.DESCRIPTOR.isStartZAPFirst();
+		int zapDefaultSSHPort = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPort();
+		String zapDefaultSSHUser = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHUser();
+		String zapDefaultSSHPassword = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPassword();
 
-		this.webProxyHost = ZAProxyBuilder.DESCRIPTOR.getWebProxyHost();
-		this.webProxyPort = ZAProxyBuilder.DESCRIPTOR.getWebProxyPort();
-		this.webProxyUser = ZAProxyBuilder.DESCRIPTOR.getWebProxyUser();
-		this.webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
-		
-	
-		
-		this.zapDefaultDirectory=ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();
- 
-		
-		this.authorizedURLs=ZAProxyBuilder.DESCRIPTOR.getAuthorizedURLs();
+		boolean useWebProxy = ZAProxyBuilder.DESCRIPTOR.isUseWebProxy();
+		boolean stopZAPAtEnd = ZAProxyBuilder.DESCRIPTOR.isStopZAPAtEnd();
+		boolean startZAPFirst = ZAProxyBuilder.DESCRIPTOR.isStartZAPFirst();
+
+		String webProxyHost = ZAProxyBuilder.DESCRIPTOR.getWebProxyHost();
+		int webProxyPort = ZAProxyBuilder.DESCRIPTOR.getWebProxyPort();
+		String webProxyUser = ZAProxyBuilder.DESCRIPTOR.getWebProxyUser();
+		String webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
+
+		String zapDefaultDirectory = ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();
+
+		String authorizedURLs = ZAProxyBuilder.DESCRIPTOR.getAuthorizedURLs();
 		
 		
 		
@@ -751,40 +165,25 @@ public class ZAProxyBuilder extends Builder {
 			listener.getLogger().println("------- START Prebuild -------");
 
 			listener.getLogger().println("Perform ZAProxy");
-			// Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh /opt/ZAP_2.4.2/zap.sh
-			// -daemon
+			
 			final String linuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapDefaultDirectory
 					+ "zap.sh -daemon -port " + zapProxyDefaultPort;
 			final String WindowsCommand = zapDefaultDirectory + "zap.bat -daemon";
 
 			/*
-			 * ======================================================= | start
-			 * ZAP | =======================================================
+			 * ======================================================= | start ZAP | =======================================================
 			 */
 
 			listener.getLogger().println("Starting ZAP remotely (SSH)");
-			listener.getLogger().println("SSH PORT : " + zapDefaultSSHPort);
-			listener.getLogger().println("SSH USER : " + zapDefaultSSHUser);
-			listener.getLogger().println("SSH PASSWORD : " + zapDefaultSSHPassword);
-			listener.getLogger().println("COMMAND : " + linuxCommand);
-			listener.getLogger().println("LISTENER : " + listener);
-			listener.getLogger().println("ZAP DIRECTORY : " + zapDefaultDirectory);
-
-			// SSHConnexion.execCommand(getZapProxyHost(), getZapSSHPort(),
-			// getZapSSHUser(), getZapSSHPassword(),linuxCommand,
-			// getListener());
-
-			// Thread queryThread = new Thread() {
-			// public void run() {
-			SSHConnexion.execCommand(zapProxyDefaultHost, zapDefaultSSHPort, zapDefaultSSHUser, zapDefaultSSHPassword, linuxCommand, listener);
-
-			// SSHConnexion.getQueryShell(getZapProxyHost(), getZapSSHPort(),
-			// getZapSSHUser(), getZapSSHPassword(),linuxCommand);
-
-			// }
-			// };
-			// queryThread.start();
-
+//			listener.getLogger().println("SSH PORT : " + zapDefaultSSHPort);
+//			listener.getLogger().println("SSH USER : " + zapDefaultSSHUser);
+//			listener.getLogger().println("SSH PASSWORD : " + zapDefaultSSHPassword);
+//			listener.getLogger().println("COMMAND : " + linuxCommand);
+//			listener.getLogger().println("LISTENER : " + listener);
+//			listener.getLogger().println("ZAP DIRECTORY : " + zapDefaultDirectory);
+ 
+			SSHConnexion.execCommand(zapProxyDefaultHost, zapDefaultSSHPort, zapDefaultSSHUser, zapDefaultSSHPassword,linuxCommand, listener);
+ 
 			listener.getLogger().println("------- END Prebuild -------");
 		}
 
@@ -794,8 +193,7 @@ public class ZAProxyBuilder extends Builder {
 		}
 
 		/*
-		 * ======================================================= | USE WEB
-		 * PROXY | =======================================================
+		 * ======================================================= | USE WEB PROXY | =======================================================
 		 */
 		if (useWebProxy) {
 			// Ici on généralise l'utilisation du proxy web à tous les appels
@@ -805,20 +203,12 @@ public class ZAProxyBuilder extends Builder {
 			listener.getLogger().println("Skip using web proxy");
 		}
 
-		this.waitForSuccessfulConnectionToZap(defaultProtocol, zapProxyDefaultHost, zapProxyDefaultPort, zapProxyDefaultTimeoutInSec, listener);
-
-		// try {
-		// //à voir à quoi il sert cet appel
-		// zaproxy.startZAP(build, listener, launcher);
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// listener.error(ExceptionUtils.getStackTrace(e));
-		// return false;
-		// }
+		this.waitForSuccessfulConnectionToZap(defaultProtocol, zapProxyDefaultHost, zapProxyDefaultPort,zapProxyDefaultTimeoutInSec, listener);
+ 
 
 		boolean res;
 		try {
-			res = build.getWorkspace().act(new ZAProxyCallable(this.zaproxy, listener));
+			res = build.getWorkspace().act(new ZAProxyCallable(zaproxy, listener));
 		} catch (Exception e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
@@ -884,65 +274,7 @@ public class ZAProxyBuilder extends Builder {
 		} while (!connectionSuccessful);
 	}
 
-	// /**
-	// * Wait for ZAProxy initialization, so it's ready to use at the end of
-	// this
-	// * method (otherwise, catch exception). This method is launched on the
-	// * remote machine (if there is one)
-	// *
-	// * @param timeout
-	// * the time in sec to try to connect at zap proxy.
-	// * @param listener
-	// * the listener to display log during the job execution in
-	// * jenkins
-	// * @throws IOException
-	// * @see <a href=
-	// * "https://groups.google.com/forum/#!topic/zaproxy-develop/gZxYp8Og960">
-	// * https://groups.google.com/forum/#!topic/zaproxy-develop/gZxYp8Og960
-	// * </a>
-	// */
-	// private static boolean checkConnectionToZap(String PROTOCOL, String
-	// zapProxyHost, int zapProxyPort, int timeout)
-	// throws IOException {
-	//
-	// int timeoutInMs = getMilliseconds(timeout);
-	// int connectionTimeoutInMs = timeoutInMs;
-	// int pollingIntervalInMs = getMilliseconds(1);
-	// boolean connectionSuccessful = false;
-	// long startTime = System.currentTimeMillis();
-	//
-	// URL url;
-	//
-	// // try {
-	// url = new URL(PROTOCOL + "://" + zapProxyHost + ":" + zapProxyPort);
-	// connectionSuccessful = checkURL(url, connectionTimeoutInMs);
-	// return connectionSuccessful;
-	//
-	// // } catch (SocketTimeoutException ignore) {
-	// //
-	// // throw new BuildException("Unable to connect to ZAP's proxy after " +
-	// // timeout + " seconds.");
-	// //
-	// // } catch (IOException ignore) {
-	// // // and keep trying but wait some time first...
-	// // try {
-	// // Thread.sleep(pollingIntervalInMs);
-	// // } catch (InterruptedException e) {
-	// //
-	// // throw new BuildException("The task was interrupted while sleeping
-	// // between connection polling.", e);
-	// // }
-	// //
-	// // long ellapsedTime = System.currentTimeMillis() - startTime;
-	// // if (ellapsedTime >= timeoutInMs) {
-	// //
-	// // throw new BuildException("Unable to connect to ZAP's proxy after " +
-	// // timeout + " seconds.");
-	// // }
-	// // connectionTimeoutInMs = (int) (timeoutInMs - ellapsedTime);
-	// // }
-	//
-	// }
+	 
 
 	/**
 	 * Converts seconds in milliseconds.
@@ -976,38 +308,7 @@ public class ZAProxyBuilder extends Builder {
 			return false;
 		}
 	}
-
-	
-	// private static boolean checkURL(URL url, int connectionTimeoutInMs)
-	// throws IOException {
-	//
-	// /******************************************/
-	// HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-	// conn.setRequestMethod("GET");
-	// conn.setConnectTimeout(connectionTimeoutInMs);
-	// System.out.println(String.format("Fetching %s ...", url));
-	// // listener.getLogger().println(String.format("Fetching %s ...", url));
-	// try {
-	// int responseCode = conn.getResponseCode();
-	// if (responseCode == 200) {
-	// System.out.println(String.format("Site is up, content length = %s",
-	// conn.getHeaderField("content-length")));
-	// // listener.getLogger().println(String.format("Site is up, content
-	// // length = %s", conn.getHeaderField("content-length")));
-	// return true;
-	// } else {
-	// System.out.println(String.format("Site is up, but returns non-ok status =
-	// %d", responseCode));
-	// // listener.getLogger().println(String.format("Site is up, but
-	// // returns non-ok status = %d", responseCode));
-	// return false;
-	// }
-	// } catch (java.net.UnknownHostException e) {
-	// System.out.println("Site is down");
-	// //listener.getLogger().println("Site is down");
-	// return false;
-	// }
-	// }
+ 
 
 	/**
 	 * Descriptor for {@link ZAProxyBuilder}. Used as a singleton. The class is
@@ -1018,9 +319,11 @@ public class ZAProxyBuilder extends Builder {
 	 * <tt>src/main/resources/fr/novia/zaproxyplugin/ZAProxyBuilder/*.jelly</tt>
 	 * for the actual HTML fragment for the configuration screen.
 	 */
-	@Extension 
+	@Extension
 	public static final ZAProxyBuilderDescriptorImpl DESCRIPTOR = new ZAProxyBuilderDescriptorImpl();
-	// This indicates to Jenkins this is an implementation of an extension point.
+
+	// This indicates to Jenkins this is an implementation of an extension
+	// point.
 	public static final class ZAProxyBuilderDescriptorImpl extends BuildStepDescriptor<Builder>
 			implements Serializable {
 		/**
@@ -1249,21 +552,7 @@ public class ZAProxyBuilder extends Builder {
 				@QueryParameter("zapProxyDefaultTimeoutInSec") final int timeoutInSec
 
 		) {
-
-			/******************************************/
-			// String s = "";
-			//
-			// s += "\n--------------------------------------------------\n";
-			// s += "useWebProxy ["+useWebProxy+"]\n";
-			// s += "webProxyHost ["+webProxyHost+"]\n";
-			// s += "webProxyPort ["+webProxyPort+"]\n";
-			// s += "webProxyUser ["+webProxyUser+"]\n";
-			// s += "webProxyPassword ["+webProxyPassword+"]\n";
-			//
-			//
-			// s += "zapProxyHost ["+zapProxyHost+"]\n";
-			// s += "zapProxyPort ["+zapProxyPort+"]\n";
-			// s += "zapProxyKey ["+zapProxyKey+"]\n";
+ 
 
 			int responseCode = 0;
 			try {
@@ -1372,23 +661,9 @@ public class ZAProxyBuilder extends Builder {
 
 		) {
 
-			/******************************************/
-			// String s = "";
-			//
-			// s += "\n--------------------------------------------------\n";
-			// s += "useWebProxy ["+useWebProxy+"]\n";
-			// s += "webProxyHost ["+webProxyHost+"]\n";
-			// s += "webProxyPort ["+webProxyPort+"]\n";
-			// s += "webProxyUser ["+webProxyUser+"]\n";
-			// s += "webProxyPassword ["+webProxyPassword+"]\n";
-			//
-			//
-			// s += "zapProxyHost ["+zapProxyHost+"]\n";
-			// s += "zapProxyPort ["+zapProxyPort+"]\n";
-			// s += "zapProxyKey ["+zapProxyKey+"]\n";
+	 
 			/*
-			 * ======================================================= | USE WEB
-			 * PROXY | =======================================================
+			 * ======================================================= | USE WEB PROXY | =======================================================
 			 */
 
 			try {
