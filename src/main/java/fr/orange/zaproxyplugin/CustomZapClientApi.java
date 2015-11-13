@@ -49,6 +49,8 @@ public class CustomZapClientApi implements Serializable {
 
 	private BuildListener listener;
 	private  String PROTOCOL;	
+	
+	
 	/*******************************************
 	 * Constructeurs de classe
 	 *****************************************************/
@@ -576,7 +578,7 @@ public class CustomZapClientApi implements Serializable {
 	public void includeInContext(String url, String contextname, BuildListener listener) {
 		try {
 			String[] urls = url.split("\n");
-			listener.getLogger().println("URLS : " + urls.toString());
+			//listener.getLogger().println("URLS : " + urls.toString());
 
 			for (int i = 0; i < urls.length; i++) {
 				urls[i] = urls[i].trim();
@@ -606,7 +608,7 @@ public class CustomZapClientApi implements Serializable {
 		try {
 
 			String[] urls = url.split("\n");
-			listener.getLogger().println("URLS : " + urls.toString());
+			//listener.getLogger().println("URLS : " + urls.toString());
 
 			for (int i = 0; i < urls.length; i++) {
 				urls[i] = urls[i].trim();

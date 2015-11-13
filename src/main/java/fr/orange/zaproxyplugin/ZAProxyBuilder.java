@@ -43,6 +43,7 @@ import fr.orange.zaproxyplugin.CustomZapClientApi;
 import fr.orange.zaproxyplugin.ZAProxy;
 import fr.orange.zaproxyplugin.utilities.ProxyAuthenticator;
 import fr.orange.zaproxyplugin.utilities.SSHConnexion;
+import fr.orange.zaproxyplugin.utilities.SecurityTools;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.tools.ant.BuildException;
@@ -155,20 +156,52 @@ public class ZAProxyBuilder extends Builder {
 		String zapDefaultDirectory = ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();
 
 		String authorizedURLs = ZAProxyBuilder.DESCRIPTOR.getAuthorizedURLs();
+			
 		
+
+		/*
+		 * ======================================================= | USE WEB PROXY | =======================================================
+		 */
+		if (useWebProxy) {
+			// Ici on généralise l'utilisation du proxy web à tous les appels
+			// passés via la JVM
+			CustomZapClientApi.setWebProxyDetails(webProxyHost, webProxyPort, webProxyUser, webProxyPassword);
+		} else {
+			listener.getLogger().println("Skip using web proxy");
+		}
 		
-		
-		
+			
 		
 
 		if (startZAPFirst) {
+			
+			
+			
+			/*
+			 * ======================================================= | CHOOSE A FREE PORT  | =======================================================
+			 */
+			
+			
+			int zapProxyPort = SecurityTools.getPortNumber();
+			
+			while(SecurityTools.portIsToken(null, defaultProtocol, zapProxyDefaultHost, zapProxyPort, zapProxyDefaultTimeoutInSec, listener)){
+				
+				zapProxyPort = SecurityTools.getPortNumber();
+				
+			}
+			
+			zapProxyDefaultPort=zapProxyPort;	
+			zaproxy.setZapProxyPort(zapProxyDefaultPort);
+			
+			
+			
 			listener.getLogger().println("------- START Prebuild -------");
 
 			listener.getLogger().println("Perform ZAProxy");
 			
 			final String linuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapDefaultDirectory
 					+ "zap.sh -daemon -port " + zapProxyDefaultPort;
-			final String WindowsCommand = zapDefaultDirectory + "zap.bat -daemon";
+			final String WindowsCommand = zapDefaultDirectory + "zap.bat -daemon -port " + zapProxyDefaultPort;;
 
 			/*
 			 * ======================================================= | start ZAP | =======================================================
@@ -190,17 +223,6 @@ public class ZAProxyBuilder extends Builder {
 		else {
 			listener.getLogger().println("Skip starting ZAP remotely");
 			listener.getLogger().println("startZAPFirst : " + startZAPFirst);
-		}
-
-		/*
-		 * ======================================================= | USE WEB PROXY | =======================================================
-		 */
-		if (useWebProxy) {
-			// Ici on généralise l'utilisation du proxy web à tous les appels
-			// passés via la JVM
-			CustomZapClientApi.setWebProxyDetails(webProxyHost, webProxyPort, webProxyUser, webProxyPassword);
-		} else {
-			listener.getLogger().println("Skip using web proxy");
 		}
 
 		this.waitForSuccessfulConnectionToZap(defaultProtocol, zapProxyDefaultHost, zapProxyDefaultPort,zapProxyDefaultTimeoutInSec, listener);

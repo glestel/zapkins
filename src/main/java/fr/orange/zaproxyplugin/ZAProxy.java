@@ -46,7 +46,7 @@ import  fr.orange.zaproxyplugin.report.ZAPreportCollection;
 import  fr.orange.zaproxyplugin.report.ZAPscannersCollection;
 import  fr.orange.zaproxyplugin.utilities.ProxyAuthenticator;
 import fr.orange.zaproxyplugin.utilities.SSHConnexion;
-import fr.orange.zaproxyplugin.utilities.Security;
+import fr.orange.zaproxyplugin.utilities.SecurityTools;
 
 import java.io.File;
 import java.io.IOException;
@@ -384,7 +384,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 //			this.timeoutInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
 			this.protocol=ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
 			this.zapProxyHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();
-			this.zapProxyPort = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultPort();
+			//this.zapProxyPort = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultPort();
 			this.zapProxyKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
 			this.zapProxyDirectory=ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();
 //
@@ -1091,7 +1091,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		listener.getLogger().println("targetURL : " + targetURL);
 		listener.getLogger().println("authorizedURL : " + authorizedURL);
 		
-		if(!Security.isScannable(targetURL, authorizedURL)){
+		if(!SecurityTools.isScannable(targetURL, authorizedURL)){
 			
 			throw new BuildException("L'url ciblée n'est pas autorisée, veuillez vous rapprochez de l'équipe sécurité pour justifier votre choix");
 		}
@@ -1565,6 +1565,13 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 //	}
 
 	/**
+	 * @param zapProxyPort the zapProxyPort to set
+	 */
+	public void setZapProxyPort(int zapProxyPort) {
+		this.zapProxyPort = zapProxyPort;
+	}
+
+	/**
 	 * Generates security report for one format. Reports are saved into build's
 	 * workspace.
 	 * 
@@ -2034,7 +2041,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			
 			String  authorizedURL=ZAProxyBuilder.DESCRIPTOR.getAuthorizedURLs();
 			
-			if(!Security.isScannable(targetURL, authorizedURL)){
+			if(!SecurityTools.isScannable(targetURL, authorizedURL)){
 				
 				return FormValidation.error("URL hors scope (non authorisée)");
 			}
