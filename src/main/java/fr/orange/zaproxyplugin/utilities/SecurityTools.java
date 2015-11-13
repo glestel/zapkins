@@ -187,4 +187,57 @@ public static boolean  portIsToken(Proxy proxy,String protocol, String zapProxyH
 
 }
 
+public static boolean  portIsToken(Proxy proxy,String protocol, String zapProxyHost, int zapProxyPort, int timeout )   {
+	
+
+	try {
+		
+	 
+		URL url = new URL(protocol + "://" + zapProxyHost + ":" + zapProxyPort);
+	    int connectionTimeoutInMs=getMilliseconds(timeout);
+		/******************************************/
+	    HttpURLConnection conn;
+	    if(proxy != null){
+	    	conn = (HttpURLConnection) url.openConnection(proxy);
+	    }
+	    else
+	    {
+	    	conn = (HttpURLConnection) url.openConnection();
+	    }	
+		
+		conn.setRequestMethod("GET");
+		
+		conn.setConnectTimeout(connectionTimeoutInMs);
+		System.out.println(String.format("Fetching %s ...", url));
+	 
+		// try {
+		int responseCode = conn.getResponseCode();
+		if (responseCode == 200) {
+			System.out.println(String.format("Site is up, content length = %s", conn.getHeaderField("content-length")));
+		 
+			return true;
+		} else {
+			System.out.println(String.format("Site is up, but returns non-ok status = %d", responseCode));
+		 
+			return false;
+		}
+	
+		
+		
+		
+		
+		
+	} catch (ProtocolException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	return false;
+	
+
+}
+
+
 }

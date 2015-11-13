@@ -567,13 +567,62 @@ public class ZAProxyBuilder extends Builder {
 				@QueryParameter("webProxyPort") final int webProxyPort,
 				@QueryParameter("webProxyUser") final String webProxyUser,
 				@QueryParameter("webProxyPassword") final String webProxyPassword,
-
-				@QueryParameter("zapProxyDefaultHost") final String zapProxyHost,
-				@QueryParameter("zapProxyDefaultPort") final int zapProxyPort,
+				
+				@QueryParameter("zapDefaultDirectory") final String zapProxyDirectory,
+				@QueryParameter("zapProxyDefaultHost") final String zapProxyHost,			
 				@QueryParameter("zapProxyDefaultApiKey") final String zapProxyKey,
-				@QueryParameter("zapProxyDefaultTimeoutInSec") final int timeoutInSec
+				@QueryParameter("zapProxyDefaultTimeoutInSec") final int timeoutInSec,
+				
+				@QueryParameter("zapDefaultSSHPort") final int zapSSHPort,
+				@QueryParameter("zapDefaultSSHUser") final String zapSSHUser,
+				@QueryParameter("zapDefaultSSHPassword") final String zapSSHPassword,
+				@QueryParameter("zapProxyDefaultTimeoutSSHInSec") final int timeoutSSHInSec
+
 
 		) {
+			
+			/*
+			 * ======================================================= | USE WEB PROXY | =======================================================
+			 */
+			Proxy proxy = null;
+			if (useWebProxy) {
+
+				Authenticator.setDefault(new ProxyAuthenticator(webProxyUser, webProxyPassword));
+				// cet appel permet de ne pas généraliser le passage par le
+				// proxy à toutes les appels issus de la même JVM
+				proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(webProxyHost, webProxyPort));
+			}
+			
+			
+				/*
+				 * ======================================================= | CHOOSE A FREE PORT  | =======================================================
+				 */
+				
+				
+				int zapProxyPort = SecurityTools.getPortNumber();
+				
+				while(SecurityTools.portIsToken(proxy, protocol, zapProxyHost, zapProxyPort, timeoutInSec)){
+					
+					zapProxyPort = SecurityTools.getPortNumber();
+					
+				}
+ 
+				
+				final String linuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapProxyDirectory
+						+ "zap.sh -daemon -port " + zapProxyPort;
+				final String WindowsCommand = zapProxyDirectory + "zap.bat -daemon -port " + zapProxyPort;;
+
+				/*
+				 * ======================================================= | start ZAP | =======================================================
+				 */
+
+	 
+				SSHConnexion.execCommand(zapProxyHost, zapSSHPort, zapSSHUser, zapSSHPassword,linuxCommand );
+	 
+			 			
+				/*
+				 * ======================================================= | test connection | =======================================================
+				 */
  
 
 			int responseCode = 0;
@@ -582,26 +631,15 @@ public class ZAProxyBuilder extends Builder {
 				URL url = new URL(protocol + "://" + zapProxyHost + ":" + zapProxyPort);
 
 				HttpURLConnection conn;
-
-				/*
-				 * ======================================================= | USE
-				 * WEB PROXY |
-				 * =======================================================
-				 */
-				Proxy proxy = null;
-				if (useWebProxy) {
-					Authenticator.setDefault(new ProxyAuthenticator(webProxyUser, webProxyPassword));
-					proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(webProxyHost, webProxyPort));
-
-					conn = (HttpURLConnection) url.openConnection(proxy);
-
-				}
-
-				else {
-
+				
+				if(proxy == null){
 					conn = (HttpURLConnection) url.openConnection();
 				}
-
+				else {
+					
+					conn = (HttpURLConnection) url.openConnection(proxy);
+				}
+ 
 				/*
 				 * *************************************************************
 				 * *******************************
@@ -669,6 +707,26 @@ public class ZAProxyBuilder extends Builder {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return FormValidation.error(e.getMessage() + "\nHTTP Response code=" + responseCode);// +s.toString());
+			}
+			
+			finally{
+				
+				/*
+				 * ======================================================= | Stop ZAP | =======================================================
+				 */	
+			 
+				Map<String, String> map = null;
+				map = new HashMap<String, String>();
+				map.put("apikey", zapProxyDefaultApiKey);
+				try {
+					 
+					ApiResponseElement set = (ApiResponseElement) CustomZapClientApi.sendRequest(protocol, zapProxyHost,
+							zapProxyPort, "xml", "core", "action", "shutdown", map, proxy, timeoutInSec);
+				} catch (IOException | ParserConfigurationException | SAXException | ClientApiException e) {
+					 
+					e.printStackTrace();
+				}
+				 
 			}
 
 		}

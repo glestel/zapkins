@@ -2252,7 +2252,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			int zapProxyDefaultTimeoutInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
 			String defaultProtocol = ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
 			String zapProxyDefaultHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();
-			int zapProxyDefaultPort = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultPort();
+			//int zapProxyDefaultPort = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultPort();
 			String zapProxyDefaultApiKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
 
 			int zapDefaultSSHPort = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPort();
@@ -2285,17 +2285,35 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			}
 			
 			
+			
+			/*
+			 * ======================================================= | CHOOSE A FREE PORT  | =======================================================
+			 */
+			
+			
+			int zapProxyPort = SecurityTools.getPortNumber();
+			
+			while(SecurityTools.portIsToken(proxy, defaultProtocol, zapProxyDefaultHost, zapProxyPort, zapProxyDefaultTimeoutInSec)){
+				
+				zapProxyPort = SecurityTools.getPortNumber();
+				
+			}
+
+			
+			
+			
+			
 			/*
 			 * ======================================================= | start ZAP | =======================================================
 			 */			
 			
-			final String linuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapDefaultDirectory+ "zap.sh -daemon -port " + zapProxyDefaultPort;
-			final String WindowsCommand = zapDefaultDirectory + "zap.bat -daemon"; 
+			final String linuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapDefaultDirectory+ "zap.sh -daemon -port " + zapProxyPort;
+			final String WindowsCommand = zapDefaultDirectory + "zap.bat -daemon -port "+ zapProxyPort;
  
 			SSHConnexion.execCommand(zapProxyDefaultHost, zapDefaultSSHPort, zapDefaultSSHUser, zapDefaultSSHPassword,linuxCommand);
  
 		
-			waitForSuccessfulConnectionToZap(proxy,defaultProtocol, zapProxyDefaultHost, zapProxyDefaultPort,zapProxyDefaultTimeoutInSec);
+			waitForSuccessfulConnectionToZap(proxy,defaultProtocol, zapProxyDefaultHost, zapProxyPort,zapProxyDefaultTimeoutInSec);
 			
 			
 			
@@ -2305,7 +2323,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			try {
 
 				ApiResponseElement set = (ApiResponseElement) CustomZapClientApi.sendRequest(defaultProtocol, zapProxyDefaultHost,
-						zapProxyDefaultPort, "xml", "core", "view", "homeDirectory", null, proxy, zapProxyDefaultTimeoutInSec);
+						zapProxyPort, "xml", "core", "view", "homeDirectory", null, proxy, zapProxyDefaultTimeoutInSec);
 				String zapHomeDirectory = set.getValue();
 
 				if (zapHomeDirectory.startsWith("/")) {
@@ -2320,7 +2338,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 
 				ApiResponseList configParamsList = null;
 				configParamsList = (ApiResponseList) CustomZapClientApi.sendRequest(defaultProtocol, zapProxyDefaultHost,
-						zapProxyDefaultPort, "xml", "script", "view", "listScripts", null, proxy, zapProxyDefaultTimeoutInSec);
+						zapProxyPort, "xml", "script", "view", "listScripts", null, proxy, zapProxyDefaultTimeoutInSec);
 
 				for (ApiResponse r : configParamsList.getItems()) {
 					ApiResponseSet set1 = (ApiResponseSet) r;
@@ -2389,7 +2407,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 				map.put("apikey", zapProxyDefaultApiKey);
 				try {
 					ApiResponseElement set = (ApiResponseElement) CustomZapClientApi.sendRequest(defaultProtocol, zapProxyDefaultHost,
-							zapProxyDefaultPort, "xml", "core", "action", "shutdown", map, proxy, zapProxyDefaultTimeoutInSec);
+							zapProxyPort, "xml", "core", "action", "shutdown", map, proxy, zapProxyDefaultTimeoutInSec);
 				} catch (IOException | ParserConfigurationException | SAXException | ClientApiException e) {
 					 
 					e.printStackTrace();
