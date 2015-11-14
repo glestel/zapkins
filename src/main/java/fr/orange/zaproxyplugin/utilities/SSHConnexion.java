@@ -219,6 +219,14 @@ public static boolean execCommand(String HOST, int PORT, String USER, String PAS
 	JSch jsch = new JSch();
 	try {
 		//session
+		System.out.println("HOST : "+HOST);
+		System.out.println("PORT : "+PORT);
+		System.out.println("USER : "+USER);
+		 
+		System.out.println("command : "+command);
+		
+		
+		
 		Session session = jsch.getSession(USER, HOST, PORT);
 		session.setPassword(PASSWORD);
 		session.setConfig("StrictHostKeyChecking", "no");

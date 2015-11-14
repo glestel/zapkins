@@ -2491,7 +2491,14 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		private boolean checkURL(Proxy proxy,URL url, int connectionTimeoutInMs ) throws IOException {
 
 			/******************************************/
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection(proxy);
+			HttpURLConnection conn;
+			if(proxy != null){
+			conn = (HttpURLConnection) url.openConnection(proxy);
+			}
+			else {
+				
+			conn = (HttpURLConnection) url.openConnection();	
+			}
 			conn.setRequestMethod("GET");
 			conn.setConnectTimeout(connectionTimeoutInMs);
 			System.out.println(String.format("Fetching %s ...", url));

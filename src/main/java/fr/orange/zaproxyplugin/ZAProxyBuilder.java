@@ -296,7 +296,7 @@ public class ZAProxyBuilder extends Builder {
 		} while (!connectionSuccessful);
 	}
 
-	 
+	
 
 	/**
 	 * Converts seconds in milliseconds.
@@ -608,18 +608,27 @@ public class ZAProxyBuilder extends Builder {
 				}
  
 				
-				final String linuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapProxyDirectory
-						+ "zap.sh -daemon -port " + zapProxyPort;
-				final String WindowsCommand = zapProxyDirectory + "zap.bat -daemon -port " + zapProxyPort;;
+				final String linuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapProxyDirectory+ "zap.sh -daemon -port " + zapProxyPort;
+				final String WindowsCommand = zapProxyDirectory + "zap.bat -daemon -port " + zapProxyPort;
 
 				/*
 				 * ======================================================= | start ZAP | =======================================================
 				 */
 
-	 
+				System.out.println("connexion SSH : START");
 				SSHConnexion.execCommand(zapProxyHost, zapSSHPort, zapSSHUser, zapSSHPassword,linuxCommand );
+				System.out.println("connexion SSH : END");
 	 
-			 			
+			 	
+				
+				
+				this.waitForSuccessfulConnectionToZap(proxy,protocol, zapProxyHost, zapProxyPort,timeoutInSec);
+				 
+				
+				
+				
+				
+				
 				/*
 				 * ======================================================= | test connection | =======================================================
 				 */
@@ -717,7 +726,7 @@ public class ZAProxyBuilder extends Builder {
 			 
 				Map<String, String> map = null;
 				map = new HashMap<String, String>();
-				map.put("apikey", zapProxyDefaultApiKey);
+				map.put("apikey", zapProxyKey);
 				try {
 					 
 					ApiResponseElement set = (ApiResponseElement) CustomZapClientApi.sendRequest(protocol, zapProxyHost,
@@ -763,6 +772,108 @@ public class ZAProxyBuilder extends Builder {
 
 			return FormValidation.okWithMarkup("<br><b><font color=\"green\">Connection réussie !</font></b><br>");
 		}
+		
+		
+		/**
+		 * Wait for ZAProxy initialization, so it's ready to use at the end of this
+		 * method (otherwise, catch exception). This method is launched on the
+		 * remote machine (if there is one)
+		 * 
+		 * @param timeout
+		 *            the time in sec to try to connect at zap proxy.
+		 * @param listener
+		 *            the listener to display log during the job execution in
+		 *            jenkins
+		 * @see <a href=
+		 *      "https://groups.google.com/forum/#!topic/zaproxy-develop/gZxYp8Og960">
+		 *      https://groups.google.com/forum/#!topic/zaproxy-develop/gZxYp8Og960
+		 *      </a>
+		 */
+		private void waitForSuccessfulConnectionToZap(Proxy proxy,String protocol, String zapProxyHost, int zapProxyPort, int timeout) {
+
+			int timeoutInMs = getMilliseconds(timeout);
+			int connectionTimeoutInMs = timeoutInMs;
+			int pollingIntervalInMs = getMilliseconds(1);
+			boolean connectionSuccessful = false;
+			long startTime = System.currentTimeMillis();
+
+			URL url;
+
+			do {
+				try {
+					 
+					url = new URL(protocol + "://" + zapProxyHost + ":" + zapProxyPort);
+
+					connectionSuccessful = checkURL(proxy,url, connectionTimeoutInMs );
+
+				} catch (SocketTimeoutException ignore) {
+
+					throw new BuildException("Unable to connect to ZAP's proxy after " + timeout + " seconds.");
+
+				} catch (IOException ignore) {
+					// and keep trying but wait some time first...
+					try {
+						Thread.sleep(pollingIntervalInMs);
+					} catch (InterruptedException e) {
+
+						throw new BuildException("The task was interrupted while sleeping between connection polling.", e);
+					}
+
+					long ellapsedTime = System.currentTimeMillis() - startTime;
+					if (ellapsedTime >= timeoutInMs) {
+
+						throw new BuildException("Unable to connect to ZAP's proxy after " + timeout + " seconds.");
+					}
+					connectionTimeoutInMs = (int) (timeoutInMs - ellapsedTime);
+				}
+			} while (!connectionSuccessful);
+		}
+
+		 
+
+		/**
+		 * Converts seconds in milliseconds.
+		 * 
+		 * @param seconds
+		 *            the time in second to convert
+		 * @return the time in milliseconds
+		 */
+		private static int getMilliseconds(int seconds) {
+			return seconds * MILLISECONDS_IN_SECOND;
+		}
+
+		private boolean checkURL(Proxy proxy,URL url, int connectionTimeoutInMs ) throws IOException {
+
+			/******************************************/
+			HttpURLConnection conn;
+			if(proxy != null){
+			conn = (HttpURLConnection) url.openConnection(proxy);
+			}
+			else {
+				
+			conn = (HttpURLConnection) url.openConnection();	
+			}
+			conn.setRequestMethod("GET");
+			conn.setConnectTimeout(connectionTimeoutInMs);
+			System.out.println(String.format("Fetching %s ...", url));
+			 
+			// try {
+			int responseCode = conn.getResponseCode();
+			if (responseCode == 200) {
+				System.out.println(String.format("Site is up, content length = %s", conn.getHeaderField("content-length")));
+				 
+				return true;
+			} else {
+				System.out.println(String.format("Site is up, but returns non-ok status = %d", responseCode));
+				 
+				return false;
+			}
+		}
+		
+		
+		
+		
+		
 
 	}
 

@@ -103,7 +103,6 @@ SOFTWARE.
 		</f:entry>	
 		</f:optionalBlock>
 		
-		<f:validateButton   title="${%Tester la connection}" progress="${%Connexion...}"   method="testZAPConnection" with="zapProxyDefaultTimeoutInSec,defaultProtocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyDefaultHost,zapProxyDefaultPort,zapProxyDefaultApiKey" />
 		<!-- ******************************************************************************** -->
 			
 		<f:optionalBlock title="${%Démarrer ZAP à distance}" field="startZAPFirst" inline="true" >	
@@ -129,7 +128,8 @@ SOFTWARE.
 		</table>
 		</f:entry>	
 		
-		<f:validateButton   title="${%Tester la connection}" progress="${%Connexion...}"   method="testSSHConnection" with="zapProxyDefaultTimeoutSSHInSec,zapProxyDefaultHost,zapDefaultSSHPort,zapDefaultSSHUser,zapDefaultSSHPassword" />
+		<f:validateButton   title="${%Tester la connection à ZAP}" progress="${%Connexion...}"   method="testZAPConnection" with="zapDefaultDirectory,zapProxyDefaultTimeoutInSec,defaultProtocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyDefaultHost,zapProxyDefaultPort,zapProxyDefaultApiKey,zapProxyDefaultTimeoutSSHInSec,zapDefaultSSHPort,zapDefaultSSHUser,zapDefaultSSHPassword" />
+		<f:validateButton   title="${%Tester la connection SSH}" progress="${%Connexion...}"   method="testSSHConnection" with="zapProxyDefaultTimeoutSSHInSec,zapProxyDefaultHost,zapDefaultSSHPort,zapDefaultSSHUser,zapDefaultSSHPassword" />
 		<!-- ******************************************************************************** -->
 	
 		</f:optionalBlock>	

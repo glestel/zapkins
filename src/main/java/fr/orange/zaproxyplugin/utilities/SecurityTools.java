@@ -232,8 +232,10 @@ public static boolean  portIsToken(Proxy proxy,String protocol, String zapProxyH
 		e.printStackTrace();
 	} catch (IOException e) {
 		// TODO Auto-generated catch block
-		e.printStackTrace();
+		//e.printStackTrace();
+		return false;
 	}
+	
 	return false;
 	
 
