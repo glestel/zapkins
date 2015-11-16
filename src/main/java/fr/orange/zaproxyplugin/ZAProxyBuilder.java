@@ -138,7 +138,7 @@ public class ZAProxyBuilder extends Builder {
 		int zapProxyDefaultTimeoutInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
 		String defaultProtocol = ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
 		String zapProxyDefaultHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();
-		int zapProxyDefaultPort = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultPort();
+		//int zapProxyDefaultPort = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultPort();
 		String zapProxyDefaultApiKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
 
 		int zapDefaultSSHPort = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPort();
@@ -157,6 +157,8 @@ public class ZAProxyBuilder extends Builder {
 		String zapDefaultDirectory = ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();
 
 		String authorizedURLs = ZAProxyBuilder.DESCRIPTOR.getAuthorizedURLs();
+		
+		int zapProxyPort = 0;
 			
 		
 
@@ -183,7 +185,7 @@ public class ZAProxyBuilder extends Builder {
 			 */
 			
 			
-			int zapProxyPort = HttpUtilities.getPortNumber();
+			zapProxyPort = HttpUtilities.getPortNumber();
 			
 			while(HttpUtilities.portIsToken(null, defaultProtocol, zapProxyDefaultHost, zapProxyPort, zapProxyDefaultTimeoutInSec, listener)){
 				
@@ -191,8 +193,8 @@ public class ZAProxyBuilder extends Builder {
 				
 			}
 			
-			zapProxyDefaultPort=zapProxyPort;	
-			zaproxy.setZapProxyPort(zapProxyDefaultPort);
+			//zapProxyDefaultPort=zapProxyPort;	
+			zaproxy.setZapProxyPort(zapProxyPort);
 			
 			
 			
@@ -201,8 +203,8 @@ public class ZAProxyBuilder extends Builder {
 			listener.getLogger().println("Perform ZAProxy");
 			
 			final String linuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapDefaultDirectory
-					+ "zap.sh -daemon -port " + zapProxyDefaultPort;
-			final String WindowsCommand = zapDefaultDirectory + "zap.bat -daemon -port " + zapProxyDefaultPort;;
+					+ "zap.sh -daemon -port " + zapProxyPort;
+			final String WindowsCommand = zapDefaultDirectory + "zap.bat -daemon -port " + zapProxyPort;
 
 			/*
 			 * ======================================================= | start ZAP | =======================================================
@@ -231,7 +233,7 @@ public class ZAProxyBuilder extends Builder {
 		 */
 		
 		//ici le proxy est égal à null car on applique une configuration générale où tout appel réseau provennat de la VM passe par le proxy 
-		HttpUtilities.waitForSuccessfulConnectionToZap(null,defaultProtocol, zapProxyDefaultHost, zapProxyDefaultPort,zapProxyDefaultTimeoutInSec, listener);
+		HttpUtilities.waitForSuccessfulConnectionToZap(null,defaultProtocol, zapProxyDefaultHost, zapProxyPort,zapProxyDefaultTimeoutInSec, listener);
  
 
 		boolean res;
@@ -367,7 +369,7 @@ public class ZAProxyBuilder extends Builder {
 		 */
 		private String defaultProtocol;
 		private String zapProxyDefaultHost;
-		private int zapProxyDefaultPort;
+		//private int zapProxyDefaultPort;
 		/** API Key configured when ZAProxy is used as proxy */
 		private String zapProxyDefaultApiKey;
 		private int zapProxyDefaultTimeoutInSec;
@@ -376,7 +378,7 @@ public class ZAProxyBuilder extends Builder {
 		private String zapDefaultDirectory;
 
 		private boolean useWebProxy;
-		public String webProxyHost;
+		private String webProxyHost;
 		private int webProxyPort;
 		private String webProxyUser;
 		private String webProxyPassword;
@@ -425,7 +427,7 @@ public class ZAProxyBuilder extends Builder {
 
 			defaultProtocol = formData.getString("defaultProtocol");
 			zapProxyDefaultHost = formData.getString("zapProxyDefaultHost");
-			zapProxyDefaultPort = formData.getInt("zapProxyDefaultPort");
+			//zapProxyDefaultPort = formData.getInt("zapProxyDefaultPort");
 			zapProxyDefaultApiKey = formData.getString("zapProxyDefaultApiKey");
 			zapProxyDefaultTimeoutInSec = formData.getInt("zapProxyDefaultTimeoutInSec");
 
@@ -477,9 +479,9 @@ public class ZAProxyBuilder extends Builder {
 			return zapProxyDefaultHost;
 		}
 
-		public int getZapProxyDefaultPort() {
-			return zapProxyDefaultPort;
-		}
+//		public int getZapProxyDefaultPort() {
+//			return zapProxyDefaultPort;
+//		}
 
 		public String getZapProxyDefaultApiKey() {
 			return zapProxyDefaultApiKey;

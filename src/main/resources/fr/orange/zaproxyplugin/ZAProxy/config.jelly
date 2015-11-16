@@ -69,7 +69,7 @@ SOFTWARE.
 
 <f:section title="${%Configuration du contexte}">
 		<f:entry title="${%Nom du contexte}" field="contextName">
-			<f:textbox  />
+			<f:textbox  clazz="required"/>
 		</f:entry>
 		
 		<f:entry title="${%URL à auditer}" field="targetURL">

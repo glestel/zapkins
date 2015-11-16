@@ -56,10 +56,6 @@ SOFTWARE.
 		<f:entry title="${%Adresse par défaut du serveur ZAP}" field="zapProxyDefaultHost">
 			<f:textbox default="xxx.xxx.xxx.xxx"  />
 		</f:entry>
-
-		<f:entry title="${%Port par défaut du serveur ZAP}" field="zapProxyDefaultPort">
-			<f:number default="8080" clazz="positive-number" />
-		</f:entry>
 		
 		<f:entry title="${%Clé API par défaut du serveur ZAP}" field="zapProxyDefaultApiKey">
 			<f:textbox default="xxxxxxxxxxxxxxxxxxxxxx"  />
