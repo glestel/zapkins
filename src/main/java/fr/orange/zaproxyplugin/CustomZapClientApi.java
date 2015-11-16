@@ -1,4 +1,29 @@
 
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2015 Abdellah AZOUGARH
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
 package fr.orange.zaproxyplugin;
 
 import java.io.File;
@@ -14,38 +39,32 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.zaproxy.clientapi.core.ApiResponse;
 import org.zaproxy.clientapi.core.ApiResponseElement;
 import org.zaproxy.clientapi.core.ApiResponseFactory;
-import org.zaproxy.clientapi.core.ClientApiException;
-
- 
+import org.zaproxy.clientapi.core.ClientApiException; 
 import hudson.model.BuildListener;
 import  fr.orange.zaproxyplugin.utilities.ProxyAuthenticator;
-
 import org.zaproxy.clientapi.core.ApiResponseList;
 import org.zaproxy.clientapi.core.ApiResponseSet;
 
+
+
 public class CustomZapClientApi implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 3961600153488729709L;
 	private static final int MILLISECONDS_IN_SECOND = 1000;
 	private final String zapProxyKey;
 	
 	
 	public final CustomZapApi api;
-	private  final boolean  debug;
+	//private  final boolean  debug;
 
 	private BuildListener listener;
 	private  String PROTOCOL;	
@@ -60,7 +79,7 @@ public class CustomZapClientApi implements Serializable {
 		
 		this.zapProxyKey = ZAP_API_KEY;
 		this.listener = listener;
-		this.debug=debug;
+		//this.debug=debug;
 
 		this.api = new CustomZapApi(ZAP_ADDRESS, "" + zapProxyPort + "", listener, debug);
 	}
@@ -70,7 +89,7 @@ public class CustomZapClientApi implements Serializable {
 		this.PROTOCOL=PROTOCOL;
 		this.zapProxyKey = ZAP_API_KEY;
 		this.listener = listener;
-		this.debug=debug;
+		//this.debug=debug;
 
 		this.api = new CustomZapApi(PROTOCOL, ZAP_ADDRESS, "" + zapProxyPort + "", listener, debug);
 	}
@@ -79,7 +98,7 @@ public class CustomZapClientApi implements Serializable {
 		super();
 
 		this.zapProxyKey = zapProxyKey;
-		this.debug=debug;
+		//this.debug=debug;
 		this.api = new CustomZapApi(zapProxyHost, "" + zapProxyPort + "", debug);
 	}
 
@@ -195,49 +214,7 @@ public class CustomZapClientApi implements Serializable {
 
 		return sb.toString();
 	}
-
-	// public static String getScripts(CustomZapApi api){
-	//
-	//
-	//
-	//
-	// ApiResponseList configParamsList = null;
-	// StringBuilder sb =new StringBuilder();
-	// try {
-	// configParamsList = (ApiResponseList) api.listScripts();
-	//
-	// for (ApiResponse r : configParamsList.getItems()) {
-	// ApiResponseSet set = (ApiResponseSet) r;
-	// sb.append(set.getAttribute("name")+"\n") ;
-	//
-	// }
-	// sb.append("scripts loaded correctly");
-	//
-	// } catch (ClientApiException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// sb.append("ERROR :
-	// "+e.getMessage()+"||"+e.getDetail()+"||"+e.getCode()+"||");
-	// }
-	//
-	// return sb.toString();
-	// }
-
-	// /**
-	// * @return the listener
-	// */
-	// public BuildListener getListener() {
-	// return listener;
-	// }
-	//
-	//
-	// /**
-	// * @param listener the listener to set
-	// */
-	// public void setListener(BuildListener listener) {
-	// this.listener = listener;
-	// this.api.setListener(listener);
-	// }
+	
 
 	/****************************
 	 * HOME DIRECTORY
@@ -250,7 +227,7 @@ public class CustomZapClientApi implements Serializable {
 			set = (ApiResponseElement) api.getZAPHomeDirectory();
 
 		} catch (ClientApiException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -269,22 +246,21 @@ public class CustomZapClientApi implements Serializable {
 			return set.getAttribute("id");
 
 		} catch (ClientApiException e) {
-			// TODO Auto-generated catch block
-			// System.out.println("Context dose not exist\nIt will be
-			// created...");
+			
+			System.out.println("Context dose not exist\nIt will be created...");
 			listener.getLogger().println("Context dose not exist\nIt will be created...");
-			//listener.error(ExceptionUtils.getStackTrace(e));
+			
 			try {
 				api.newContext(zapProxyKey, contextname);
-				// System.out.println("Context created...");
+				 System.out.println("Context created...");
 				listener.getLogger().println("Context created...");
 				return getContextId(contextname, listener);
 			} catch (ClientApiException e1) {
-				// TODO Auto-generated catch block
+				
 				e1.printStackTrace();
 				listener.error(ExceptionUtils.getStackTrace(e1));
 			}
-			// e.printStackTrace();
+			
 		}
 		return null;
 	}
@@ -296,7 +272,7 @@ public class CustomZapClientApi implements Serializable {
 		ApiResponseList userParamsList = (ApiResponseList) api.usersList(contextid);
 		String userId = null;
 		StringBuilder sb = new StringBuilder("Users' config params: \n");
-		//{"usersList":[{"id":"0","enabled":"true","contextId":"2","name":"ZAP USER","credentials":{"username":"test","type":"UsernamePasswordAuthenticationCredentials","password":"test"}}]}
+		
 		for (ApiResponse r : userParamsList.getItems()) {
 			ApiResponseSet set = (ApiResponseSet) r;
 			userId=set.getAttribute("id");
@@ -460,36 +436,6 @@ public class CustomZapClientApi implements Serializable {
 
 	}
 
-//	/**
-//	 * permet de définir les paramètres d'authentification
-//	 * 
-//	 * @param api
-//	 * @param contextId
-//	 * @param loginUrl
-//	 * @param loginRequestData
-//	 * @throws ClientApiException
-//	 * @throws UnsupportedEncodingException
-//	 */
-//
-//	private void setFormBasedAuthentication(String contextId, String loginUrl, String loginRequestData) {
-//
-//		StringBuilder formBasedConfig = new StringBuilder();
-//		try {
-//			formBasedConfig.append("loginUrl=").append(URLEncoder.encode(loginUrl, "UTF-8"));
-//			formBasedConfig.append("&loginRequestData=").append(URLEncoder.encode(loginRequestData, "UTF-8"));
-//			System.out.println("Setting form based authentication configuration as: " + formBasedConfig.toString());
-//			api.setAuthenticationMethod(zapProxyKey, contextId, "formBasedAuthentication", formBasedConfig.toString());
-//			System.out.println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));
-//		
-//		} catch (ClientApiException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (UnsupportedEncodingException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//
-//	}
 
 	/**
 	 * permet de spécifier les données d'authentification liées à l'utilisateur
@@ -577,8 +523,7 @@ public class CustomZapClientApi implements Serializable {
 	 */
 	public void includeInContext(String url, String contextname, BuildListener listener) {
 		try {
-			String[] urls = url.split("\n");
-			//listener.getLogger().println("URLS : " + urls.toString());
+			String[] urls = url.split("\n");		
 
 			for (int i = 0; i < urls.length; i++) {
 				urls[i] = urls[i].trim();
@@ -608,7 +553,7 @@ public class CustomZapClientApi implements Serializable {
 		try {
 
 			String[] urls = url.split("\n");
-			//listener.getLogger().println("URLS : " + urls.toString());
+		
 
 			for (int i = 0; i < urls.length; i++) {
 				urls[i] = urls[i].trim();
@@ -1301,50 +1246,6 @@ public class CustomZapClientApi implements Serializable {
 
 	}
 
-//	public void startZAPAsUser(String url, String contextid, String userid, String maxchildren, String ScanPolicyName,
-//			BuildListener listener) {
-//
-//		System.out.println("######################### phase de spidering ######################### ");
-//		String scanid = spiderAsUserURL(url, contextid, userid, maxchildren, listener);
-//
-//		System.out.println("######################### Résultats de spidering ######################### ");
-//		viewSpiderResults(scanid, listener);
-//		System.out.println("########################################################################## ");
-//
-//		// scan
-//		System.out.println("######################### phase de scan ######################### ");
-//		scanURLAsUser(url, scanid, contextid, userid, "true", ScanPolicyName, listener);
-//
-//		// saveReport
-//		System.out.println("######################### Sauvegarde du rapport ######################### ");
-//		saveReport("templates/test.xml", listener);
-//
-//		// stop ZAProxy
-//		System.out.println("######################### Arrêt du daemon ZAP ######################### ");
-//
-//	}
-
-//	public void startZAP(String url, String maxchildren, String scanPolicyName, BuildListener listener) {
-//
-//		System.out.println("######################### phase de spidering ######################### ");
-//		String scanid = spiderURL(url, maxchildren, listener);
-//
-//		System.out.println("######################### Résultats de spidering ######################### ");
-//		viewSpiderResults(scanid, listener);
-//		System.out.println("########################################################################## ");
-//
-//		// scan
-//		System.out.println("######################### phase de scan ######################### ");
-//		scanURL(url, scanid, scanPolicyName, listener);
-//
-//		// saveReport
-//		System.out.println("######################### Sauvegarde du rapport ######################### ");
-//		saveReport("test.xml", listener);
-//
-//		// stop ZAProxy
-//		System.out.println("######################### Arrêt du daemon ZAP ######################### ");
-//
-//	}
 
 	/**
 	 * Shuts down ZAP
