@@ -139,14 +139,14 @@ public class ZAProxyBuilder extends Builder {
 		String defaultProtocol = ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
 		String zapProxyDefaultHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();
 		//int zapProxyDefaultPort = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultPort();
-		String zapProxyDefaultApiKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
+		//String zapProxyDefaultApiKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
 
 		int zapDefaultSSHPort = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPort();
 		String zapDefaultSSHUser = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHUser();
 		String zapDefaultSSHPassword = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPassword();
 
 		boolean useWebProxy = ZAProxyBuilder.DESCRIPTOR.isUseWebProxy();
-		boolean stopZAPAtEnd = ZAProxyBuilder.DESCRIPTOR.isStopZAPAtEnd();
+		//boolean stopZAPAtEnd = ZAProxyBuilder.DESCRIPTOR.isStopZAPAtEnd();
 		boolean startZAPFirst = ZAProxyBuilder.DESCRIPTOR.isStartZAPFirst();
 
 		String webProxyHost = ZAProxyBuilder.DESCRIPTOR.getWebProxyHost();
@@ -156,7 +156,7 @@ public class ZAProxyBuilder extends Builder {
 
 		String zapDefaultDirectory = ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();
 
-		String authorizedURLs = ZAProxyBuilder.DESCRIPTOR.getAuthorizedURLs();
+		//String authorizedURLs = ZAProxyBuilder.DESCRIPTOR.getAuthorizedURLs();
 		
 		int zapProxyPort = 0;
 			
@@ -218,7 +218,7 @@ public class ZAProxyBuilder extends Builder {
 //			listener.getLogger().println("LISTENER : " + listener);
 //			listener.getLogger().println("ZAP DIRECTORY : " + zapDefaultDirectory);
  
-			SSHConnexion.execCommand(zapProxyDefaultHost, zapDefaultSSHPort, zapDefaultSSHUser, zapDefaultSSHPassword,linuxCommand, listener);
+			SSHConnexion.execCommand(zapProxyDefaultHost, zapDefaultSSHPort, zapDefaultSSHUser, zapDefaultSSHPassword,HttpUtilities.getMilliseconds(zapProxyDefaultTimeoutSSHInSec ),linuxCommand, listener);
  
 			listener.getLogger().println("------- END Prebuild -------");
 		}
@@ -624,7 +624,7 @@ public class ZAProxyBuilder extends Builder {
 				 */
 
 				System.out.println("connexion SSH : START");
-				SSHConnexion.execCommand(zapProxyHost, zapSSHPort, zapSSHUser, zapSSHPassword,linuxCommand );
+				SSHConnexion.execCommand(zapProxyHost, zapSSHPort, zapSSHUser, zapSSHPassword,HttpUtilities.getMilliseconds(timeoutSSHInSec),linuxCommand );
 				System.out.println("connexion SSH : END");
 	 
 			 	

@@ -130,7 +130,7 @@ catch (IOException e) {
     	
     }
 
-public static boolean execCommand(String HOST, int PORT, String USER, String PASSWORD , String command,BuildListener listener){
+public static boolean execCommand(String HOST, int PORT, String USER, String PASSWORD , int zapProxyDefaultTimeoutSSHInSec, String command,BuildListener listener){
 	
 	JSch jsch = new JSch();
 	try {
@@ -138,7 +138,7 @@ public static boolean execCommand(String HOST, int PORT, String USER, String PAS
 		Session session = jsch.getSession(USER, HOST, PORT);
 		session.setPassword(PASSWORD);
 		session.setConfig("StrictHostKeyChecking", "no");
-		session.connect(2000); // making a connection with timeout.		
+		session.connect(zapProxyDefaultTimeoutSSHInSec); // making a connection with timeout.		
 		
 		//channel
 		Channel channel = session.openChannel("exec");
@@ -214,7 +214,7 @@ catch (IOException e) {
 	
 }
 
-public static boolean execCommand(String HOST, int PORT, String USER, String PASSWORD , String command ){
+public static boolean execCommand(String HOST, int PORT, String USER, String PASSWORD ,int zapProxyDefaultTimeoutSSHInSec, String command ){
 	
 	JSch jsch = new JSch();
 	try {
@@ -230,7 +230,7 @@ public static boolean execCommand(String HOST, int PORT, String USER, String PAS
 		Session session = jsch.getSession(USER, HOST, PORT);
 		session.setPassword(PASSWORD);
 		session.setConfig("StrictHostKeyChecking", "no");
-		session.connect(2000); // making a connection with timeout.		
+		session.connect(zapProxyDefaultTimeoutSSHInSec); // making a connection with timeout.		
 		
 		//channel
 		Channel channel = session.openChannel("exec");

@@ -2311,7 +2311,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			final String linuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapDefaultDirectory+ "zap.sh -daemon -port " + zapProxyPort;
 			final String WindowsCommand = zapDefaultDirectory + "zap.bat -daemon -port "+ zapProxyPort;
  
-			SSHConnexion.execCommand(zapProxyDefaultHost, zapDefaultSSHPort, zapDefaultSSHUser, zapDefaultSSHPassword,linuxCommand);
+			SSHConnexion.execCommand(zapProxyDefaultHost, zapDefaultSSHPort, zapDefaultSSHUser, zapDefaultSSHPassword,HttpUtilities.getMilliseconds(zapProxyDefaultTimeoutInSec),linuxCommand);
 			/*
 			 * ======================================================= |WAIT FOR SUCCESSFUL CONNEXIONd| =======================================================
 			 */
