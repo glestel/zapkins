@@ -124,13 +124,21 @@ SOFTWARE.
 		</table>
 		</f:entry>	
 		
-		<f:validateButton   title="${%Tester la connection à ZAP}" progress="${%Connexion...}"   method="testZAPConnection" with="zapDefaultDirectory,zapProxyDefaultTimeoutInSec,defaultProtocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyDefaultHost,zapProxyDefaultPort,zapProxyDefaultApiKey,zapProxyDefaultTimeoutSSHInSec,zapDefaultSSHPort,zapDefaultSSHUser,zapDefaultSSHPassword" />
 		<f:validateButton   title="${%Tester la connection SSH}" progress="${%Connexion...}"   method="testSSHConnection" with="zapProxyDefaultTimeoutSSHInSec,zapProxyDefaultHost,zapDefaultSSHPort,zapDefaultSSHUser,zapDefaultSSHPassword" />
+		<f:validateButton   title="${%Tester la connection à ZAP}" progress="${%Connexion...}"   method="testZAPConnection" with="zapDefaultDirectory,zapProxyDefaultTimeoutInSec,defaultProtocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyDefaultHost,zapProxyDefaultPort,zapProxyDefaultApiKey,zapProxyDefaultTimeoutSSHInSec,zapDefaultSSHPort,zapDefaultSSHUser,zapDefaultSSHPassword" />
 		<!-- ******************************************************************************** -->
 	
 		</f:optionalBlock>	
 		<f:optionalBlock title="${%Arrêter ZAP à la fin du scan}" field="stopZAPAtEnd" inline="true" />				
 		</f:advanced>
+		
+		<f:entry>
+		 
+			<f:optionalBlock title="${%Spider URL}" field="spiderURL" inline="true" />
+			<f:optionalBlock title="${%Ajax Spider URL}" field="ajaxSpiderURL" inline="true" />			
+			<f:optionalBlock title="${%Scan URL}"  field="scanURL" inline="true" />
+			 
+		</f:entry>		
 		<!-- ******************************************************************************** -->
  
 	<f:entry title="${%URLs ou domaines autorisés}" field="authorizedURLs" description="Un ensemble d'URLS peut être représenté via une regex. e.g:tout le domaine orange => ^.*orange.fr$">

@@ -37,9 +37,9 @@ SOFTWARE.
 </j:invoke>
 
 
-<f:entry title="${%Charger la session}" field="filenameLoadSession">
+<!-- <f:entry title="${%Charger la session}" field="filenameLoadSession">
 			<f:select />
-</f:entry> 
+</f:entry>  -->
  
 <!-- ======================================================== CONFIGURATION DU SCANNER ======================================================================================================================= -->
 <f:section title="${%Configuration du scanner}" >
@@ -91,13 +91,13 @@ SOFTWARE.
 	
 	<!-- <f:radioBlock title="${%Scan en mode non authentifié}" 	name="scanMode" value="NOT_AUTHENTICATED" checked="${instance.isScanMode('NOT_AUTHENTICATED')}" inline="true"> -->
 	<f:radioBlock title="${%Scan en mode non authentifié}" 	name="scanMode" value="NOT_AUTHENTICATED" checked="true" inline="true">
-		<f:entry>
+		<!-- <f:entry>
 			<table>
 			<f:optionalBlock title="${%Spider URL}" field="spiderURL" inline="true" />
 			<f:optionalBlock title="${%Ajax Spider URL}" field="ajaxSpiderURL" inline="true" />			
 			<f:optionalBlock title="${%Scan URL}"  field="scanURL" inline="true" />
 			</table>
-		</f:entry>		
+		</f:entry>	 -->	
 			
 	</f:radioBlock>	
 <!-- ======================================================== SCAN : MODE AUTHENTIFIE ====================================================================================================================== -->
@@ -189,9 +189,9 @@ SOFTWARE.
 					  
 					  </table>  
 	  </f:entry> 
-	  <f:optionalBlock title="${%Spider URL As User}" field="spiderAsUser" inline="true" />
+	  <!-- <f:optionalBlock title="${%Spider URL As User}" field="spiderAsUser" inline="true" />
 	  <f:optionalBlock title="${%Ajax Spider URL As User}" field="ajaxSpiderURLAsUser" inline="true" />
-	  <f:optionalBlock title="${%Scan URL As User}"  field="scanURLAsUser" inline="true" />	
+	  <f:optionalBlock title="${%Scan URL As User}"  field="scanURLAsUser" inline="true" />	 -->
 
 </f:radioBlock>	
 
@@ -225,7 +225,7 @@ SOFTWARE.
 			</f:entry>
 		</f:optionalBlock>
 		<!-- ****************************************************************** -->			
-		<f:optionalBlock title="${%Sauvegarder la session}"  field="saveSession" inline="true">	
+<!-- 		<f:optionalBlock title="${%Sauvegarder la session}"  field="saveSession" inline="true">	
 			<f:entry>
 				<table width="100%">
 					<f:entry title="${%Nom de la session}" field="filenameSaveSession">
@@ -233,7 +233,7 @@ SOFTWARE.
 					</f:entry>
 				</table>	
 			</f:entry>
-		</f:optionalBlock>
+		</f:optionalBlock> -->
 		<!-- ****************************************************************** -->	
 </f:section>
 	

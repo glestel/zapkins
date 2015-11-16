@@ -152,7 +152,7 @@ SOFTWARE.
 		
 	</f:section> -->
 		
-	<f:section title="${%Options pré-audit}" />
+	<!-- <f:section title="${%Options pré-audit}" /> -->
 	<!--	<f:optionalBlock title="${%Start ZAProxy in a pre-build step}" field="startZAPFirst" inline="true" />  -->
 		
 		<!-- Load the config.jelly bind to ZAProxy class 

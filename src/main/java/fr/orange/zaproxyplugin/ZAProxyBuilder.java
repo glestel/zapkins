@@ -396,6 +396,19 @@ public class ZAProxyBuilder extends Builder {
 		private boolean stopZAPAtEnd;
 
 		private String authorizedURLs;
+		
+		
+		/** Realize a url spider or not by ZAProxy */
+		private boolean spiderURL;
+
+		/** Realize a url AjaxSpider or not by ZAProxy */
+		private  boolean ajaxSpiderURL;
+
+		/** Realize a url scan or not by ZAProxy */
+		private  boolean scanURL;
+		
+		
+		
 
 		/**
 		 * In order to load the persisted global configuration, you have to call
@@ -449,6 +462,15 @@ public class ZAProxyBuilder extends Builder {
 			stopZAPAtEnd = formData.getBoolean("stopZAPAtEnd");
 
 			authorizedURLs = formData.getString("authorizedURLs");
+			
+			/** Realize a url spider or not by ZAProxy */
+			spiderURL=formData.getBoolean("spiderURL");
+
+			/** Realize a url AjaxSpider or not by ZAProxy */
+			ajaxSpiderURL=formData.getBoolean("ajaxSpiderURL");
+
+			/** Realize a url scan or not by ZAProxy */
+			scanURL=formData.getBoolean("scanURL");
 
 			// ^Can also use req.bindJSON(this, formData);
 			// (easier when there are many fields; need set* methods for this,
@@ -566,6 +588,27 @@ public class ZAProxyBuilder extends Builder {
 		 */
 		public boolean isStopZAPAtEnd() {
 			return stopZAPAtEnd;
+		}
+
+		/**
+		 * @return the spiderURL
+		 */
+		public boolean isSpiderURL() {
+			return spiderURL;
+		}
+
+		/**
+		 * @return the ajaxSpiderURL
+		 */
+		public boolean isAjaxSpiderURL() {
+			return ajaxSpiderURL;
+		}
+
+		/**
+		 * @return the scanURL
+		 */
+		public boolean isScanURL() {
+			return scanURL;
 		}
 
 		public FormValidation doTestZAPConnection(@QueryParameter("defaultProtocol") final String protocol,

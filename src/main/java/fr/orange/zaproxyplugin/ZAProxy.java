@@ -125,7 +125,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	 * Filename to load ZAProxy session. Contains the absolute path to the
 	 * session
 	 */
-	private final String filenameLoadSession;
+	//private final String filenameLoadSession;
 
 	/** URL to attack by ZAProxy */
 	private final String targetURL;
@@ -139,8 +139,8 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	/** Realize a url scan or not by ZAProxy */
 	private final boolean scanURL;
 
-	/** Realize a url spider as user or not by ZAProxy */
-	private final boolean spiderAsUser;
+//	/** Realize a url spider as user or not by ZAProxy */
+//	private final boolean spiderAsUser;
 
 	/** Authentication script name */
 	private final String scriptName;
@@ -192,11 +192,11 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	/** Password parameter used for the defined user */
 	private final String passwordParameter;
 
-	/** Realize a url AjaxSpider or not by ZAProxy using credentials */
-	private final boolean ajaxSpiderURLAsUser;
-
-	/** Realize a url scan or not by ZAProxy using credentials */
-	private final boolean scanURLAsUser;
+//	/** Realize a url AjaxSpider or not by ZAProxy using credentials */
+//	private final boolean ajaxSpiderURLAsUser;
+//
+//	/** Realize a url scan or not by ZAProxy using credentials */
+//	private final boolean scanURLAsUser;
 
 	/** Save reports or not */
 	private final boolean saveReports;
@@ -216,18 +216,18 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	/** Filename for ZAProxy reports. It can contain a relative path. */
 	private final String filenameReports;
 
-	/** Save session or not */
-	private final boolean saveSession;
+//	/** Save session or not */
+//	private final boolean saveSession;
 
-	/** Filename to save ZAProxy session. It can contain a relative path. */
-	private final String filenameSaveSession;
+//	/** Filename to save ZAProxy session. It can contain a relative path. */
+//	private final String filenameSaveSession;
 
 	/**
 	 * The file policy to use for the scan. It contains only the policy name
 	 * (without extension)
 	 */
 	private final String chosenPolicy;
-	
+//	
 	
 	
 	/** Use a web Proxy or not by ZAProxy */
@@ -361,14 +361,14 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	// ce constructeur est ajoute par moi meme
 		@DataBoundConstructor
 		public ZAProxy( ArrayList<String> chosenScanners, String scanMode,
-				String authenticationMode,   String filenameLoadSession,
-				String targetURL, boolean spiderURL, boolean ajaxSpiderURL, boolean scanURL, boolean spiderAsUser,
+				String authenticationMode,   
+				String targetURL, boolean spiderURL, boolean ajaxSpiderURL, boolean scanURL,  
 				String scriptName, String loginUrl, String contextName, String includedUrl, String excludedUrl,
 				String formLoggedInIndicator, String formLoggedOutIndicator, String scriptLoggedInIndicator,
 				String scriptLoggedOutIndicator, String postData, String usernameParameter, String passwordParameter,
 				String formUsername, String formPassword, String scriptUsername, String scriptPassword,
-				boolean ajaxSpiderURLAsUser, boolean scanURLAsUser, boolean saveReports, ArrayList<String> chosenFormats,
-				String filenameReports, boolean saveSession, String filenameSaveSession, String chosenPolicy,
+				 boolean scanURLAsUser, boolean saveReports, ArrayList<String> chosenFormats,
+				String filenameReports,    String chosenPolicy,
 				String contextId, String userId, String scanId) {
 			super();
 			
@@ -401,12 +401,16 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 //			this.webProxyUser = ZAProxyBuilder.DESCRIPTOR.getWebProxyUser();
 //			this.webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
 
-			this.filenameLoadSession = filenameLoadSession;
+			//this.filenameLoadSession = filenameLoadSession;
 			this.targetURL = targetURL;
-			this.spiderURL = spiderURL;
-			this.ajaxSpiderURL = ajaxSpiderURL;
-			this.scanURL = scanURL;
-			this.spiderAsUser = spiderAsUser;
+			this.spiderURL = ZAProxyBuilder.DESCRIPTOR.isSpiderURL();
+			this.ajaxSpiderURL = ZAProxyBuilder.DESCRIPTOR.isAjaxSpiderURL();
+			this.scanURL = ZAProxyBuilder.DESCRIPTOR.isScanURL();
+			
+			
+			
+			
+//			this.spiderAsUser = spiderAsUser;
 			this.scriptName = scriptName;
 			this.loginUrl = loginUrl;
 			this.contextName = contextName;
@@ -430,13 +434,13 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			this.scriptUsername = scriptUsername;
 			this.scriptPassword = scriptPassword;
 
-			this.ajaxSpiderURLAsUser = ajaxSpiderURLAsUser;
-			this.scanURLAsUser = scanURLAsUser;
+//			this.ajaxSpiderURLAsUser = ajaxSpiderURLAsUser;
+//			this.scanURLAsUser = scanURLAsUser;
 			this.saveReports = saveReports;
 			this.chosenFormats = chosenFormats;
 			this.filenameReports = filenameReports;
-			this.saveSession = saveSession;
-			this.filenameSaveSession = filenameSaveSession;
+//			this.saveSession = saveSession;
+//			this.filenameSaveSession = filenameSaveSession;
 			this.chosenPolicy = chosenPolicy;
 			this.contextId = contextId;
 			this.userId = userId;
@@ -454,10 +458,10 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		s += "saveReports [" + saveReports + "]\n";
 		s += "chosenFormats [" + chosenFormats + "]\n";
 		s += "filenameReports [" + filenameReports + "]\n";
-		s += "saveSession [" + saveSession + "]\n";
-		s += "filenameSaveSession [" + filenameSaveSession + "]\n";
-		s += "--------------------------------------------------";
-		s += "filenameLoadSession [" + filenameLoadSession + "]\n";
+//		s += "saveSession [" + saveSession + "]\n";
+//		s += "filenameSaveSession [" + filenameSaveSession + "]\n";
+//		s += "--------------------------------------------------";
+//		s += "filenameLoadSession [" + filenameLoadSession + "]\n";
 		s += "--------------------------------------------------";
 		s += "targetURL [" + targetURL + "]\n";
 		s += "chosenPolicy [" + chosenPolicy + "]\n";
@@ -473,9 +477,9 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		s += "ajaxSpiderURL [" + ajaxSpiderURL + "]\n";
 		s += "scanURL [" + scanURL + "]\n";
 		s += "--------------------------------------------------";
-		s += "spider as user [" + spiderAsUser + "]\n";
-		s += "ajaxSpiderURLAsUser [" + ajaxSpiderURLAsUser + "]\n";
-		s += "scanURLAsUser [" + scanURLAsUser + "]\n";
+//		s += "spider as user [" + spiderAsUser + "]\n";
+//		s += "ajaxSpiderURLAsUser [" + ajaxSpiderURLAsUser + "]\n";
+//		s += "scanURLAsUser [" + scanURLAsUser + "]\n";
 		s += "--------------------------------------------------";
 		s += "scriptUsername [" + scriptUsername + "]\n";
 		s += "formUsername [" + formUsername + "]\n";
@@ -633,13 +637,13 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		return postData;
 	}
 
-	/*
-	 * Getters allows to load members variables into UI.
-	 */
-
-	public String getFilenameLoadSession() {
-		return filenameLoadSession;
-	}
+//	/*
+//	 * Getters allows to load members variables into UI.
+//	 */
+//
+//	public String getFilenameLoadSession() {
+//		return filenameLoadSession;
+//	}
 
 	public String getTargetURL() {
 		return targetURL;
@@ -696,22 +700,22 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	public String getFilenameReports() {
 		return filenameReports;
 	}
-
-	public boolean getSaveSession() {
-		return saveSession;
-	}
-
-	public String getFilenameSaveSession() {
-		return filenameSaveSession;
-	}
-
+//
+//	public boolean getSaveSession() {
+//		return saveSession;
+//	}
+//
+//	public String getFilenameSaveSession() {
+//		return filenameSaveSession;
+//	}
+//
 	public String getChosenPolicy() {
 		return chosenPolicy;
 	}
-
-	public boolean getSpiderAsUser() {
-		return spiderAsUser;
-	}
+//
+//	public boolean getSpiderAsUser() {
+//		return spiderAsUser;
+//	}
 
 	public String getLoginUrl() {
 		return loginUrl;
@@ -857,19 +861,19 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 //		return useWebProxy;
 //	}
 
-	/**
-	 * @return the ajaxSpiderURLAsUser
-	 */
-	public boolean isAjaxSpiderURLAsUser() {
-		return ajaxSpiderURLAsUser;
-	}
-
-	/**
-	 * @return the scanURLAsUser
-	 */
-	public boolean isScanURLAsUser() {
-		return scanURLAsUser;
-	}
+//	/**
+//	 * @return the ajaxSpiderURLAsUser
+//	 */
+//	public boolean isAjaxSpiderURLAsUser() {
+//		return ajaxSpiderURLAsUser;
+//	}
+//
+//	/**
+//	 * @return the scanURLAsUser
+//	 */
+//	public boolean isScanURLAsUser() {
+//		return scanURLAsUser;
+//	}
 
 	/* ========================= SETTERS ============================= */
 
@@ -1131,18 +1135,18 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			
 			
 
-			/*
-			 * ======================================================= | LOAD SESSION | =======================================================
-			 */
-			if (filenameLoadSession != null && filenameLoadSession.length() != 0) {
-				executeZAPSessionLoaded( workspace, listener);
-
-			} else {
-				executeZAPSessionNotLoaded( workspace,  listener);
-
-			}
+//			/*
+//			 * ======================================================= | LOAD SESSION | =======================================================
+//			 */
+//			if (filenameLoadSession != null && filenameLoadSession.length() != 0) {
+//				executeZAPSessionLoaded( workspace, listener);
+//
+//			} else {
+//				executeZAPSessionNotLoaded( workspace,  listener);
+//
+//			}
 			
-			
+			executeZAPSessionNotLoaded( workspace,  listener);
 			
 			/*
 			 * ======================================= ACTIONS POST AUDIT ======================================================
@@ -1186,137 +1190,137 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		return buildSuccess;
 	}
 
-	private void executeZAPSessionLoaded(FilePath workspace, BuildListener listener) throws ClientApiException {
-
-		CustomZapClientApi zapClientAPI = new CustomZapClientApi(zapProxyHost, zapProxyPort, zapProxyKey, listener, debug);
-		
-
-		/************** charger la session ********************/
-		String sessionFile = zapProxyDirectory + "session" + getFILE_SEPARATOR() + workspace.getBaseName()	+ getFILE_SEPARATOR() + filenameSaveSession;
-		listener.getLogger().println("Load session at [" + sessionFile + "]");
-		zapClientAPI.loadSession(sessionFile);
-		
-		
-		
-		
-		/************** caractéristiques de la session  ********************/
-		
-		listener.getLogger().println(zapClientAPI.getContextList());
-	 
-		String contextId = zapClientAPI.getContextId(contextName, listener);
-		String userId= zapClientAPI.getUserId(contextId, listener);
-		
-		setContextId(contextId);
-		setUserId(userId);
-		
-		/************** Informations sur la session  ********************/
-		zapClientAPI.listUserConfigInformation(contextId, listener);		
-		zapClientAPI.getForcedUser(contextId, listener);
-		
-		//http://localhost:8089/JSON/acsrf/view/optionTokensNames/?zapapiformat=JSON
-		//http://localhost:8089/UI/ascan/view/scans/
-		//http://localhost:8089/UI/authentication/view/getAuthenticationMethod/
-		//http://localhost:8089/UI/authentication/view/getLoggedInIndicator/
-		//http://localhost:8089/UI/authentication/view/getLoggedOutIndicator/
-		//http://localhost:8089/UI/authorization/view/getAuthorizationDetectionMethod/
-		//http://localhost:8089/UI/forcedUser/view/isForcedUserModeEnabled/
-		//http://localhost:8089/UI/forcedUser/view/getForcedUser/
-		//http://localhost:8089/UI/sessionManagement/view/getSessionManagementMethod/
-		//http://localhost:8089/UI/spider/view/excludedFromScan/
-		
-			
-		
-		
-		
-		
-		
-		
-		/**************************** SET UP SCANNERS ************************************/
-		//au cas où on souhaite tester plusieurs scanners sont relancer le spidering et l'ajax spidering 
-		setUpScanners(zapClientAPI, listener);
-		
-		
-		/****************************************************************/
-
-		/*
-		 * ======================================================= | SPIDER URL | =======================================================
-		 */
-		if (spiderURL) {
-			listener.getLogger().println("Spider the site [" + targetURL + "] without credentials");
-			spiderURL(targetURL, zapClientAPI, listener);
-		} else {
-			listener.getLogger().println("Skip spidering the site [" + targetURL + "]");
-		}
-
-		/*
-		 * ======================================================= | AJAX SPIDER URL | =======================================================
-		 */
-		if (ajaxSpiderURL) {
-			listener.getLogger().println("Ajax Spider the site [" + targetURL + "] without credentials");
-			ajaxSpiderURL(targetURL, listener, zapClientAPI);
-		} else {
-			listener.getLogger().println("Skip Ajax spidering the site [" + targetURL + "]");
-		}
-		/*
-		 * ======================================================= | VIEW SPIDER RESULTS | =======================================================
-		 */
-		if (spiderURL || ajaxSpiderURL) {
-			zapClientAPI.viewSpiderResults(scanId, listener);
-		}
-		/*
-		 * ======================================================= | SCAN URL | =======================================================
-		 */
-		if (scanURL) {
-			listener.getLogger().println("Scan the site [" + targetURL + "]");
-			scanURL(targetURL, listener, zapClientAPI);
-		} else {
-			listener.getLogger().println("Skip scanning the site [" + targetURL + "]");
-		}
-
-		/*
-		 * ======================================================= | SPIDER URL AS USER | =======================================================
-		 */
-		if (spiderAsUser) {
-
-			listener.getLogger().println("Spider the site [" + targetURL + "] As User [" + userId + "]");
-
-			spiderURLAsUser(targetURL, listener, zapClientAPI, this.getContextId(), this.getUserId());
-
-		} else {
-			listener.getLogger().println("Skip spidering the site [" + targetURL + "] As User [" + userId + "]");
-		}
-
-		/*
-		 * ======================================================= | AJAX SPIDER URL AS USER | =======================================================
-		 */
-		if (ajaxSpiderURLAsUser) {
-			listener.getLogger().println("Ajax Spider the site [" + targetURL + "] As User [" + userId + "]");
-			ajaxSpiderURL(targetURL, listener, zapClientAPI);
-		} else {
-			listener.getLogger().println("Skip Ajax spidering the site [" + targetURL + "] As User [" + userId + "]");
-		}
-
-		/*
-		 * ======================================================= | VIEW SPIDER RESULTS | =======================================================
-		 */
-
-		if (spiderAsUser || ajaxSpiderURLAsUser) {
-			zapClientAPI.viewSpiderResults(scanId, listener);
-		}
-
-		/*
-		 * ======================================================= | SCAN URL As USER | =======================================================
-		 */
-		if (scanURLAsUser) {
-			listener.getLogger().println("Scan the site [" + targetURL + "] As user [" + userId + "]");
-			scanURLAsUser(targetURL, listener, zapClientAPI);
-
-		} else {
-			listener.getLogger().println("Skip scanning the site [" + targetURL + "] As User [" + userId + "]");
-		}
-
-		 
-	}
+//	private void executeZAPSessionLoaded(FilePath workspace, BuildListener listener) throws ClientApiException {
+//
+//		CustomZapClientApi zapClientAPI = new CustomZapClientApi(zapProxyHost, zapProxyPort, zapProxyKey, listener, debug);
+//		
+//
+//		/************** charger la session ********************/
+//		String sessionFile = zapProxyDirectory + "session" + getFILE_SEPARATOR() + workspace.getBaseName()	+ getFILE_SEPARATOR() + filenameSaveSession;
+//		listener.getLogger().println("Load session at [" + sessionFile + "]");
+//		zapClientAPI.loadSession(sessionFile);
+//		
+//		
+//		
+//		
+//		/************** caractéristiques de la session  ********************/
+//		
+//		listener.getLogger().println(zapClientAPI.getContextList());
+//	 
+//		String contextId = zapClientAPI.getContextId(contextName, listener);
+//		String userId= zapClientAPI.getUserId(contextId, listener);
+//		
+//		setContextId(contextId);
+//		setUserId(userId);
+//		
+//		/************** Informations sur la session  ********************/
+//		zapClientAPI.listUserConfigInformation(contextId, listener);		
+//		zapClientAPI.getForcedUser(contextId, listener);
+//		
+//		//http://localhost:8089/JSON/acsrf/view/optionTokensNames/?zapapiformat=JSON
+//		//http://localhost:8089/UI/ascan/view/scans/
+//		//http://localhost:8089/UI/authentication/view/getAuthenticationMethod/
+//		//http://localhost:8089/UI/authentication/view/getLoggedInIndicator/
+//		//http://localhost:8089/UI/authentication/view/getLoggedOutIndicator/
+//		//http://localhost:8089/UI/authorization/view/getAuthorizationDetectionMethod/
+//		//http://localhost:8089/UI/forcedUser/view/isForcedUserModeEnabled/
+//		//http://localhost:8089/UI/forcedUser/view/getForcedUser/
+//		//http://localhost:8089/UI/sessionManagement/view/getSessionManagementMethod/
+//		//http://localhost:8089/UI/spider/view/excludedFromScan/
+//		
+//			
+//		
+//		
+//		
+//		
+//		
+//		
+//		/**************************** SET UP SCANNERS ************************************/
+//		//au cas où on souhaite tester plusieurs scanners sont relancer le spidering et l'ajax spidering 
+//		setUpScanners(zapClientAPI, listener);
+//		
+//		
+//		/****************************************************************/
+//
+//		/*
+//		 * ======================================================= | SPIDER URL | =======================================================
+//		 */
+//		if (spiderURL) {
+//			listener.getLogger().println("Spider the site [" + targetURL + "] without credentials");
+//			spiderURL(targetURL, zapClientAPI, listener);
+//		} else {
+//			listener.getLogger().println("Skip spidering the site [" + targetURL + "]");
+//		}
+//
+//		/*
+//		 * ======================================================= | AJAX SPIDER URL | =======================================================
+//		 */
+//		if (ajaxSpiderURL) {
+//			listener.getLogger().println("Ajax Spider the site [" + targetURL + "] without credentials");
+//			ajaxSpiderURL(targetURL, listener, zapClientAPI);
+//		} else {
+//			listener.getLogger().println("Skip Ajax spidering the site [" + targetURL + "]");
+//		}
+//		/*
+//		 * ======================================================= | VIEW SPIDER RESULTS | =======================================================
+//		 */
+//		if (spiderURL || ajaxSpiderURL) {
+//			zapClientAPI.viewSpiderResults(scanId, listener);
+//		}
+//		/*
+//		 * ======================================================= | SCAN URL | =======================================================
+//		 */
+//		if (scanURL) {
+//			listener.getLogger().println("Scan the site [" + targetURL + "]");
+//			scanURL(targetURL, listener, zapClientAPI);
+//		} else {
+//			listener.getLogger().println("Skip scanning the site [" + targetURL + "]");
+//		}
+//
+//		/*
+//		 * ======================================================= | SPIDER URL AS USER | =======================================================
+//		 */
+//		if (spiderAsUser) {
+//
+//			listener.getLogger().println("Spider the site [" + targetURL + "] As User [" + userId + "]");
+//
+//			spiderURLAsUser(targetURL, listener, zapClientAPI, this.getContextId(), this.getUserId());
+//
+//		} else {
+//			listener.getLogger().println("Skip spidering the site [" + targetURL + "] As User [" + userId + "]");
+//		}
+//
+//		/*
+//		 * ======================================================= | AJAX SPIDER URL AS USER | =======================================================
+//		 */
+//		if (ajaxSpiderURLAsUser) {
+//			listener.getLogger().println("Ajax Spider the site [" + targetURL + "] As User [" + userId + "]");
+//			ajaxSpiderURL(targetURL, listener, zapClientAPI);
+//		} else {
+//			listener.getLogger().println("Skip Ajax spidering the site [" + targetURL + "] As User [" + userId + "]");
+//		}
+//
+//		/*
+//		 * ======================================================= | VIEW SPIDER RESULTS | =======================================================
+//		 */
+//
+//		if (spiderAsUser || ajaxSpiderURLAsUser) {
+//			zapClientAPI.viewSpiderResults(scanId, listener);
+//		}
+//
+//		/*
+//		 * ======================================================= | SCAN URL As USER | =======================================================
+//		 */
+//		if (scanURLAsUser) {
+//			listener.getLogger().println("Scan the site [" + targetURL + "] As user [" + userId + "]");
+//			scanURLAsUser(targetURL, listener, zapClientAPI);
+//
+//		} else {
+//			listener.getLogger().println("Skip scanning the site [" + targetURL + "] As User [" + userId + "]");
+//		}
+//
+//		 
+//	}
 
 	private void executeZAPSessionNotLoaded(FilePath workspace, BuildListener listener) throws IOException {
 		//CustomZapClientApi zapClientAPI = new CustomZapClientApi(zapProxyHost, zapProxyPort, zapProxyKey, listener, debug);
@@ -1425,7 +1429,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			 * SPIDER URL AS USER |
 			 * =======================================================
 			 */
-			if (spiderAsUser) {
+			if (spiderURL) {
 
 				listener.getLogger().println("Spider the site [" + targetURL + "] As User [" + userId + "]");
 
@@ -1441,7 +1445,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			 * AJAX SPIDER URL AS USER |
 			 * =======================================================
 			 */
-			if (ajaxSpiderURLAsUser) {
+			if (ajaxSpiderURL) {
 				listener.getLogger()
 						.println("Ajax Spider the site [" + targetURL + "] As User [" + userId + "]");
 				ajaxSpiderURL(targetURL, listener, zapClientAPI);
@@ -1456,7 +1460,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			 * =======================================================
 			 */
 
-			if (spiderAsUser || ajaxSpiderURLAsUser) {
+			if (spiderURL || ajaxSpiderURL) {
 				zapClientAPI.viewSpiderResults(scanId, listener);
 			}
 
@@ -1465,7 +1469,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			 * SCAN URL As USER |
 			 * =======================================================
 			 */
-			if (scanURLAsUser) {
+			if (scanURL) {
 				listener.getLogger().println("Scan the site [" + targetURL + "] As user [" + userId + "]");
 				scanURLAsUser(targetURL, listener, zapClientAPI);
 
@@ -1481,35 +1485,35 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 
 		}
 				
-		/*
-		 * ======================================================= | SAVE SESSION | =======================================================
-		 */
-		if (saveSession) {
-			if (filenameSaveSession != null && !filenameSaveSession.isEmpty()) {
-
-				String remoteSessionFile = zapProxyDirectory + "session" + getFILE_SEPARATOR()
-						+ workspace.getBaseName() + getFILE_SEPARATOR() + filenameSaveSession;
-				listener.getLogger().println("Save session to [" + remoteSessionFile + "]");
-
-				boolean status = saveSession(remoteSessionFile, "true", listener, zapClientAPI);
-
-				// la session a été sauvegardée sur le moteur ZAP distant
-				if (status) {
-
-					// write session name to localfile sessionsListFile
-					String localSessionFile = ROOT_PATH + getFILE_SEPARATOR() + SESSIONS_PATH + getFILE_SEPARATOR()
-							+ SESSIONS_LIST_FILE;
-					File file = new File(workspace.getRemote(), localSessionFile);
-
-					FileUtils.writeStringToFile(file, filenameSaveSession + ".session\n", true); 
-					
-					listener.getLogger().println("File [" + file.getAbsolutePath() + "] saved");
-
-				}
-			}
-		} else {
-			listener.getLogger().println("Skip saveSession");
-		}
+//		/*
+//		 * ======================================================= | SAVE SESSION | =======================================================
+//		 */
+//		if (saveSession) {
+//			if (filenameSaveSession != null && !filenameSaveSession.isEmpty()) {
+//
+//				String remoteSessionFile = zapProxyDirectory + "session" + getFILE_SEPARATOR()
+//						+ workspace.getBaseName() + getFILE_SEPARATOR() + filenameSaveSession;
+//				listener.getLogger().println("Save session to [" + remoteSessionFile + "]");
+//
+//				boolean status = saveSession(remoteSessionFile, "true", listener, zapClientAPI);
+//
+//				// la session a été sauvegardée sur le moteur ZAP distant
+//				if (status) {
+//
+//					// write session name to localfile sessionsListFile
+//					String localSessionFile = ROOT_PATH + getFILE_SEPARATOR() + SESSIONS_PATH + getFILE_SEPARATOR()
+//							+ SESSIONS_LIST_FILE;
+//					File file = new File(workspace.getRemote(), localSessionFile);
+//
+//					FileUtils.writeStringToFile(file, filenameSaveSession + ".session\n", true); 
+//					
+//					listener.getLogger().println("File [" + file.getAbsolutePath() + "] saved");
+//
+//				}
+//			}
+//		} else {
+//			listener.getLogger().println("Skip saveSession");
+//		}
 	}
 
 	/**
