@@ -1,4 +1,4 @@
-package fr.orange.zaproxyplugin.utilities;
+package fr.orange.zapkins.utilities;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -41,63 +41,6 @@ public static synchronized Integer getPortNumber()
 
 }
 
-///**
-// * Wait for ZAProxy initialization, so it's ready to use at the end of this
-// * method (otherwise, catch exception). This method is launched on the
-// * remote machine (if there is one)
-// * 
-// * @param timeout
-// *            the time in sec to try to connect at zap proxy.
-// * @param listener
-// *            the listener to display log during the job execution in
-// *            jenkins
-// * @see <a href=
-// *      "https://groups.google.com/forum/#!topic/zaproxy-develop/gZxYp8Og960">
-// *      https://groups.google.com/forum/#!topic/zaproxy-develop/gZxYp8Og960
-// *      </a>
-// */
-//private void waitForSuccessfulConnectionToZap(String protocol, String zapProxyHost, int zapProxyPort, int timeout,
-//		BuildListener listener) {
-//
-//	int timeoutInMs = getMilliseconds(timeout);
-//	int connectionTimeoutInMs = timeoutInMs;
-//	int pollingIntervalInMs = getMilliseconds(1);
-//	boolean connectionSuccessful = false;
-//	long startTime = System.currentTimeMillis();
-//
-//	URL url;
-//
-//	do {
-//		try {
-//			listener.getLogger().println(protocol + "://" + zapProxyHost + ":" + zapProxyPort);
-//			url = new URL(protocol + "://" + zapProxyHost + ":" + zapProxyPort);
-//
-//			connectionSuccessful = checkURL(url, connectionTimeoutInMs, listener);
-//
-//		} catch (SocketTimeoutException ignore) {
-//
-//			throw new BuildException("Unable to connect to ZAP's proxy after " + timeout + " seconds.");
-//
-//		} catch (IOException ignore) {
-//			// and keep trying but wait some time first...
-//			try {
-//				Thread.sleep(pollingIntervalInMs);
-//			} catch (InterruptedException e) {
-//
-//				throw new BuildException("The task was interrupted while sleeping between connection polling.", e);
-//			}
-//
-//			long ellapsedTime = System.currentTimeMillis() - startTime;
-//			if (ellapsedTime >= timeoutInMs) {
-//
-//				throw new BuildException("Unable to connect to ZAP's proxy after " + timeout + " seconds.");
-//			}
-//			connectionTimeoutInMs = (int) (timeoutInMs - ellapsedTime);
-//		}
-//	} while (!connectionSuccessful);
-//}
-
- 
 
 /**
  * Converts seconds in milliseconds.
@@ -144,18 +87,14 @@ public static boolean  portIsToken(Proxy proxy,String protocol, String zapProxyH
 			System.out.println(String.format("Site is up, but returns non-ok status = %d", responseCode));
 			listener.getLogger().println(String.format("Site is up, but returns non-ok status = %d", responseCode));
 			return false;
-		}
-	
-		
-		
-		
+		}	
 		
 		
 	} catch (ProtocolException e) {
-		// TODO Auto-generated catch block
+		
 		e.printStackTrace();
 	} catch (IOException e) {
-		// TODO Auto-generated catch block
+		
 		e.printStackTrace();
 	}
 	return false;
@@ -204,11 +143,10 @@ public static boolean  portIsToken(Proxy proxy,String protocol, String zapProxyH
 		
 		
 	} catch (ProtocolException e) {
-		// TODO Auto-generated catch block
+		
 		e.printStackTrace();
 	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		//e.printStackTrace();
+		
 		return false;
 	}
 	
@@ -216,23 +154,7 @@ public static boolean  portIsToken(Proxy proxy,String protocol, String zapProxyH
 	
 
 }	
-	
-	
-/**
- * Wait for ZAProxy initialization, so it's ready to use at the end of this
- * method (otherwise, catch exception). This method is launched on the
- * remote machine (if there is one)
- * 
- * @param timeout
- *            the time in sec to try to connect at zap proxy.
- * @param listener
- *            the listener to display log during the job execution in
- *            jenkins
- * @see <a href=
- *      "https://groups.google.com/forum/#!topic/zaproxy-develop/gZxYp8Og960">
- *      https://groups.google.com/forum/#!topic/zaproxy-develop/gZxYp8Og960
- *      </a>
- */
+
 public static  void waitForSuccessfulConnectionToZap(Proxy proxy,String protocol, String zapProxyHost, int zapProxyPort, int timeout) {
 
 	int timeoutInMs = getMilliseconds(timeout);

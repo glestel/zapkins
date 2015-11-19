@@ -24,7 +24,7 @@
  */
 
 
-package fr.orange.zaproxyplugin;
+package fr.orange.zapkins;
  
 import hudson.Extension;
 import hudson.FilePath;
@@ -35,15 +35,15 @@ import hudson.model.Descriptor;
 import hudson.remoting.VirtualChannel;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-import fr.orange.zaproxyplugin.CustomZapClientApi;
-import 	fr.orange.zaproxyplugin.ZAProxyBuilder;
-import  fr.orange.zaproxyplugin.report.ZAPreport;
-import  fr.orange.zaproxyplugin.report.ZAPreportCollection;
-import  fr.orange.zaproxyplugin.report.ZAPscannersCollection;
-import fr.orange.zaproxyplugin.utilities.HttpUtilities;
-import  fr.orange.zaproxyplugin.utilities.ProxyAuthenticator;
-import fr.orange.zaproxyplugin.utilities.SSHConnexion;
-import fr.orange.zaproxyplugin.utilities.SecurityTools;
+import fr.orange.zapkins.api.CustomZapClientApi;
+import 	fr.orange.zapkins.ZAProxyBuilder;
+import  fr.orange.zapkins.report.ZAPreport;
+import  fr.orange.zapkins.report.ZAPreportCollection;
+import  fr.orange.zapkins.report.ZAPscannersCollection;
+import fr.orange.zapkins.utilities.HttpUtilities;
+import  fr.orange.zapkins.utilities.ProxyAuthenticator;
+import fr.orange.zapkins.utilities.SSHConnexion;
+import fr.orange.zapkins.utilities.SecurityTools;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -631,7 +631,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		listener.getLogger().println("targetURL : " + targetURL);
 		listener.getLogger().println("authorizedURL : " + authorizedURL);
 		
-		if(!SecurityTools.isScannable(targetURL, authorizedURL)){
+		if(!SecurityTools.isUrlAuditable(targetURL, authorizedURL)){
 			
 			throw new BuildException("L'url ciblée n'est pas autorisée, veuillez vous rapprochez de l'équipe sécurité pour justifier votre choix");
 		}	
@@ -1272,7 +1272,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			
 			String  authorizedURL=ZAProxyBuilder.DESCRIPTOR.getAuthorizedURLs();
 			
-			if(!SecurityTools.isScannable(targetURL, authorizedURL)){
+			if(!SecurityTools.isUrlAuditable(targetURL, authorizedURL)){
 				
 				return FormValidation.error("URL hors scope (non authorisée)");
 			}

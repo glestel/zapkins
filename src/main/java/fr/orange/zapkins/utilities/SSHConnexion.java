@@ -1,4 +1,4 @@
-package  fr.orange.zaproxyplugin.utilities;
+package fr.orange.zapkins.utilities;
 
 import java.io.BufferedReader;
 import java.io.IOException;

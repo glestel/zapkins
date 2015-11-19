@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package  fr.orange.zaproxyplugin.report;
+package fr.orange.zapkins.report;
 
 import java.io.Serializable;
 import java.util.HashMap;

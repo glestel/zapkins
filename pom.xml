@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   
   <parent>
@@ -12,102 +11,35 @@
   
   <groupId>fr.orange</groupId>
   <artifactId>zapkins</artifactId>
-  <version>1.1</version>
+  <version>1.0</version>
   <packaging>hpi</packaging>
-  <name>ZAProxy Plugin</name>
-  <description>Ce plugin permet de lancer ZAP à travers Jenkins. Il s'agit d'une réecriture du plugin existant développé par ludovic ROUCOUX</description>
-  <url>https://wiki.jenkins-ci.org/display/JENKINS/ZAProxy+Plugin</url>
-  <inceptionYear>2004</inceptionYear>
+  <name>Zed Attack Proxy Plugin</name>
+  <description>Ce plugin permet de lancer ZAP à travers Jenkins. Cette version est orientée développeur d'où la migration de plusieurs options de configuration vers l'interface d'administration.</description>
+  <url></url>
+  <inceptionYear>2015</inceptionYear>
   <licenses>
     <license>
       <name>MIT License</name>
       <url>http://opensource.org/licenses/MIT</url>
     </license>
   </licenses>
+  
+  
   <developers>
     <developer>
-      <id>ludovicroucoux</id>
-      <name>Ludovic Roucoux</name>
-      <email>ludovic.roucoux@gmail.com</email>
-    </developer>
-    <developer>
-      <id>johannol</id>
-      <name>Johann Ollivier-Lapeyre</name>
-      <email>johann.ollivierlapeyre@gmail.com</email>
-    </developer>
-    <developer>
-      <id>thilina27</id>
-      <name>Thilina Madhusanka</name>
-      <email>madhusanka.thilina@gmail.com</email>
-    </developer>
+      <id>abdellah.azougarh</id>
+      <name>Abdellah AZOUGARH</name>
+      <email>abdellah.azougarh@gmail.com</email>
+    </developer> 
   </developers>
-  <mailingLists>
-    <mailingList>
-      <name>Jenkins advisories list</name>
-      <subscribe>jenkinsci-advisories+subscribe@googlegroups.com</subscribe>
-      <unsubscribe>jenkinsci-advisories+unsubscribe@googlegroups.com</unsubscribe>
-    </mailingList>
-    <mailingList>
-      <name>Jenkins developer discussion list</name>
-      <subscribe>jenkinsci-dev+subscribe@googlegroups.com</subscribe>
-      <unsubscribe>jenkinsci-dev+unsubscribe@googlegroups.com</unsubscribe>
-      <post>jenkinsci-dev@googlegroups.com</post>
-      <archive>http://jenkins.361315.n4.nabble.com/Jenkins-dev-f387835.html</archive>
-      <otherArchives>
-        <otherArchive>http://hudson.361315.n4.nabble.com/Hudson-dev-f387835.html</otherArchive>
-      </otherArchives>
-    </mailingList>
-    <mailingList>
-      <name>Jenkins issues list</name>
-      <subscribe>jenkinsci-issues+subscribe@googlegroups.com</subscribe>
-      <unsubscribe>jenkinsci-issues+unsubscribe@googlegroups.com</unsubscribe>
-    </mailingList>
-    <mailingList>
-      <name>Jenkins user discussion list</name>
-      <subscribe>jenkinsci-users+subscribe@googlegroups.com</subscribe>
-      <unsubscribe>jenkinsci-users+unsubscribe@googlegroups.com</unsubscribe>
-      <post>jenkinsci-users@googlegroups.com</post>
-      <archive>http://jenkins.361315.n4.nabble.com/Jenkins-users-f361316.html</archive>
-      <otherArchives>
-        <otherArchive>http://hudson.361315.n4.nabble.com/Hudson-users-f361316.html</otherArchive>
-      </otherArchives>
-    </mailingList>
-    <mailingList>
-      <name>Hudson Japanese user discussion list</name>
-      <subscribe>hudson-ja+subscribe@googlegroups.com</subscribe>
-      <unsubscribe>hudson-ja+unsubscribe@googlegroups.com</unsubscribe>
-      <post>hudson-ja@googlegroups.com</post>
-      <archive>http://hudson.361315.n4.nabble.com/Hudson-ja-f361157.html</archive>
-    </mailingList>
-  </mailingLists>
+ 
   <scm>
-    <connection>scm:git:https://github.com/jenkinsci/zaproxy-plugin.git</connection>
-    <developerConnection>scm:git:https://github.com/jenkinsci/zaproxy-plugin.git</developerConnection>
-    <tag>zaproxy-1.1.4</tag>
-    <url>https://github.com/jenkinsci/zaproxy-plugin.git</url>
+    <connection>scm:git:https://github.com/jenkinsci/zapkins.git</connection>
+    <developerConnection>scm:git:https://github.com/jenkinsci/zapkins.git</developerConnection>
+    <tag>zapkins-1.0</tag>
+    <url>https://github.com/jenkinsci/zapkins.git</url>
   </scm>
-  <issueManagement>
-    <system>JIRA</system>
-    <url>http://issues.jenkins-ci.org/</url>
-  </issueManagement>
-  <ciManagement>
-    <system>Jenkins</system>
-    <url>http://ci.jenkins-ci.org</url>
-  </ciManagement>
-  <distributionManagement>
-    <repository>
-      <id>maven.jenkins-ci.org</id>
-      <url>http://maven.jenkins-ci.org:8081/content/repositories/releases</url>
-    </repository>
-    <snapshotRepository>
-      <id>maven.jenkins-ci.org</id>
-      <url>http://maven.jenkins-ci.org:8081/content/repositories/snapshots</url>
-    </snapshotRepository>
-    <site>
-      <id>github-pages</id>
-      <url>gitsite:git@github.com/jenkinsci/maven-site.git:plugin-parent/zaproxy</url>
-    </site>
-  </distributionManagement>
+ 
   <properties>
     <maven-surefire-report-plugin.version>2.9</maven-surefire-report-plugin.version>
     <maven-remote-resources-plugin.version>1.2.1</maven-remote-resources-plugin.version>

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package fr.orange.zaproxyplugin;
+package fr.orange.zapkins;
 
 import hudson.Extension;
 import hudson.FilePath;
@@ -35,11 +35,11 @@ import hudson.remoting.VirtualChannel;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
-import fr.orange.zaproxyplugin.CustomZapClientApi;
-import fr.orange.zaproxyplugin.ZAProxy;
-import fr.orange.zaproxyplugin.utilities.HttpUtilities;
-import fr.orange.zaproxyplugin.utilities.ProxyAuthenticator;
-import fr.orange.zaproxyplugin.utilities.SSHConnexion;
+import fr.orange.zapkins.api.CustomZapClientApi;
+import fr.orange.zapkins.ZAProxy;
+import fr.orange.zapkins.utilities.HttpUtilities;
+import fr.orange.zapkins.utilities.ProxyAuthenticator;
+import fr.orange.zapkins.utilities.SSHConnexion;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.jenkinsci.remoting.RoleChecker;

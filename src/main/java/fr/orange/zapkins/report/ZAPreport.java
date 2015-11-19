@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package  fr.orange.zaproxyplugin.report;
+package fr.orange.zapkins.report;
 
 import org.zaproxy.clientapi.core.ClientApi;
 import org.zaproxy.clientapi.core.ClientApiException;

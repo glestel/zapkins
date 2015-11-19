@@ -24,7 +24,7 @@
  */
 
 
-package fr.orange.zaproxyplugin;
+package fr.orange.zapkins.api;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,7 +50,7 @@ import org.zaproxy.clientapi.core.ApiResponseElement;
 import org.zaproxy.clientapi.core.ApiResponseFactory;
 import org.zaproxy.clientapi.core.ClientApiException; 
 import hudson.model.BuildListener;
-import  fr.orange.zaproxyplugin.utilities.ProxyAuthenticator;
+import  fr.orange.zapkins.utilities.ProxyAuthenticator;
 import org.zaproxy.clientapi.core.ApiResponseList;
 import org.zaproxy.clientapi.core.ApiResponseSet;
 

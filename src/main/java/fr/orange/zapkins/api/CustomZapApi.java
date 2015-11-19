@@ -24,7 +24,7 @@
  */
 
 
-package fr.orange.zaproxyplugin;
+package fr.orange.zapkins.api;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
