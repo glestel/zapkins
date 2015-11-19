@@ -22,47 +22,54 @@
  * SOFTWARE.
  */
 
-package fr.orange.zapkins.report;
-
-import org.zaproxy.clientapi.core.ClientApi;
-import org.zaproxy.clientapi.core.ClientApiException;
+package fr.hackthem.zapkins.report;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * This abstract class is used to generate report in ZAP available format.
+ * This class contains all ZAPreport instance of the application. 
+ * It's a singleton class so the application contains only one instance of the class.
  * 
  * @author ludovic.roucoux
  *
  */
-public abstract class ZAPreport implements Serializable {
+public class ZAPreportCollection  implements Serializable {
 
 	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 2241940678203529066L;
-	protected static final String REPORT_FORMAT_XML = "xml";
-	protected static final String REPORT_FORMAT_HTML = "html";
+	private static final long serialVersionUID = -8822284199004356478L;
+
+	private static ZAPreportCollection uniqueInstance = new ZAPreportCollection();
 	
-	/** The report format */
-	protected String format;
-		
-	/**
-	 * Generate a ZAP report in the format of daughter class.
-	 * @param clientApi the ZAP api to call the method to generate report
-	 * @param apikey ZAP apikey. Can be null.
-	 * @return an array of byte containing the report.
-	 * @throws ClientApiException
+	/** Map where key is the report format represented by a String
+	 *  and value is a ZAPreport object allowing to generate a report with the corresponding format.
 	 */
-	public abstract byte[] generateReport(ClientApi clientApi, String apikey) throws ClientApiException;
-	
-	public String getFormat() {
-		return format;
+	private Map<String, ZAPreport> mapFormatReport;
+
+	private ZAPreportCollection() {
+		mapFormatReport = new HashMap<String, ZAPreport>();
+
+		// ZAPreport's creation
+		ZAPreportXML reportXML = new ZAPreportXML();
+		ZAPreportHTML reportHTML = new ZAPreportHTML();
+		
+		// Add ZAPreport to the map
+		mapFormatReport.put(reportXML.getFormat(), reportXML);
+		mapFormatReport.put(reportHTML.getFormat(), reportHTML);
 	}
 	
-	@Override
-	public String toString() {
-		return getFormat();
+	public static ZAPreportCollection getInstance(){
+		if(uniqueInstance == null)
+			uniqueInstance = new ZAPreportCollection();
+		
+		return uniqueInstance;
 	}
+
+	public Map<String, ZAPreport> getMapFormatReport() {
+		return mapFormatReport;
+	}	
 }

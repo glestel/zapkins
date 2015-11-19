@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package fr.orange.zapkins.report;
+package fr.hackthem.zapkins.report;
 
 import java.io.Serializable;
 import java.util.HashMap;

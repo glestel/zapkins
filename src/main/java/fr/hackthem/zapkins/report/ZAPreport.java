@@ -22,25 +22,47 @@
  * SOFTWARE.
  */
 
-package fr.orange.zapkins.report;
+package fr.hackthem.zapkins.report;
 
-import org.zaproxy.clientapi.core.ClientApiException;
 import org.zaproxy.clientapi.core.ClientApi;
+import org.zaproxy.clientapi.core.ClientApiException;
+
+import java.io.Serializable;
 
 /**
- * Used to generate ZAP report in xml. 
+ * This abstract class is used to generate report in ZAP available format.
  * 
  * @author ludovic.roucoux
  *
  */
-public class ZAPreportXML extends ZAPreport {
+public abstract class ZAPreport implements Serializable {
 
-	public ZAPreportXML() {
-		this.format = ZAPreport.REPORT_FORMAT_XML;
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2241940678203529066L;
+	protected static final String REPORT_FORMAT_XML = "xml";
+	protected static final String REPORT_FORMAT_HTML = "html";
+	
+	/** The report format */
+	protected String format;
+		
+	/**
+	 * Generate a ZAP report in the format of daughter class.
+	 * @param clientApi the ZAP api to call the method to generate report
+	 * @param apikey ZAP apikey. Can be null.
+	 * @return an array of byte containing the report.
+	 * @throws ClientApiException
+	 */
+	public abstract byte[] generateReport(ClientApi clientApi, String apikey) throws ClientApiException;
+	
+	public String getFormat() {
+		return format;
 	}
-
+	
 	@Override
-	public byte[] generateReport(ClientApi clientApi, String apikey) throws ClientApiException {
-		return clientApi.core.xmlreport(apikey);
+	public String toString() {
+		return getFormat();
 	}
 }

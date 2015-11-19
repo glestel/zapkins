@@ -1,4 +1,4 @@
-package fr.orange.zapkins.utilities;
+package fr.hackthem.zapkins.utilities;
 
 import java.io.BufferedReader;
 import java.io.IOException;

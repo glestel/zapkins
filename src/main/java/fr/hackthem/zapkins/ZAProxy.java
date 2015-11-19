@@ -24,7 +24,7 @@
  */
 
 
-package fr.orange.zapkins;
+package fr.hackthem.zapkins;
  
 import hudson.Extension;
 import hudson.FilePath;
@@ -35,15 +35,15 @@ import hudson.model.Descriptor;
 import hudson.remoting.VirtualChannel;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-import fr.orange.zapkins.api.CustomZapClientApi;
-import 	fr.orange.zapkins.ZAProxyBuilder;
-import  fr.orange.zapkins.report.ZAPreport;
-import  fr.orange.zapkins.report.ZAPreportCollection;
-import  fr.orange.zapkins.report.ZAPscannersCollection;
-import fr.orange.zapkins.utilities.HttpUtilities;
-import  fr.orange.zapkins.utilities.ProxyAuthenticator;
-import fr.orange.zapkins.utilities.SSHConnexion;
-import fr.orange.zapkins.utilities.SecurityTools;
+import fr.hackthem.zapkins.api.CustomZapClientApi;
+import 	fr.hackthem.zapkins.ZAProxyBuilder;
+import  fr.hackthem.zapkins.report.ZAPreport;
+import  fr.hackthem.zapkins.report.ZAPreportCollection;
+import  fr.hackthem.zapkins.report.ZAPscannersCollection;
+import fr.hackthem.zapkins.utilities.HttpUtilities;
+import  fr.hackthem.zapkins.utilities.ProxyAuthenticator;
+import fr.hackthem.zapkins.utilities.SSHConnexion;
+import fr.hackthem.zapkins.utilities.SecurityTools;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -78,7 +78,7 @@ import org.zaproxy.clientapi.core.ClientApiException;
 /**
  * Contains methods to start and execute ZAProxy. Members variables are bind to
  * the config.jelly placed to fr/novia/zaproxyplugin/ZAProxy
- * Cette classe permet de lancer ZAP, les noms des attributs de la classe doivent être identiques à ceux renseignés dans le fichier config.jelly situé à fr/orange/zapkins/ZAProxy
+ * Cette classe permet de lancer ZAP, les noms des attributs de la classe doivent être identiques à ceux renseignés dans le fichier config.jelly situé à fr/hackthem/zapkins/ZAProxy
  * 
  * @authors  Abdellah AZOUGARH
  *
@@ -1194,7 +1194,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	 * as public so that it can be accessed from views.
 	 *
 	 * <p>
-	 * See <tt>src/main/resources/fr/ORANGE/zaproxyplugin/ZAProxy/*.jelly</tt>
+	 * See <tt>src/main/resources/fr/hackthem/zaproxyplugin/ZAProxy/*.jelly</tt>
 	 * for the actual HTML fragment for the configuration screen.
 	 */
 	@Extension

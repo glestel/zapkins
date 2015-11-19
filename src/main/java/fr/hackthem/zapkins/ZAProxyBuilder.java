@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package fr.orange.zapkins;
+package fr.hackthem.zapkins;
 
 import hudson.Extension;
 import hudson.FilePath;
@@ -35,11 +35,11 @@ import hudson.remoting.VirtualChannel;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
-import fr.orange.zapkins.api.CustomZapClientApi;
-import fr.orange.zapkins.ZAProxy;
-import fr.orange.zapkins.utilities.HttpUtilities;
-import fr.orange.zapkins.utilities.ProxyAuthenticator;
-import fr.orange.zapkins.utilities.SSHConnexion;
+import fr.hackthem.zapkins.api.CustomZapClientApi;
+import fr.hackthem.zapkins.ZAProxy;
+import fr.hackthem.zapkins.utilities.HttpUtilities;
+import fr.hackthem.zapkins.utilities.ProxyAuthenticator;
+import fr.hackthem.zapkins.utilities.SSHConnexion;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.jenkinsci.remoting.RoleChecker;
@@ -216,7 +216,7 @@ public class ZAProxyBuilder extends Builder {
 	 *
 	 * <p>
 	 * See
-	 * <tt>src/main/resources/fr/orange/zaproxyplugin/ZAProxyBuilder/*.jelly</tt>
+	 * <tt>src/main/resources/fr/hackthem/zaproxyplugin/ZAProxyBuilder/*.jelly</tt>
 	 * for the actual HTML fragment for the configuration screen.
 	 */
 	@Extension

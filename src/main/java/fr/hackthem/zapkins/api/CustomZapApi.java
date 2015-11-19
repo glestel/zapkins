@@ -24,7 +24,7 @@
  */
 
 
-package fr.orange.zapkins.api;
+package fr.hackthem.zapkins.api;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
