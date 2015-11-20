@@ -9,7 +9,7 @@
     <relativePath></relativePath>
   </parent>
   
-  <groupId>fr.orange</groupId>
+  <groupId>fr.hackthem</groupId>
   <artifactId>zapkins</artifactId>
   <version>1.0</version>
   <packaging>hpi</packaging>
