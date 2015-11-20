@@ -78,7 +78,7 @@ import org.zaproxy.clientapi.core.ClientApiException;
 /**
  * Contains methods to start and execute ZAProxy. Members variables are bind to
  * the config.jelly placed to fr/novia/zaproxyplugin/ZAProxy
- * Cette classe permet de lancer ZAP, les noms des attributs de la classe doivent être identiques à ceux renseignés dans le fichier config.jelly situé à fr/hackthem/zapkins/ZAProxy
+ * Cette classe permet de lancer ZAP, les noms des attributs de la classe doivent Ãªtre identiques Ã  ceux renseignÃ©s dans le fichier config.jelly situÃ© Ã  fr/hackthem/zapkins/ZAProxy
  * 
  * @authors  Abdellah AZOUGARH
  *
@@ -105,8 +105,8 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 
 	public static String FILE_SEPARATOR = "";
 
-	// Les attributs possédant une visibilité Final, sont initialisé à
-	// l'instantiation de la classe et ne peuvent pas être modifiés à la suite
+	// Les attributs possÃ©dant une visibilitÃ© Final, sont initialisÃ© Ã 
+	// l'instantiation de la classe et ne peuvent pas Ãªtre modifiÃ©s Ã  la suite
 	/** the scan mode (AUTHENTICATED/NOT_AUTHENTICATED) */
 	private final String scanMode;
 
@@ -115,15 +115,6 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 
 	/** URL to attack by ZAProxy */
 	private final String targetURL;
-
-	/** Realize a url spider or not by ZAProxy */
-	private final boolean spiderURL;
-
-	/** Realize a url AjaxSpider or not by ZAProxy */
-	private final boolean ajaxSpiderURL;
-
-	/** Realize a url scan or not by ZAProxy */
-	private final boolean scanURL;
 
 	/** Authentication script name */
 	private final String scriptName;
@@ -201,7 +192,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 //	
 
 	/**
-	 * Liste des urls authorisées à être scannées
+	 * Liste des urls authorisÃ©es Ã  Ãªtre scannÃ©es
 	 */
 	private String authorizedURL;
 	
@@ -223,7 +214,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	/** the secret API key when ZAProxy is used */
 	private String zapProxyKey;
 	
-	/** répertoire d'installation du moteur ZAP Proxy */
+	/** rÃ©pertoire d'installation du moteur ZAP Proxy */
 	private String zapProxyDirectory;
 
 	/** Id of the newly created context */
@@ -234,6 +225,16 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	
 	/** Id of the newly created scan */
 	private String scanId;
+	
+	/** Realize a url spider or not by ZAProxy */
+	private boolean spiderURL;
+
+	/** Realize a url AjaxSpider or not by ZAProxy */
+	private boolean ajaxSpiderURL;
+
+	/** Realize a url scan or not by ZAProxy */
+	private boolean scanURL;
+
 
 		@DataBoundConstructor
 		public ZAProxy( ArrayList<String> chosenScanners, String scanMode,
@@ -633,7 +634,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		
 		if(!SecurityTools.isUrlAuditable(targetURL, authorizedURL)){
 			
-			throw new BuildException("L'url ciblée n'est pas autorisée, veuillez vous rapprochez de l'équipe sécurité pour justifier votre choix");
+			throw new BuildException("L'url ciblÃ©e n'est pas autorisÃ©e, veuillez vous rapprochez de l'Ã©quipe sÃ©curitÃ© pour justifier votre choix");
 		}	
 
 		CustomZapClientApi zapClientAPI = new CustomZapClientApi(protocol,zapProxyHost, zapProxyPort, zapProxyKey, listener,debug);	 
@@ -968,7 +969,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		zapClientAPI.setPolicyAttackStrength("4", "HIGH", chosenPolicy);
 
 		/*********************************************************************/
-		// Ici on met le tous à OFF sinon les scanners seront activés malgé
+		// Ici on met le tous Ã  OFF sinon les scanners seront activÃ©s malgÃ©
 		// l'appel de la fonction disableAllScanners()
 		zapClientAPI.setPolicyAlertThreshold("0", "OFF", chosenPolicy);
 		zapClientAPI.setPolicyAlertThreshold("1", "OFF", chosenPolicy);
@@ -988,7 +989,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		}
 
 		if (!allScanners) {
-			// ETAPE 1 : on désactive tous les scanners
+			// ETAPE 1 : on dÃ©sactive tous les scanners
 			zapClientAPI.disableAllScanners(chosenPolicy, listener);
 			// ETAPE 1 : on active les scans voulus
 			String scannerIds = "";
@@ -1014,7 +1015,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	private void setUpContexte(CustomZapClientApi zapClientAPI, BuildListener listener) {
 
 		listener.getLogger().println(zapClientAPI.getContextList());
-		// récupère l'id du contexte si celui là est crée sinon elle le crée et
+		// rÃ©cupÃ¨re l'id du contexte si celui lÃ  est crÃ©e sinon elle le crÃ©e et
 		// retourne son id
 		String contextId = zapClientAPI.getContextId(contextName, listener);
 		setContextId(contextId);
@@ -1073,7 +1074,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 
 		/*********************** Forced User **********************************/
 		// https://groups.google.com/forum/#!topic/zaproxy-users/GRtzMJ4WJzk
-		// pour que la partie ajaxSpider se fasse d'une manière authentifiée il
+		// pour que la partie ajaxSpider se fasse d'une maniÃ¨re authentifiÃ©e il
 		// faut activer et renseigner le ForcedUser
 		zapClientAPI.isForcedUserModeEnabled(listener);
 		zapClientAPI.setForcedUser(contextId, userid, listener);
@@ -1110,7 +1111,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 
 		/*********************** Forced User **********************************/
 		// https://groups.google.com/forum/#!topic/zaproxy-users/GRtzMJ4WJzk
-		// pour que la partie ajaxSpider se fasse d'une manière authentifiée il
+		// pour que la partie ajaxSpider se fasse d'une maniÃ¨re authentifiÃ©e il
 		// faut activer et renseigner le ForcedUser
 		zapClientAPI.isForcedUserModeEnabled(listener);
 		zapClientAPI.setForcedUser(contextId, userid, listener);
@@ -1255,7 +1256,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		}
 
 		public List<String> getAllScanners() {
-			// On supprime l'élément "ALL SCANNERS" et on le remet au début.
+			// On supprime l'Ã©lÃ©ment "ALL SCANNERS" et on le remet au dÃ©but.
 			ArrayList<String> tab = new ArrayList<String>(mapScannersTypes.keySet());
 			tab.remove(tab.indexOf("ALL SCANNERS"));
 			tab.add(0, "ALL SCANNERS");
@@ -1274,7 +1275,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			
 			if(!SecurityTools.isUrlAuditable(targetURL, authorizedURL)){
 				
-				return FormValidation.error("URL hors scope (non authorisée)");
+				return FormValidation.error("URL hors scope (non authorisÃ©e)");
 			}
 			
 			return FormValidation.ok();
@@ -1298,7 +1299,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			if (filenameReports.isEmpty())
 				return FormValidation.error("Ce champ est obligatoire");
 			if (!FilenameUtils.getExtension(filenameReports).isEmpty())
-				return FormValidation.warning("L'extension du fichier n'est pas nécessaire !");
+				return FormValidation.warning("L'extension du fichier n'est pas nÃ©cessaire !");
 			return FormValidation.ok();
 		}
 
@@ -1339,15 +1340,15 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 				if (!cleanFilenameLoadSession.isEmpty() && (filenameSaveSession.equals(cleanFilenameLoadSession)
 						|| filenameSaveSession.equals(cleanFilenameLoadSession.replace(FILE_SESSION_EXTENSION, ""))))
 					return FormValidation
-							.error("Le nom de session à sauvegarder est le même que celui de la session chargée.");
+							.error("Le nom de session Ã  sauvegarder est le mÃªme que celui de la session chargÃ©e.");
 			}
 
 			if (!filenameLoadSession.isEmpty())
-				return FormValidation.warning("Une session est chargée, il est unitile de sauvegarder la session");
+				return FormValidation.warning("Une session est chargÃ©e, il est unitile de sauvegarder la session");
 
 			if (!FilenameUtils.getExtension(filenameSaveSession).isEmpty())
 				return FormValidation.warning(
-						"L'extension du fichier n'est pas nécessaire. Une extensuion par défaut va être ajoutée (.session)");
+						"L'extension du fichier n'est pas nÃ©cessaire. Une extensuion par dÃ©faut va Ãªtre ajoutÃ©e (.session)");
 			return FormValidation.ok();
 		}
 
@@ -1405,7 +1406,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 				});
 
 				// To not load a session, add a blank choice
-				items.add("Merci de choisir un script d'authentification adapté");
+				items.add("Merci de choisir un script d'authentification adaptÃ©");
 				for (String s : sessionsInString) {
 					items.add(s);
 				}
@@ -1414,7 +1415,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 
 			else {
 
-				items.add("Lancer le build au moins une fois pour créer le workspace (répertoire de travail)");
+				items.add("Lancer le build au moins une fois pour crÃ©er le workspace (rÃ©pertoire de travail)");
 
 			}
 
@@ -1509,8 +1510,8 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			if (useWebProxy) {
 
 				Authenticator.setDefault(new ProxyAuthenticator(webProxyUser, webProxyPassword));
-				// cet appel permet de ne pas généraliser le passage par le
-				// proxy à toutes les appels issus de la même JVM
+				// cet appel permet de ne pas gÃ©nÃ©raliser le passage par le
+				// proxy Ã  toutes les appels issus de la mÃªme JVM
 				proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(webProxyHost, webProxyPort));
 			}
 			
@@ -1589,12 +1590,12 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 					FileUtils.writeByteArrayToFile(scriptsListFile, scripstList.getBytes());
 				} else {
 					// remplir la liste des scripts
-					return FormValidation.okWithMarkup("<br><b><FONT COLOR=\"green\">Success : La liste des scripts est chargée."
+					return FormValidation.okWithMarkup("<br><b><FONT COLOR=\"green\">Success : La liste des scripts est chargÃ©e."
 									+ "<br>Scripts :<br>" + scripstList + "</FONT></b></br>");
 				}
 
-					return FormValidation.okWithMarkup("<br><b><FONT COLOR=\"green\">Success : La liste des scripts est chargée."
-								+ "<br>Veuillez recharger la page afin d'accéder à cette liste</FONT></b></br>");
+					return FormValidation.okWithMarkup("<br><b><FONT COLOR=\"green\">Success : La liste des scripts est chargÃ©e."
+								+ "<br>Veuillez recharger la page afin d'accÃ©der Ã  cette liste</FONT></b></br>");
 
 			} catch (MalformedURLException e1) {
 
