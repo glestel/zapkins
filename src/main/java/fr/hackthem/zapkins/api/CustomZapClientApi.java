@@ -362,9 +362,11 @@ public class CustomZapClientApi implements Serializable {
 		StringBuilder formBasedConfig = new StringBuilder();
 		try {
 			formBasedConfig.append("loginUrl=").append(URLEncoder.encode(loginUrl, "UTF-8"));
-			formBasedConfig.append("&loginRequestData=").append(URLEncoder.encode(
-					usernameParameter + "={%username%}&" + passwordParameter + "={%password%}&" + loginRequestData,
-					"UTF-8"));
+			
+			String loginRequestData = usernameParameter + "={%username%}&" + passwordParameter + "={%password%}&" + loginRequestData;
+			formBasedConfig.append("&loginRequestData=").append(URLEncoder.encode(loginRequestData,	"UTF-8"));
+			
+			
 			listener.getLogger()
 					.println("Setting form based authentication configuration as: " + formBasedConfig.toString());
 			api.setAuthenticationMethod(zapProxyKey, contextId, "formBasedAuthentication", formBasedConfig.toString());
