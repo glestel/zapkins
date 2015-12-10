@@ -27,13 +27,20 @@ package fr.hackthem.zapkins;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.FilePath.FileCallable;
+import hudson.Launcher.LocalLauncher;
+import hudson.Launcher.ProcStarter;
+import hudson.Launcher.RemoteLauncher;
+import hudson.Proc;
 import hudson.Launcher;
 import hudson.model.BuildListener;
+import hudson.model.Node;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.remoting.VirtualChannel;
+import hudson.slaves.SlaveComputer;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
+import hudson.util.ArgumentListBuilder;
 import hudson.util.FormValidation;
 import fr.hackthem.zapkins.api.CustomZapClientApi;
 import fr.hackthem.zapkins.ZAProxy;
@@ -141,9 +148,12 @@ public class ZAProxyBuilder extends Builder {
 		if (useWebProxy) {
 			// Ici on généralise l'utilisation du proxy web à tous les appels
 			// passés via la JVM
+			listener.getLogger().println("Using web proxy");
+			System.out.println("Using web proxy");
 			CustomZapClientApi.setWebProxyDetails(webProxyHost, webProxyPort, webProxyUser, webProxyPassword);
 		} else {
 			listener.getLogger().println("Skip using web proxy");
+			System.out.println("Skip using web proxy");
 		}		
 
 		if (startZAPFirst) {
@@ -167,21 +177,56 @@ public class ZAProxyBuilder extends Builder {
 			
 			
 			listener.getLogger().println("------- START Prebuild -------");
+			System.out.println("------- START Prebuild -------");
 
 			listener.getLogger().println("Perform ZAProxy");
+			System.out.println("Perform ZAProxy");
 			
-			final String linuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapDefaultDirectory
-					+ "zap.sh -daemon -port " + zapProxyPort;
+			final String linuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapDefaultDirectory+ "zap.sh -daemon -port " + zapProxyPort;
 			final String WindowsCommand = zapDefaultDirectory + "zap.bat -daemon -port " + zapProxyPort;
 
 			/*
 			 * ======================================================= | start ZAP | =======================================================
 			 */
-
-			listener.getLogger().println("Starting ZAP remotely (SSH)");
+			switch(zapProxyDefaultHost){
 			
-			SSHConnexion.execCommand(zapProxyDefaultHost, zapDefaultSSHPort, zapDefaultSSHUser, zapDefaultSSHPassword,HttpUtilities.getMilliseconds(zapProxyDefaultTimeoutSSHInSec ),linuxCommand, listener);
- 
+			case "localhost":
+			case "127.0.0.1" :
+				listener.getLogger().println("Starting ZAP locally");	
+				System.out.println("Starting ZAP locally");
+				ArgumentListBuilder command = new ArgumentListBuilder();				
+
+				if(launcher.isUnix()){
+					command.addTokenized(linuxCommand);
+				}
+				else {
+					command.addTokenized(WindowsCommand);
+				}
+				
+				ProcStarter ps = launcher.new ProcStarter();
+				ps = ps.cmds(command).stdout(listener);
+				try {
+					ps = ps.pwd(build.getWorkspace()).envs(build.getEnvironment(listener));
+					Proc proc = launcher.launch(ps);
+					int retcode = proc.join();
+					
+					
+					
+				} catch (IOException | InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				break ;
+				
+			default :
+				listener.getLogger().println("Starting ZAP remotely (SSH)");	
+				System.out.println("Starting ZAP remotely (SSH)");
+				SSHConnexion.execCommand(zapProxyDefaultHost, zapDefaultSSHPort, zapDefaultSSHUser, zapDefaultSSHPassword,HttpUtilities.getMilliseconds(zapProxyDefaultTimeoutSSHInSec ),linuxCommand, listener);
+	 
+				
+			}
+
 			listener.getLogger().println("------- END Prebuild -------");
 		}
 
@@ -498,13 +543,15 @@ public class ZAProxyBuilder extends Builder {
 			 */
 			Proxy proxy = null;
 			if (useWebProxy) {
-
+				System.out.println("Using Web Proxy");
 				Authenticator.setDefault(new ProxyAuthenticator(webProxyUser, webProxyPassword));
 				// cet appel permet de ne pas généraliser le passage par le
 				// proxy à toutes les appels issus de la même JVM
 				proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(webProxyHost, webProxyPort));
 			}
-			
+			else {
+				System.out.println("Skip Using Web Proxy");
+			}
 			
 				/*
 				 * ======================================================= | CHOOSE A FREE PORT  | =======================================================
@@ -520,13 +567,14 @@ public class ZAProxyBuilder extends Builder {
 				}
  
 				
-				final String linuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapProxyDirectory+ "zap.sh -daemon -port " + zapProxyPort;
+				//final String linuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapProxyDirectory+ "zap.sh -daemon -port " + zapProxyPort;
+				final String linuxCommand = "sh " + zapProxyDirectory+ "zap.sh -daemon -port " + zapProxyPort;
 				final String WindowsCommand = zapProxyDirectory + "zap.bat -daemon -port " + zapProxyPort;
 
 				/*
 				 * ======================================================= | start ZAP | =======================================================
 				 */
-
+	
 				System.out.println("connexion SSH : START");
 				SSHConnexion.execCommand(zapProxyHost, zapSSHPort, zapSSHUser, zapSSHPassword,HttpUtilities.getMilliseconds(timeoutSSHInSec),linuxCommand );
 				System.out.println("connexion SSH : END");
