@@ -13,7 +13,7 @@
   <artifactId>zapkins</artifactId>
   <version>1.0</version>
   <packaging>hpi</packaging>
-  <name>Zed Attack Proxy Plugin</name>
+  <name>zapkins</name>
   <description>Ce plugin permet de lancer ZAP à travers Jenkins. Cette version est orientée développeur d'où la migration de plusieurs options de configuration vers l'interface d'administration.</description>
   <url></url>
   <inceptionYear>2015</inceptionYear>
@@ -34,10 +34,10 @@
   </developers>
  
   <scm>
-    <connection>scm:git:https://github.com/jenkinsci/zapkins.git</connection>
-    <developerConnection>scm:git:https://github.com/jenkinsci/zapkins.git</developerConnection>
+    <connection>scm:git:https://github.com/hackthem/zapkins.git</connection>
+    <developerConnection>scm:git:https://github.com/hackthem/zapkins.git</developerConnection>
     <tag>zapkins-1.0</tag>
-    <url>https://github.com/jenkinsci/zapkins.git</url>
+    <url>https://github.com/hackthem/zapkins.git</url>
   </scm>
  
   <properties>
@@ -188,11 +188,11 @@
     </pluginRepository>
   </pluginRepositories>
   <build>
-    <sourceDirectory>C:\Users\GDRB6297\Documents\Livrables\ZAP_DEV\workspace\ZAP_JENKINS_SVN\src\main\java</sourceDirectory>
-    <scriptSourceDirectory>C:\Users\GDRB6297\Documents\Livrables\ZAP_DEV\workspace\ZAP_JENKINS_SVN\src\main\scripts</scriptSourceDirectory>
-    <testSourceDirectory>C:\Users\GDRB6297\Documents\Livrables\ZAP_DEV\workspace\ZAP_JENKINS_SVN\src\test\java</testSourceDirectory>
-    <outputDirectory>C:\Users\GDRB6297\Documents\Livrables\ZAP_DEV\workspace\ZAP_JENKINS_SVN\target\classes</outputDirectory>
-    <testOutputDirectory>C:\Users\GDRB6297\Documents\Livrables\ZAP_DEV\workspace\ZAP_JENKINS_SVN\target\test-classes</testOutputDirectory>
+    <sourceDirectory>C:\Users\GDRB6297\git\zapkins\src\main\java</sourceDirectory>
+    <scriptSourceDirectory>C:\Users\GDRB6297\git\zapkins\src\main\scripts</scriptSourceDirectory>
+    <testSourceDirectory>C:\Users\GDRB6297\git\zapkins\src\test\java</testSourceDirectory>
+    <outputDirectory>C:\Users\GDRB6297\git\zapkins\target\classes</outputDirectory>
+    <testOutputDirectory>C:\Users\GDRB6297\git\zapkins\target\test-classes</testOutputDirectory>
     <extensions>
       <extension>
         <groupId>org.kohsuke</groupId>
@@ -203,15 +203,15 @@
     <defaultGoal>install</defaultGoal>
     <resources>
       <resource>
-        <directory>C:\Users\GDRB6297\Documents\Livrables\ZAP_DEV\workspace\ZAP_JENKINS_SVN\src\main\resources</directory>
+        <directory>C:\Users\GDRB6297\git\zapkins\src\main\resources</directory>
       </resource>
     </resources>
     <testResources>
       <testResource>
-        <directory>C:\Users\GDRB6297\Documents\Livrables\ZAP_DEV\workspace\ZAP_JENKINS_SVN\src\test\resources</directory>
+        <directory>C:\Users\GDRB6297\git\zapkins\src\test\resources</directory>
       </testResource>
     </testResources>
-    <directory>C:\Users\GDRB6297\Documents\Livrables\ZAP_DEV\workspace\ZAP_JENKINS_SVN\target</directory>
+    <directory>C:\Users\GDRB6297\git\zapkins\target</directory>
     <finalName>zaproxy</finalName>
     <pluginManagement>
       <plugins>
@@ -370,7 +370,7 @@
               </goals>
               <configuration>
                 <sources>
-                  <source>C:\Users\GDRB6297\Documents\Livrables\ZAP_DEV\workspace\ZAP_JENKINS_SVN\target/generated-sources/localizer</source>
+                  <source>C:\Users\GDRB6297\git\zapkins\target/generated-sources/localizer</source>
                 </sources>
               </configuration>
             </execution>
@@ -906,7 +906,7 @@
               <goal>site</goal>
             </goals>
             <configuration>
-              <outputDirectory>C:\Users\GDRB6297\Documents\Livrables\ZAP_DEV\workspace\ZAP_JENKINS_SVN\target\site</outputDirectory>
+              <outputDirectory>C:\Users\GDRB6297\git\zapkins\target\site</outputDirectory>
               <reportPlugins>
                 <reportPlugin>
                   <groupId>org.apache.maven.plugins</groupId>
@@ -922,7 +922,7 @@
               <goal>deploy</goal>
             </goals>
             <configuration>
-              <outputDirectory>C:\Users\GDRB6297\Documents\Livrables\ZAP_DEV\workspace\ZAP_JENKINS_SVN\target\site</outputDirectory>
+              <outputDirectory>C:\Users\GDRB6297\git\zapkins\target\site</outputDirectory>
               <reportPlugins>
                 <reportPlugin>
                   <groupId>org.apache.maven.plugins</groupId>
@@ -933,7 +933,7 @@
           </execution>
         </executions>
         <configuration>
-          <outputDirectory>C:\Users\GDRB6297\Documents\Livrables\ZAP_DEV\workspace\ZAP_JENKINS_SVN\target\site</outputDirectory>
+          <outputDirectory>C:\Users\GDRB6297\git\zapkins\target\site</outputDirectory>
           <reportPlugins>
             <reportPlugin>
               <groupId>org.apache.maven.plugins</groupId>
@@ -945,6 +945,6 @@
     </plugins>
   </build>
   <reporting>
-    <outputDirectory>C:\Users\GDRB6297\Documents\Livrables\ZAP_DEV\workspace\ZAP_JENKINS_SVN\target\site</outputDirectory>
+    <outputDirectory>C:\Users\GDRB6297\git\zapkins\target\site</outputDirectory>
   </reporting>
 </project>

@@ -70,7 +70,7 @@ SOFTWARE.
 		</f:entry>
 	</f:section>	
 	
-	<f:advanced>		
+	<!-- <f:advanced> -->		
 	    <f:optionalBlock title="${%Utiliser un serveur proxy web}" field="useWebProxy" inline="true" >
 		<f:entry>
 		<table width="100%">
@@ -101,10 +101,13 @@ SOFTWARE.
 		
 		<!-- ******************************************************************************** -->
 			
-		<f:optionalBlock title="${%Démarrer ZAP à distance}" field="startZAPFirst" inline="true" >	
-		
-		<f:entry>
-		<table width="100%">
+		<f:optionalBlock title="${%Démarrer ZAP}" field="startZAPFirst" inline="true" >	
+		</f:optionalBlock>
+		<f:radioBlock title="${%ZAP : installé en local}" 	name="zapLocation" value="LOCAL" checked="${descriptor.isZAPInstaltionLocation('LOCAL')}" inline="true"/> 
+		<f:radioBlock title="${%ZAP : installé sur un serveur distant}" 	name="zapLocation" value="DISTANT" checked="${descriptor.isZAPInstaltionLocation('DISTANT')}" inline="true"> 
+         <f:advanced>
+	      <f:entry>
+			<table width="100%">
 		
 			<f:entry title="${%Numéro de port SSH du serveur ZAP}" field="zapDefaultSSHPort">
 				<f:number default="22" clazz="required positive-number" />
@@ -120,17 +123,23 @@ SOFTWARE.
 			
 			<f:entry title="${%Délais d'attente de connexion, en secondes}" field="zapProxyDefaultTimeoutSSHInSec">
 			<f:textbox default="2" clazz="required positive-number" />
-		</f:entry>
-		</table>
-		</f:entry>	
+		    </f:entry>
+		   <f:entry>
+		   <f:validateButton   title="${%Tester la connection SSH}" progress="${%Connexion...}"   method="testSSHConnection" with="zapProxyDefaultTimeoutSSHInSec,zapProxyDefaultHost,zapDefaultSSHPort,zapDefaultSSHUser,zapDefaultSSHPassword" />
+		   </f:entry>
+		 	</table>
+		  </f:entry>
+
+		  </f:advanced>
 		
-		<f:validateButton   title="${%Tester la connection SSH}" progress="${%Connexion...}"   method="testSSHConnection" with="zapProxyDefaultTimeoutSSHInSec,zapProxyDefaultHost,zapDefaultSSHPort,zapDefaultSSHUser,zapDefaultSSHPassword" />
+		</f:radioBlock>
+
 		<f:validateButton   title="${%Tester la connection à ZAP}" progress="${%Connexion...}"   method="testZAPConnection" with="zapDefaultDirectory,zapProxyDefaultTimeoutInSec,defaultProtocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyDefaultHost,zapProxyDefaultPort,zapProxyDefaultApiKey,zapProxyDefaultTimeoutSSHInSec,zapDefaultSSHPort,zapDefaultSSHUser,zapDefaultSSHPassword" />
 		<!-- ******************************************************************************** -->
 	
-		</f:optionalBlock>	
+		<!-- </f:optionalBlock> -->	
 		<f:optionalBlock title="${%Arrêter ZAP à la fin du scan}" field="stopZAPAtEnd" inline="true" />				
-		</f:advanced>
+		<!-- </f:advanced> -->
 		
 		<f:entry>
 		 

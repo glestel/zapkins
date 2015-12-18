@@ -32,6 +32,7 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -42,14 +43,20 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.zaproxy.clientapi.core.ApiResponse;
 import org.zaproxy.clientapi.core.ApiResponseElement;
 import org.zaproxy.clientapi.core.ApiResponseFactory;
-import org.zaproxy.clientapi.core.ClientApiException; 
+import org.zaproxy.clientapi.core.ClientApiException;
+
+import hudson.FilePath;
 import hudson.model.BuildListener;
+import hudson.util.FormValidation;
+import fr.hackthem.zapkins.utilities.HttpUtilities;
 import  fr.hackthem.zapkins.utilities.ProxyAuthenticator;
 import org.zaproxy.clientapi.core.ApiResponseList;
 import org.zaproxy.clientapi.core.ApiResponseSet;
@@ -147,7 +154,214 @@ public class CustomZapClientApi implements Serializable {
 		Document doc = db.parse(uc.getInputStream());
 		return ApiResponseFactory.getResponse(doc.getFirstChild());
 	}
+    
+	public static  FormValidation testZAPConnection(String protocol, String zapProxyHost, int zapProxyPort, String zapProxyKey, Proxy proxy, int timeoutInSec ){
 
+		int responseCode = 0;
+		try {
+
+			URL url = new URL(protocol + "://" + zapProxyHost + ":" + zapProxyPort);
+
+			HttpURLConnection conn;
+			
+			if(proxy == null){
+				conn = (HttpURLConnection) url.openConnection();
+			}
+			else {
+				
+				conn = (HttpURLConnection) url.openConnection(proxy);
+			}
+
+			/*
+			 * *************************************************************
+			 * *******************************
+			 */
+
+			conn.setRequestMethod("GET");
+			conn.setConnectTimeout(HttpUtilities.getMilliseconds(timeoutInSec));
+			System.out.println(String.format("Fetching %s ...", url));
+
+			responseCode = conn.getResponseCode();
+
+			if (responseCode == 200) {
+
+				// faire des nouveaux tests pour valider la clé api
+				Map<String, String> map = null;
+				map = new HashMap<String, String>();
+				
+				if (zapProxyKey != null) {
+					map.put("apikey", zapProxyKey);
+				}
+				
+				ApiResponseElement response;
+				// si la clé n'est pas correcte, une exception est lancée
+
+				try {
+					response = (ApiResponseElement)  sendRequest(protocol, zapProxyHost,
+							zapProxyPort, "xml", "pscan", "action", "enableAllScanners", map, proxy, timeoutInSec);
+				} catch (IOException e) {
+					return FormValidation.error("Invalid or missing API key");
+				}
+
+				// si la clé est correcte on affiche la version de ZAP
+				// installée
+				response = (ApiResponseElement) sendRequest(protocol, zapProxyHost, zapProxyPort,
+						"xml", "core", "view", "version", null, proxy, timeoutInSec);
+
+				return FormValidation.okWithMarkup("<br><b><FONT COLOR=\"green\">Success : 200\nSite is up" + "<br>"
+						+ "ZAP Proxy(" + response.getName() + ")=" + response.getValue() + "</FONT></b></br>"); 
+
+			} else {
+				System.out.println(String.format("<br>Site is up, but returns non-ok status = %d", responseCode));
+				return FormValidation.warning("Site is up, but returns non-ok status = " + responseCode);
+			}
+
+		} catch (MalformedURLException e) {
+
+			e.printStackTrace();
+			return FormValidation.error(e.getMessage() + "\nHTTP Response code=" + responseCode);
+		} catch (IOException e) {
+
+			e.printStackTrace();
+			return FormValidation.error(e.getMessage());
+		} catch (ParserConfigurationException e) {
+			
+			e.printStackTrace();
+			return FormValidation.error(e.getMessage() + "\nHTTP Response code=" + responseCode);
+		} catch (SAXException e) {
+			
+			e.printStackTrace();
+			return FormValidation.error(e.getMessage() + "\nHTTP Response code=" + responseCode);
+		} catch (ClientApiException e) {
+			
+			e.printStackTrace();
+			return FormValidation.error(e.getMessage() + "\nHTTP Response code=" + responseCode);
+		}
+		
+		finally{
+			
+			/*
+			 * ======================================================= | Stop ZAP | =======================================================
+			 */	
+		 
+			Map<String, String> map = null;
+			map = new HashMap<String, String>();
+			map.put("apikey", zapProxyKey);
+			try {
+				 
+				 sendRequest(protocol, zapProxyHost,zapProxyPort, "xml", "core", "action", "shutdown", map, proxy, timeoutInSec);
+				
+			} catch (IOException | ParserConfigurationException | SAXException | ClientApiException e) {
+				 
+				e.printStackTrace();
+				return FormValidation.error(e.getMessage() );
+			}
+			 
+		}
+	}
+	
+	
+	public static FormValidation loadAuthenticationScriptsList(String defaultProtocol, String zapProxyDefaultHost, int zapProxyPort, String zapProxyDefaultApiKey,Proxy proxy, int zapProxyDefaultTimeoutInSec
+			,String ROOT_PATH, String AUTHENTICATION_SCRIPTS_PATH, String AUTHENTICATION_SCRIPTS_LIST_FILE,FilePath workspace ){
+ 
+		/*
+		 * ======================================================= | ZAP FILE PATH SEPARATOR | =======================================================
+		 */
+		
+		String  FILE_SEPARATOR="";
+		try {
+
+			ApiResponseElement set = (ApiResponseElement)  sendRequest(defaultProtocol, zapProxyDefaultHost,
+					zapProxyPort, "xml", "core", "view", "homeDirectory", null, proxy, zapProxyDefaultTimeoutInSec);
+			String zapHomeDirectory = set.getValue();
+
+			if (zapHomeDirectory.startsWith("/")) {
+				FILE_SEPARATOR="/";
+			} else {
+				FILE_SEPARATOR="\\";
+			}
+
+			/* ======================================================= */
+
+			StringBuilder sb1 = new StringBuilder();
+
+			ApiResponseList configParamsList = null;
+			configParamsList = (ApiResponseList)  sendRequest(defaultProtocol, zapProxyDefaultHost,
+					zapProxyPort, "xml", "script", "view", "listScripts", null, proxy, zapProxyDefaultTimeoutInSec);
+
+			for (ApiResponse r : configParamsList.getItems()) {
+				ApiResponseSet set1 = (ApiResponseSet) r;
+				sb1.append(set1.getAttribute("name") + "\n");
+
+			}
+
+			String scripstList = sb1.toString();
+
+			// probleme avec getFILE_SEPARATOR(), avant le build cette
+			// fonction doit retourner une valeur
+			String filePth = ROOT_PATH + FILE_SEPARATOR + AUTHENTICATION_SCRIPTS_PATH +FILE_SEPARATOR
+					+ AUTHENTICATION_SCRIPTS_LIST_FILE;
+			if (workspace != null) {
+				File scriptsListFile = new File(workspace.getRemote(), filePth);
+				FileUtils.writeByteArrayToFile(scriptsListFile, scripstList.getBytes());
+			} else {
+				// remplir la liste des scripts
+				return FormValidation.okWithMarkup("<br><b><FONT COLOR=\"green\">Success : La liste des scripts est chargÃ©e."
+								+ "<br>Scripts :<br>" + scripstList + "</FONT></b></br>");
+			}
+
+				return FormValidation.okWithMarkup("<br><b><FONT COLOR=\"green\">Success : La liste des scripts est chargÃ©e."
+							+ "<br>Veuillez recharger la page afin d'accÃ©der Ã  cette liste</FONT></b></br>");
+
+		} catch (MalformedURLException e1) {
+
+			e1.printStackTrace();
+			return FormValidation.error(e1.getMessage());
+		}
+
+		catch (ClientApiException e) {
+
+			e.printStackTrace();
+			return FormValidation.error(e.getMessage());
+		}
+
+		catch (IOException e) {
+			e.printStackTrace();
+			return FormValidation.error(e.getMessage());
+
+		}
+
+		catch (ParserConfigurationException e) {
+
+			e.printStackTrace();
+			return FormValidation.error(e.getMessage());
+		} catch (SAXException e) {
+
+			e.printStackTrace();
+			return FormValidation.error(e.getMessage());
+		}
+		
+		finally{
+			
+			/*
+			 * ======================================================= | Stop ZAP | =======================================================
+			 */	
+		 
+			Map<String, String> map = null;
+			map = new HashMap<String, String>();
+			map.put("apikey", zapProxyDefaultApiKey);
+			try {
+				ApiResponseElement set = (ApiResponseElement) CustomZapClientApi.sendRequest(defaultProtocol, zapProxyDefaultHost,
+						zapProxyPort, "xml", "core", "action", "shutdown", map, proxy, zapProxyDefaultTimeoutInSec);
+			} catch (IOException | ParserConfigurationException | SAXException | ClientApiException e) {
+				 
+				e.printStackTrace();
+			}
+			 
+		}
+		
+		
+	}
 	/**
 	 * Converts seconds in milliseconds.
 	 * 
@@ -363,7 +577,7 @@ public class CustomZapClientApi implements Serializable {
 		try {
 			formBasedConfig.append("loginUrl=").append(URLEncoder.encode(loginUrl, "UTF-8"));
 			
-			String loginRequestData = usernameParameter + "={%username%}&" + passwordParameter + "={%password%}&" + loginRequestData;
+			loginRequestData = usernameParameter + "={%username%}&" + passwordParameter + "={%password%}&" + loginRequestData;
 			formBasedConfig.append("&loginRequestData=").append(URLEncoder.encode(loginRequestData,	"UTF-8"));
 			
 			

@@ -214,7 +214,7 @@ catch (IOException e) {
 	
 }
 
-public static boolean execCommand(String HOST, int PORT, String USER, String PASSWORD ,int zapProxyDefaultTimeoutSSHInSec, String command ){
+public static boolean execCommandSshPasswordAuth(String HOST, int PORT, String USER, String PASSWORD ,int zapProxyDefaultTimeoutSSHInSec, String command ){
 	
 	JSch jsch = new JSch();
 	try {
@@ -476,7 +476,7 @@ public static String getQueryShell(String HOST, int PORT, String USER, String PA
 //
 //}
 
-public static void  testSSH(String HOST, int PORT, String USER, String PASSWORD, int timeoutInMilliSec  ) throws JSchException, IOException{
+public static void  testSSHPasswordAuth(String HOST, int PORT, String USER, String PASSWORD, int timeoutInMilliSec  ) throws JSchException, IOException{
 	
 	JSch jsch = new JSch();
  
