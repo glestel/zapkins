@@ -43,7 +43,7 @@ SOFTWARE.
 		  <j:choose>
 			<j:when test="${instance.defaultProtocol eq 'https'}">
 			  <option value="https" selected="selected">HTTPS</option>
-			  <option value="http"  >HTTP</option>
+			  <option value="http">HTTP</option>			  
 			</j:when>
 			<j:otherwise>
 			  <option value="http" selected="selected">HTTP</option>
@@ -52,7 +52,10 @@ SOFTWARE.
 		  </j:choose>
 			  
 		</select>
-	   </f:entry> 
+	   </f:entry>  
+	   
+	   
+	   
 		<f:entry title="${%Adresse par défaut du serveur ZAP}" field="zapProxyDefaultHost">
 			<f:textbox default="xxx.xxx.xxx.xxx"  />
 		</f:entry>
@@ -101,11 +104,102 @@ SOFTWARE.
 		
 		<!-- ******************************************************************************** -->
 			
-		<f:optionalBlock title="${%Démarrer ZAP}" field="startZAPFirst" inline="true" >	
-		</f:optionalBlock>
-		<f:radioBlock title="${%ZAP : installé en local}" 	name="zapLocation" value="LOCAL" checked="${descriptor.isZAPInstaltionLocation('LOCAL')}" inline="true"/> 
-		<f:radioBlock title="${%ZAP : installé sur un serveur distant}" 	name="zapLocation" value="DISTANT" checked="${descriptor.isZAPInstaltionLocation('DISTANT')}" inline="true"> 
-         <f:advanced>
+<!-- 		<f:optionalBlock title="${%Démarrer ZAP}" field="startZAPFirst" inline="true" >	
+		</f:optionalBlock> -->
+		
+		
+      <f:entry  title="Type d'installation de ZAP" field="startZAPFirst"> 	
+		<select name="startZAPFirst">
+		  <j:choose>
+			<j:when test="${instance.startZAPFirst eq 'LOCALE'}">
+			  <option value="LOCALE" selected="selected">LOCALE</option>
+			  <option value="DISTANTE">DISTANTE</option>			  
+			</j:when>
+			<j:otherwise>
+			  <option value="DISTANTE" selected="selected">DISTANTE</option>
+			  <option value="LOCALE">LOCALE</option>
+			</j:otherwise>
+		  </j:choose>
+			  
+		</select>
+	   </f:entry> 
+	   <f:advanced>
+	    
+	 			<f:entry>
+				<table width="100%">
+			
+				<f:entry title="${%Numéro de port SSH du serveur ZAP}" field="zapDefaultSSHPort">
+					<f:number default="22" clazz="required positive-number" />
+				</f:entry>
+						
+				<f:entry title="${%Nom d'utilisateur SSH}" field="zapDefaultSSHUser">
+				<f:textbox clazz="required" default="jenkins" />
+				</f:entry>
+				
+				<f:entry title="${%Mot de passe d'utilisateur SSH}" field="zapDefaultSSHPassword">
+				<f:password clazz="required"  />
+				</f:entry>
+				
+				<f:entry title="${%Délais d'attente de connexion, en secondes}" field="zapProxyDefaultTimeoutSSHInSec">
+				<f:textbox default="2" clazz="required positive-number" />
+				</f:entry>
+			   <f:entry>
+			   <f:validateButton   title="${%Tester la connection SSH}" progress="${%Connexion...}"   method="testSSHConnection" with="zapProxyDefaultTimeoutSSHInSec,zapProxyDefaultHost,zapDefaultSSHPort,zapDefaultSSHUser,zapDefaultSSHPassword" />
+			   </f:entry>
+			   </table>
+			   </f:entry>   
+		  
+	 </f:advanced>	
+		
+ 
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<!--  
+			<j:if test="${instance.getStartZAPFirst() eq 'DISTANTE'}">
+			 
+			<f:entry>
+			<table width="100%">
+		
+			<f:entry title="${%Numéro de port SSH du serveur ZAP}" field="zapDefaultSSHPort">
+				<f:number default="22" clazz="required positive-number" />
+			</f:entry>
+					
+			<f:entry title="${%Nom d'utilisateur SSH}" field="zapDefaultSSHUser">
+			<f:textbox clazz="required" default="jenkins" />
+			</f:entry>
+			
+			<f:entry title="${%Mot de passe d'utilisateur SSH}" field="zapDefaultSSHPassword">
+			<f:password clazz="required"  />
+			</f:entry>
+			
+			<f:entry title="${%Délais d'attente de connexion, en secondes}" field="zapProxyDefaultTimeoutSSHInSec">
+			<f:textbox default="2" clazz="required positive-number" />
+		    </f:entry>
+		   <f:entry>
+		   <f:validateButton   title="${%Tester la connection SSH}" progress="${%Connexion...}"   method="testSSHConnection" with="zapProxyDefaultTimeoutSSHInSec,zapProxyDefaultHost,zapDefaultSSHPort,zapDefaultSSHUser,zapDefaultSSHPassword" />
+		   </f:entry>
+		 	</table>
+		  </f:entry>  
+
+		  
+			</j:if> -->
+			 
+	 
+		
+		
+		
+		
+<!-- 		<f:radioBlock title="${%ZAP : installé sur un serveur DISTANTE}" 	name="startZAPFirst" value="DISTANTE" checked="${descriptor.isZAPInstaltionLocation('DISTANTE')}" inline="true"> 
+        
 	      <f:entry>
 			<table width="100%">
 		
@@ -130,11 +224,11 @@ SOFTWARE.
 		 	</table>
 		  </f:entry>
 
-		  </f:advanced>
+		 
 		
 		</f:radioBlock>
-
-		<f:validateButton   title="${%Tester la connection à ZAP}" progress="${%Connexion...}"   method="testZAPConnection" with="zapDefaultDirectory,zapProxyDefaultTimeoutInSec,defaultProtocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyDefaultHost,zapProxyDefaultPort,zapProxyDefaultApiKey,zapProxyDefaultTimeoutSSHInSec,zapDefaultSSHPort,zapDefaultSSHUser,zapDefaultSSHPassword" />
+		<f:radioBlock title="${%ZAP : installé en LOCALE}" 	name="startZAPFirst" value="LOCALE" checked="${descriptor.isZAPInstaltionLocation('LOCALE')}" inline="true"/>  -->
+		<f:validateButton   title="${%Tester la connection à ZAP}" progress="${%Connexion...}"   method="testZAPConnection" with="zapDefaultDirectory,zapProxyDefaultTimeoutInSec,defaultProtocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyDefaultHost,zapProxyDefaultPort,zapProxyDefaultApiKey,startZAPFirst,zapProxyDefaultTimeoutSSHInSec,zapDefaultSSHPort,zapDefaultSSHUser,zapDefaultSSHPassword" />
 		<!-- ******************************************************************************** -->
 	
 		<!-- </f:optionalBlock> -->	

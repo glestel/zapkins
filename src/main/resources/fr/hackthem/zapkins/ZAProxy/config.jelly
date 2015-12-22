@@ -218,7 +218,7 @@ SOFTWARE.
 							</j:forEach>
 						</select>
 					</f:entry>
-					<f:entry title="${%Nom du rapport d'audit}" field="filenameReports">
+					<f:entry title="${%Nom du rapport d'audit}" field="reportName">
 						<f:textbox clazz="required" />
 					</f:entry>
 				</table>

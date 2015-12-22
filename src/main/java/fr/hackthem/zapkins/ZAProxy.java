@@ -30,10 +30,12 @@ import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
+import hudson.Util;
 import hudson.FilePath.FileCallable;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.BuildListener;
+import hudson.model.Computer;
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
 import hudson.model.Node;
@@ -200,7 +202,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	private final ArrayList<String> chosenScanners;
 
 	/** Filename for ZAProxy reports. It can contain a relative path. */
-	private final String filenameReports;
+	private String reportName;
 
 	/**
 	 * The file policy to use for the scan. It contains only the policy name
@@ -263,7 +265,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 				String scriptLoggedOutIndicator, String postData, String usernameParameter, String passwordParameter,
 				String formUsername, String formPassword, String scriptUsername, String scriptPassword,
 				 boolean scanURLAsUser, boolean saveReports, ArrayList<String> chosenFormats,
-				String filenameReports,    String chosenPolicy,
+				String reportName,    String chosenPolicy,
 				String contextId, String userId, String scanId) {
 			
 			
@@ -300,7 +302,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			this.scriptPassword = scriptPassword;
 			this.saveReports = saveReports;
 			this.chosenFormats = chosenFormats;
-			this.filenameReports = filenameReports;
+			this.reportName = reportName;
 			this.chosenPolicy = chosenPolicy;
 			this.contextId = contextId;
 			this.userId = userId;
@@ -317,7 +319,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		s += "zapProxyPort [" + zapProxyPort + "]\n";
 		s += "saveReports [" + saveReports + "]\n";
 		s += "chosenFormats [" + chosenFormats + "]\n";
-		s += "filenameReports [" + filenameReports + "]\n";
+		s += "reportName [" + reportName + "]\n";
 		s += "--------------------------------------------------";
 		s += "targetURL [" + targetURL + "]\n";
 		s += "chosenPolicy [" + chosenPolicy + "]\n";
@@ -544,8 +546,8 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		return chosenScanners;
 	}
 
-	public String getFilenameReports() {
-		return filenameReports;
+	public String getReportName() {
+		return reportName;
 	}
 
 	public String getChosenPolicy() {
@@ -804,11 +806,12 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 			/*
 			 * ======================================================= | SAVE REPORTS | =======================================================
 			 */
+
 			if (saveReports) {
 				// Generates reports for all formats selected
 				for (String format : chosenFormats) {
 
-					saveReport(ROOT_PATH + getFILE_SEPARATOR() + REPORTS_PATH, filenameReports, format, listener,
+					saveReport(ROOT_PATH + getFILE_SEPARATOR() + REPORTS_PATH, reportName, format, listener,
 							workspace, zapClientAPI);
 				}
 			}
@@ -1031,6 +1034,13 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 	}
 
 	/**
+	 * @param reportName the reportName to set
+	 */
+	public void setReportName(String reportName) {
+		this.reportName = reportName;
+	}
+
+	/**
 	 * Generates security report for one format. Reports are saved into build's
 	 * workspace.
 	 * 
@@ -1046,10 +1056,10 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 	 * @throws ClientApiException
 	 * @throws IOException
 	 */
-	private void saveReport(String pathReports, String filenameReports, String format, BuildListener listener,
+	private void saveReport(String pathReports, String reportName, String format, BuildListener listener,
 			FilePath workspace, CustomZapClientApi clientApi) throws IOException, ClientApiException {
 
-		final String fullFileName = pathReports + getFILE_SEPARATOR() + format + getFILE_SEPARATOR() + filenameReports
+		final String fullFileName = pathReports + getFILE_SEPARATOR() + format + getFILE_SEPARATOR() + reportName
 				+ "." + format;
 		File reportsFile = new File(workspace.getRemote(), fullFileName);
 
@@ -1437,9 +1447,9 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 		}
 
 		/**
-		 * Performs on-the-fly validation of the form field 'filenameReports'.
+		 * Performs on-the-fly validation of the form field 'reportName'.
 		 *
-		 * @param filenameReports
+		 * @param reportName
 		 *            This parameter receives the value that the user has typed.
 		 * @return Indicates the outcome of the validation. This is sent to the
 		 *         browser.
@@ -1448,10 +1458,10 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 		 *         not prevent the form from being saved. It just means that a
 		 *         message will be displayed to the user.
 		 */
-		public FormValidation doCheckFilenameReports(@QueryParameter("filenameReports") final String filenameReports) {
-			if (filenameReports.isEmpty())
+		public FormValidation doCheckReportName(@QueryParameter("reportName") final String reportName) {
+			if (reportName.isEmpty())
 				return FormValidation.error("Ce champ est obligatoire");
-			if (!FilenameUtils.getExtension(filenameReports).isEmpty())
+			if (!FilenameUtils.getExtension(reportName).isEmpty())
 				return FormValidation.warning("L'extension du fichier n'est pas nécessaire !");
 			return FormValidation.ok();
 		}
@@ -1650,7 +1660,7 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 			final String webProxyUser = ZAProxyBuilder.DESCRIPTOR.getWebProxyUser();
 			final String webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
 
-			
+			final String startZAPFirst = ZAProxyBuilder.DESCRIPTOR.getStartZAPFirst();
 
  
 
@@ -1692,10 +1702,10 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 			//final String WindowsCommand = zapDefaultDirectory + "zap.bat -daemon -port "+ zapProxyPort;
 			
 			
-			switch(zapProxyDefaultHost){
+			switch(startZAPFirst){
 			
-			case "localhost":
-			case "127.0.0.1" :				 	
+		 
+			case "LOCALE" :				 	
 				System.out.println("Starting ZAP locally");
 				final int port = zapProxyPort;
 				Thread t1 = new Thread(new Runnable() {
@@ -1719,13 +1729,16 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 				
 				break ;
 				
-			default :
+			case "DISTANTE" :
 				System.out.println("Starting ZAP remotely (SSH)");	
 				SSHConnexion.execCommandSshPasswordAuth(zapProxyDefaultHost, zapDefaultSSHPort, zapDefaultSSHUser, zapDefaultSSHPassword,HttpUtilities.getMilliseconds(zapProxyDefaultTimeoutInSec),sshLinuxCommand);
 				//TODO
 				//SSHConnexion.execCommandSshKeydAuth(...
 				
 				System.out.println("connexion SSH : END");
+				
+			default :
+				break;
 			}					
  
 			/*
