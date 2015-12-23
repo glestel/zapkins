@@ -104,14 +104,14 @@ SOFTWARE.
 		
 		<!-- ******************************************************************************** -->
 			
-<!-- 		<f:optionalBlock title="${%Démarrer ZAP}" field="startZAPFirst" inline="true" >	
-		</f:optionalBlock> -->
+		<f:optionalBlock title="${%Démarrer ZAP}" field="startZAPFirst" inline="true" >	
+		</f:optionalBlock>
 		
 		
-      <f:entry  title="Type d'installation de ZAP" field="startZAPFirst"> 	
-		<select name="startZAPFirst">
+      <f:entry  title="Type d'installation de ZAP" field="zapInstallationType"> 	
+		<select name="zapInstallationType">
 		  <j:choose>
-			<j:when test="${instance.startZAPFirst eq 'LOCALE'}">
+			<j:when test="${instance.zapInstallationType eq 'LOCALE'}">
 			  <option value="LOCALE" selected="selected">LOCALE</option>
 			  <option value="DISTANTE">DISTANTE</option>			  
 			</j:when>
@@ -228,7 +228,7 @@ SOFTWARE.
 		
 		</f:radioBlock>
 		<f:radioBlock title="${%ZAP : installé en LOCALE}" 	name="startZAPFirst" value="LOCALE" checked="${descriptor.isZAPInstaltionLocation('LOCALE')}" inline="true"/>  -->
-		<f:validateButton   title="${%Tester la connection à ZAP}" progress="${%Connexion...}"   method="testZAPConnection" with="zapDefaultDirectory,zapProxyDefaultTimeoutInSec,defaultProtocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyDefaultHost,zapProxyDefaultPort,zapProxyDefaultApiKey,startZAPFirst,zapProxyDefaultTimeoutSSHInSec,zapDefaultSSHPort,zapDefaultSSHUser,zapDefaultSSHPassword" />
+		<f:validateButton   title="${%Tester la connection à ZAP}" progress="${%Connexion...}"   method="testZAPConnection" with="zapDefaultDirectory,zapProxyDefaultTimeoutInSec,defaultProtocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyDefaultHost,zapProxyDefaultPort,zapProxyDefaultApiKey,zapInstallationType,zapProxyDefaultTimeoutSSHInSec,zapDefaultSSHPort,zapDefaultSSHUser,zapDefaultSSHPassword" />
 		<!-- ******************************************************************************** -->
 	
 		<!-- </f:optionalBlock> -->	

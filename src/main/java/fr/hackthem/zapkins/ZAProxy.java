@@ -101,7 +101,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	 * 
 	 */
 	
-	public final static boolean debug = true;
+	private static boolean DEBUG = false;
 	
 	private static final long serialVersionUID = 946509532597271579L;
 	private final String user = "ZAP USER";
@@ -775,7 +775,7 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 			throw new BuildException("L'url ciblée n'est pas autorisée, veuillez vous rapprochez de l'équipe sécurité pour justifier votre choix");
 		}	
 		 
-		CustomZapClientApi zapClientAPI = new CustomZapClientApi(protocol,zapProxyHost, zapProxyPort, zapProxyKey, listener,debug);	 
+		CustomZapClientApi zapClientAPI = new CustomZapClientApi(protocol,zapProxyHost, zapProxyPort, zapProxyKey, listener,DEBUG);	 
 		
 		boolean buildSuccess = true;
 
@@ -851,7 +851,7 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 		
 		
 		
-		CustomZapClientApi zapClientAPI = new CustomZapClientApi( zapProxyHost, zapProxyPort, zapProxyKey, listener, debug);		 
+		CustomZapClientApi zapClientAPI = new CustomZapClientApi( zapProxyHost, zapProxyPort, zapProxyKey, listener, DEBUG);		 
 		
 		listener.getLogger().println("Skip loadSession");
 
@@ -1660,7 +1660,7 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 			final String webProxyUser = ZAProxyBuilder.DESCRIPTOR.getWebProxyUser();
 			final String webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
 
-			final String startZAPFirst = ZAProxyBuilder.DESCRIPTOR.getStartZAPFirst();
+			final String zapInstallationType = ZAProxyBuilder.DESCRIPTOR.getZapInstallationType();
 
  
 
@@ -1694,6 +1694,18 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 			}	
 			
 			
+			
+			
+			/*************** MOD DEBUG ***************************/
+			
+			if(DEBUG){
+			zapProxyPort=8080;			 
+			System.out.println("PORT (DEBUG): "+zapProxyPort);
+			}
+			
+			/*********************************************************************************************/
+			
+			
 			/*
 			 * ======================================================= | start ZAP | =======================================================
 			 */			
@@ -1702,7 +1714,7 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 			//final String WindowsCommand = zapDefaultDirectory + "zap.bat -daemon -port "+ zapProxyPort;
 			
 			
-			switch(startZAPFirst){
+			switch(zapInstallationType){
 			
 		 
 			case "LOCALE" :				 	
@@ -1731,6 +1743,7 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 				
 			case "DISTANTE" :
 				System.out.println("Starting ZAP remotely (SSH)");	
+				//MOD DEBUG (uncomment this line to de-activate the debug mod
 				SSHConnexion.execCommandSshPasswordAuth(zapProxyDefaultHost, zapDefaultSSHPort, zapDefaultSSHUser, zapDefaultSSHPassword,HttpUtilities.getMilliseconds(zapProxyDefaultTimeoutInSec),sshLinuxCommand);
 				//TODO
 				//SSHConnexion.execCommandSshKeydAuth(...
