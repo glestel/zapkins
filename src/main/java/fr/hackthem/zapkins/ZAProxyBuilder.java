@@ -29,22 +29,16 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.FilePath.FileCallable;
 import hudson.Launcher;
-import hudson.Launcher.ProcStarter;
-import hudson.Proc;
 import hudson.Util;
 import hudson.model.BuildListener;
 import hudson.model.Computer;
 import hudson.model.Hudson;
-import hudson.model.Node;
-import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.remoting.VirtualChannel;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
-import hudson.util.ArgumentListBuilder;
 import hudson.util.FormValidation;
-import hudson.util.StreamTaskListener;
 import fr.hackthem.zapkins.api.CustomZapClientApi;
 import fr.hackthem.zapkins.ZAProxy;
 import fr.hackthem.zapkins.utilities.HttpUtilities;
@@ -56,30 +50,17 @@ import org.jenkinsci.remoting.RoleChecker;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
-import org.xml.sax.SAXException;
-import org.zaproxy.clientapi.core.ApiResponseElement;
-import org.zaproxy.clientapi.core.ClientApiException;
 import com.jcraft.jsch.JSchException;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.Authenticator;
-import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
 import java.net.Proxy;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
-
-import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * 
