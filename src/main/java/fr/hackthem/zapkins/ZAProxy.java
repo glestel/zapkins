@@ -101,7 +101,9 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	 * 
 	 */
 	
-	private static boolean DEBUG = false;
+	//private static boolean DEBUG = false;
+	
+	private boolean debugMod;
 	
 	private static final long serialVersionUID = 946509532597271579L;
 	private final String user = "ZAP USER";
@@ -340,6 +342,20 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		s += "--------------------------------------------------";
 
 		return s;
+	}
+
+	/**
+	 * @return the debugMod
+	 */
+	public boolean isDebugMod() {
+		return debugMod;
+	}
+
+	/**
+	 * @param debugMod the debugMod to set
+	 */
+	public void setDebugMod(boolean debugMod) {
+		this.debugMod = debugMod;
 	}
 
 	// Overridden for better type safety.
@@ -765,6 +781,17 @@ public void startZAPLocally(String zapProgram, int zapProxyPort,  AbstractBuild<
 	
 
 public boolean executeZAP(FilePath workspace, BuildListener listener) {
+	
+		//permit to update the values of parameters when the admin makes changes 
+		this.authorizedURL=ZAProxyBuilder.DESCRIPTOR.getAuthorizedURLs();
+		this.protocol=ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
+		this.zapProxyHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();			
+		this.zapProxyKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
+		this.zapProxyDirectory=ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();
+		this.stopZAPAtEnd = ZAProxyBuilder.DESCRIPTOR.isStopZAPAtEnd();		
+		this.spiderURL = ZAProxyBuilder.DESCRIPTOR.isSpiderURL();
+		this.ajaxSpiderURL = ZAProxyBuilder.DESCRIPTOR.isAjaxSpiderURL();
+		this.scanURL = ZAProxyBuilder.DESCRIPTOR.isScanURL();
 		
 		
 		listener.getLogger().println("targetURL : " + targetURL);
@@ -772,10 +799,10 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 		
 		if(!SecurityTools.isUrlAuditable(targetURL, authorizedURL)){
 			
-			throw new BuildException("L'url ciblée n'est pas autorisée, veuillez vous rapprochez de l'équipe sécurité pour justifier votre choix");
+			throw new BuildException("The chosen URL is not allowed, please contact the security team to justify your choice");
 		}	
 		 
-		CustomZapClientApi zapClientAPI = new CustomZapClientApi(protocol,zapProxyHost, zapProxyPort, zapProxyKey, listener,DEBUG);	 
+		CustomZapClientApi zapClientAPI = new CustomZapClientApi(protocol,zapProxyHost, zapProxyPort, zapProxyKey, listener,debugMod);	 
 		
 		boolean buildSuccess = true;
 
@@ -851,7 +878,7 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 		
 		
 		
-		CustomZapClientApi zapClientAPI = new CustomZapClientApi( zapProxyHost, zapProxyPort, zapProxyKey, listener, DEBUG);		 
+		CustomZapClientApi zapClientAPI = new CustomZapClientApi( zapProxyHost, zapProxyPort, zapProxyKey, listener, debugMod);		 
 		
 		listener.getLogger().println("Skip loadSession");
 
@@ -1219,13 +1246,19 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 		listener.getLogger().println("---------------------------------------");
 
 		zapClientAPI.setScriptBasedAuthentication(contextId, scriptName, listener);
-
+		
+		
+		if (!scriptLoggedInIndicator.equals("")) {
 		listener.getLogger().println("---------------------------------------");
 		zapClientAPI.setLoggedInIndicator(contextId, scriptLoggedInIndicator, listener);
-
+		}
+		
+		if (!scriptLoggedOutIndicator.equals("")) {
 		listener.getLogger().println("---------------------------------------");
 		zapClientAPI.setLoggedOutIndicator(contextId, scriptLoggedOutIndicator, listener);
-
+		}
+		
+		
 		listener.getLogger().println("---------------------------------------");
 		zapClientAPI.listUserConfigInformation(contextId, listener);
 
@@ -1256,12 +1289,17 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 		listener.getLogger().println("---------------------------------------");
 		zapClientAPI.setUpFormBasedAuthentication(contextId, loginUrl, postData, usernameParameter, passwordParameter,
 				listener);
-
+		
+		
+		if (!formLoggedInIndicator.equals("")) {
 		listener.getLogger().println("---------------------------------------");
 		zapClientAPI.setLoggedInIndicator(contextId, formLoggedInIndicator, listener);
-
+		}
+		
+		if (!formLoggedOutIndicator.equals("")) {
 		listener.getLogger().println("---------------------------------------");
 		zapClientAPI.setLoggedOutIndicator(contextId, formLoggedOutIndicator, listener);
+		}
 
 		listener.getLogger().println("---------------------------------------");
 		zapClientAPI.listUserConfigInformation(contextId, listener);
@@ -1661,6 +1699,8 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 			final String webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
 
 			final String zapInstallationType = ZAProxyBuilder.DESCRIPTOR.getZapInstallationType();
+			
+			final boolean  debugMod = ZAProxyBuilder.DESCRIPTOR.isDebugMod();
 
  
 
@@ -1698,7 +1738,7 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 			
 			/*************** MOD DEBUG ***************************/
 			
-			if(DEBUG){
+			if(debugMod){
 			zapProxyPort=8080;			 
 			System.out.println("PORT (DEBUG): "+zapProxyPort);
 			}

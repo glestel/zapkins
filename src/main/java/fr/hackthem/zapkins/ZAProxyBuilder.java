@@ -73,7 +73,7 @@ import java.util.Scanner;
  */
 public class ZAProxyBuilder extends Builder {
 	
-	private static  boolean DEBUG = false;
+	//private static  boolean DEBUG = false;
 	
 	private static final String ZAP_PROG_NAME_BAT = "zap.bat";
 	private static final String ZAP_PROG_NAME_SH = "zap.sh";
@@ -155,7 +155,12 @@ public class ZAProxyBuilder extends Builder {
 		String webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
 		String zapDefaultDirectory = ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();		
 		int zapProxyPort = 0;
+		boolean debugMod = ZAProxyBuilder.DESCRIPTOR.isDebugMod();
 		
+		
+		// debug mod (zap proxy port is fixed and more debug informations are shown in the debug console
+		zaproxy.setDebugMod(debugMod);
+		listener.getLogger().println("DebugMod : "+debugMod);
 		
 		/*
 		 * ======================================================= | REPLACE ENVIRONEMENT VARIABLES | =======================================================
@@ -190,7 +195,7 @@ public class ZAProxyBuilder extends Builder {
 		 * ==============================================================================================================
 		 */
 
-		if (startZAPFirst) {
+
 			
 			
 			
@@ -215,7 +220,7 @@ public class ZAProxyBuilder extends Builder {
 			
 			/*************** MOD DEBUG ***************************/
 			
-			if(DEBUG){
+			if(debugMod == true){
 			zapProxyPort=8080;
 			listener.getLogger().println("PORT (DEBUG): "+zapProxyPort);
 			System.out.println("PORT (DEBUG): "+zapProxyPort);
@@ -237,6 +242,8 @@ public class ZAProxyBuilder extends Builder {
 			/*
 			 * ======================================================= | start ZAP | =======================================================
 			 */
+			if (startZAPFirst) {
+				
 			listener.getLogger().println("Starting ZAP");
 			System.out.println("Starting ZAP");
 			switch(zapInstallationType){
@@ -394,8 +401,8 @@ public class ZAProxyBuilder extends Builder {
 		/** Realize a url scan or not by ZAProxy */
 		private  boolean scanURL;
 		
-		
-		
+		/** fix ZAP port number for debugging**/
+		private boolean debugMod;
 
 		/**
 		 * In order to load the persisted global configuration, you have to call
@@ -447,6 +454,7 @@ public class ZAProxyBuilder extends Builder {
 			spiderURL=formData.getBoolean("spiderURL");			
 			ajaxSpiderURL=formData.getBoolean("ajaxSpiderURL");
 			scanURL=formData.getBoolean("scanURL");
+			debugMod=formData.getBoolean("debugMod");
 
 			// ^Can also use req.bindJSON(this, formData);
 			// (easier when there are many fields; need set* methods for this,
@@ -593,6 +601,13 @@ public class ZAProxyBuilder extends Builder {
 			return scanURL;
 		}
 
+		/**
+		 * 
+		 * @return the debugMod
+		 */
+		public boolean isDebugMod(){
+			return debugMod;
+		}
 //		
 //		public String isZAPInstaltionLocation(String testTypeName){
 //			System.out.println("zapLocation : "+zapLocation);
@@ -626,7 +641,9 @@ public class ZAProxyBuilder extends Builder {
 				@QueryParameter("zapDefaultSSHPort") final int zapSSHPort,
 				@QueryParameter("zapDefaultSSHUser") final String zapSSHUser,
 				@QueryParameter("zapDefaultSSHPassword") final String zapSSHPassword,
-				@QueryParameter("zapProxyDefaultTimeoutSSHInSec") final int timeoutSSHInSec
+				@QueryParameter("zapProxyDefaultTimeoutSSHInSec") final int timeoutSSHInSec,
+				
+				@QueryParameter("debugMod") final boolean debugMod
 
 
 		) {
@@ -653,6 +670,9 @@ public class ZAProxyBuilder extends Builder {
 				
 				int zapProxyPort = HttpUtilities.getPortNumber();
 				
+				
+				
+				
 				while(HttpUtilities.portIsToken(proxy, protocol, zapProxyHost, zapProxyPort, timeoutInSec)){
 					
 					zapProxyPort = HttpUtilities.getPortNumber();
@@ -662,7 +682,7 @@ public class ZAProxyBuilder extends Builder {
 				
 				/*************** MOD DEBUG ***************************/
 				
-				if(DEBUG){
+				if(debugMod){
 				zapProxyPort=8080;				 
 				System.out.println("PORT (DEBUG): "+zapProxyPort);
 				}				
