@@ -104,6 +104,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	//private static boolean DEBUG = false;
 	
 	private boolean debugMod;
+	private int debugPort;
 	
 	private static final long serialVersionUID = 946509532597271579L;
 	private final String user = "ZAP USER";
@@ -205,6 +206,10 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 
 	/** Filename for ZAProxy reports. It can contain a relative path. */
 	private String reportName;
+	
+	/** Filename for ZAProxy reports. It can contain a relative path (it's derived from the one above) */
+	private  String evaluatedFilenameReports;
+	
 
 	/**
 	 * The file policy to use for the scan. It contains only the policy name
@@ -317,11 +322,13 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		String s = "";
 
 		s += "--------------------------------------------------";
+		s += "debugMod [" + debugMod + "]\n";
+		s += "debuPort [" + debugPort + "]\n";
 		s += "zapProxyHost [" + zapProxyHost + "]\n";
 		s += "zapProxyPort [" + zapProxyPort + "]\n";
 		s += "saveReports [" + saveReports + "]\n";
 		s += "chosenFormats [" + chosenFormats + "]\n";
-		s += "reportName [" + reportName + "]\n";
+		s += "reportName [" + evaluatedFilenameReports + "]\n";
 		s += "--------------------------------------------------";
 		s += "targetURL [" + targetURL + "]\n";
 		s += "chosenPolicy [" + chosenPolicy + "]\n";
@@ -350,6 +357,10 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	public boolean isDebugMod() {
 		return debugMod;
 	}
+	
+	public int getDebugPort(){
+		return debugPort;
+	}
 
 	/**
 	 * @param debugMod the debugMod to set
@@ -358,6 +369,10 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		this.debugMod = debugMod;
 	}
 
+	
+	public void setDebugPort(int debugPort){
+		this.debugPort=debugPort;
+	}
 	// Overridden for better type safety.
 	// If your plugin doesn't really define any property on Descriptor,
 	// you don't have to do this.
@@ -661,7 +676,16 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		this.userId = userId;
 	}
 	
-	
+	//get and set of the new field which will contain the evaluated value of the report file name. So the environment variable will persist after each build
+
+	   public String getEvaluatedFilenameReports() {
+				return evaluatedFilenameReports;
+			}
+		
+		public void setEvaluatedFilenameReports(String evaluatedFilenameReports) {
+				this.evaluatedFilenameReports = evaluatedFilenameReports;
+			}
+			
 	/**
 	 * Return the ZAProxy program name (zap.bat or zap.sh) depending of the build node and the OS.
 	 * 
@@ -838,7 +862,7 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 				// Generates reports for all formats selected
 				for (String format : chosenFormats) {
 
-					saveReport(ROOT_PATH + getFILE_SEPARATOR() + REPORTS_PATH, reportName, format, listener,
+					saveReport(ROOT_PATH + getFILE_SEPARATOR() + REPORTS_PATH, evaluatedFilenameReports, format, listener,
 							workspace, zapClientAPI);
 				}
 			}
@@ -1700,8 +1724,9 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 
 			final String zapInstallationType = ZAProxyBuilder.DESCRIPTOR.getZapInstallationType();
 			
-			final boolean  debugMod = ZAProxyBuilder.DESCRIPTOR.isDebugMod();
-
+			final boolean  debugMod = ZAProxyBuilder.DESCRIPTOR.isDebugMod();			
+			final int debugPort = ZAProxyBuilder.DESCRIPTOR.getDebugPort();
+            
  
 
 			/*
@@ -1739,7 +1764,7 @@ public boolean executeZAP(FilePath workspace, BuildListener listener) {
 			/*************** MOD DEBUG ***************************/
 			
 			if(debugMod){
-			zapProxyPort=8080;			 
+			zapProxyPort=debugPort;			 
 			System.out.println("PORT (DEBUG): "+zapProxyPort);
 			}
 			

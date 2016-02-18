@@ -156,20 +156,31 @@ public class ZAProxyBuilder extends Builder {
 		String zapDefaultDirectory = ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();		
 		int zapProxyPort = 0;
 		boolean debugMod = ZAProxyBuilder.DESCRIPTOR.isDebugMod();
+		int debugPort=ZAProxyBuilder.DESCRIPTOR.getDebugPort();
 		
 		
 		// debug mod (zap proxy port is fixed and more debug informations are shown in the debug console
 		zaproxy.setDebugMod(debugMod);
+		zaproxy.setDebugPort(debugPort);
 		listener.getLogger().println("DebugMod : "+debugMod);
 		
 		/*
 		 * ======================================================= | REPLACE ENVIRONEMENT VARIABLES | =======================================================
 		 */
+		listener.getLogger().println("------- START Replace environment variables -------");
+		
 		String reportName=zaproxy.getReportName();
 		reportName=applyMacro( build,  listener,  reportName);
-		zaproxy.setReportName(reportName);
+		//zaproxy.setReportName(reportName);
+ 
+		//we don't overwrite the file name containing the environment variables
+		//the evaluated value is saved in an other file name 
+		zaproxy.setEvaluatedFilenameReports(reportName);
+		
 		
 		listener.getLogger().println("ReportName : "+reportName);
+		
+		listener.getLogger().println("------- END Replace environment variables -------");
 				
 		/*
 		 * ===================================================================================================================================================
@@ -221,7 +232,7 @@ public class ZAProxyBuilder extends Builder {
 			/*************** MOD DEBUG ***************************/
 			
 			if(debugMod == true){
-			zapProxyPort=8080;
+			zapProxyPort=debugPort;
 			listener.getLogger().println("PORT (DEBUG): "+zapProxyPort);
 			System.out.println("PORT (DEBUG): "+zapProxyPort);
 			}
@@ -403,6 +414,8 @@ public class ZAProxyBuilder extends Builder {
 		
 		/** fix ZAP port number for debugging**/
 		private boolean debugMod;
+		/** fix the value of ZAP port number for debugging **/
+		private int debugPort;
 
 		/**
 		 * In order to load the persisted global configuration, you have to call
@@ -455,6 +468,7 @@ public class ZAProxyBuilder extends Builder {
 			ajaxSpiderURL=formData.getBoolean("ajaxSpiderURL");
 			scanURL=formData.getBoolean("scanURL");
 			debugMod=formData.getBoolean("debugMod");
+			debugPort=formData.getInt("debugPort");
 
 			// ^Can also use req.bindJSON(this, formData);
 			// (easier when there are many fields; need set* methods for this,
@@ -608,6 +622,13 @@ public class ZAProxyBuilder extends Builder {
 		public boolean isDebugMod(){
 			return debugMod;
 		}
+		/**
+		 * 
+		 * @return the fixed value of port number
+		 */
+		public int getDebugPort(){
+			return debugPort;
+		}
 //		
 //		public String isZAPInstaltionLocation(String testTypeName){
 //			System.out.println("zapLocation : "+zapLocation);
@@ -643,7 +664,8 @@ public class ZAProxyBuilder extends Builder {
 				@QueryParameter("zapDefaultSSHPassword") final String zapSSHPassword,
 				@QueryParameter("zapProxyDefaultTimeoutSSHInSec") final int timeoutSSHInSec,
 				
-				@QueryParameter("debugMod") final boolean debugMod
+				@QueryParameter("debugMod") final boolean debugMod,
+				@QueryParameter("debugPort") final int debugPort
 
 
 		) {
@@ -683,7 +705,7 @@ public class ZAProxyBuilder extends Builder {
 				/*************** MOD DEBUG ***************************/
 				
 				if(debugMod){
-				zapProxyPort=8080;				 
+				zapProxyPort=debugPort;				 
 				System.out.println("PORT (DEBUG): "+zapProxyPort);
 				}				
 				/*********************************************************************************************/

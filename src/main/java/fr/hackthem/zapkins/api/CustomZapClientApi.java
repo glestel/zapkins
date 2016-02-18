@@ -306,12 +306,12 @@ public class CustomZapClientApi implements Serializable {
 				FileUtils.writeByteArrayToFile(scriptsListFile, scripstList.getBytes());
 			} else {
 				// remplir la liste des scripts
-				return FormValidation.okWithMarkup("<br><b><FONT COLOR=\"green\">Success : La liste des scripts est chargée."
+				return FormValidation.okWithMarkup("<br><b><FONT COLOR=\"green\">Success : The scripts list is loaded."
 								+ "<br>Scripts :<br>" + scripstList + "</FONT></b></br>");
 			}
 
-				return FormValidation.okWithMarkup("<br><b><FONT COLOR=\"green\">Success : La liste des scripts est chargée."
-							+ "<br>Veuillez recharger la page afin d'accéder à cette liste</FONT></b></br>");
+				return FormValidation.okWithMarkup("<br><b><FONT COLOR=\"green\">Success : The scripts list is loaded."
+							+ "<br>Please reload the page in order to access to the scripts list</FONT></b></br>");
 
 		} catch (MalformedURLException e1) {
 
