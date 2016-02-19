@@ -1465,18 +1465,15 @@ public class CustomZapClientApi implements Serializable {
 
 	/**
 	 * Shuts down ZAP
+	 * @throws ClientApiException 
 	 */
-	public void stopZap(String apikey, BuildListener listener) {
+	public void stopZap(String apikey, BuildListener listener) throws ClientApiException {
 
-		try {
+	
 			ApiResponse status = api.shutdown(zapProxyKey);
 			listener.getLogger().println(((ApiResponseElement) status).getValue());
 
-		} catch (ClientApiException e) {
-			
-			e.printStackTrace();
-			listener.error(ExceptionUtils.getStackTrace(e));
-		}
+		
 
 	}
 

@@ -50,6 +50,8 @@ import org.jenkinsci.remoting.RoleChecker;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+import org.zaproxy.clientapi.core.ClientApiException;
+
 import com.jcraft.jsch.JSchException;
 
 import java.io.File;
@@ -94,16 +96,9 @@ public class ZAProxyBuilder extends Builder {
 	public ZAProxyBuilder(ZAProxy zaproxy   ) {
 
 		super();
-		this.zaproxy = zaproxy;
-		 
-		 
+		this.zaproxy = zaproxy;		 
 
 	}
-	
-	
- 
- 
-
 
 	public ZAProxy getZaproxy() {
 		return zaproxy;
@@ -125,184 +120,178 @@ public class ZAProxyBuilder extends Builder {
 
 	// Method called before launching the build
 	public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {
-				
-		listener.getLogger().println("------- START Prebuild -------");
-		System.out.println("------- START Prebuild -------");
-		
-		listener.getLogger().println("------- END Prebuild -------");
-		System.out.println("------- END Prebuild -------");
 
 		return true;
 	}
 
 	// Methode appelée pendant le build, c'est ici que zap est lancé
 	@Override
-	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
+	public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
 
-		int zapProxyDefaultTimeoutSSHInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutSSHInSec();
-		int zapProxyDefaultTimeoutInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
-		String defaultProtocol = ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
-		String zapProxyDefaultHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();
-		int zapDefaultSSHPort = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPort();
-		String zapDefaultSSHUser = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHUser();
-		String zapDefaultSSHPassword = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPassword();
-		boolean useWebProxy = ZAProxyBuilder.DESCRIPTOR.isUseWebProxy();
-		boolean startZAPFirst = ZAProxyBuilder.DESCRIPTOR.isStartZAPFirst();
-		String zapInstallationType = ZAProxyBuilder.DESCRIPTOR.getZapInstallationType();
-		String webProxyHost = ZAProxyBuilder.DESCRIPTOR.getWebProxyHost();
-		int webProxyPort = ZAProxyBuilder.DESCRIPTOR.getWebProxyPort();
-		String webProxyUser = ZAProxyBuilder.DESCRIPTOR.getWebProxyUser();
-		String webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
-		String zapDefaultDirectory = ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();		
-		int zapProxyPort = 0;
-		boolean debugMod = ZAProxyBuilder.DESCRIPTOR.isDebugMod();
-		int debugPort=ZAProxyBuilder.DESCRIPTOR.getDebugPort();
-		
-		
-		// debug mod (zap proxy port is fixed and more debug informations are shown in the debug console
-		zaproxy.setDebugMod(debugMod);
-		zaproxy.setDebugPort(debugPort);
-		listener.getLogger().println("DebugMod : "+debugMod);
-		
-		/*
-		 * ======================================================= | REPLACE ENVIRONEMENT VARIABLES | =======================================================
-		 */
-		listener.getLogger().println("------- START Replace environment variables -------");
-		
-		String reportName=zaproxy.getReportName();
-		reportName=applyMacro( build,  listener,  reportName);
-		//zaproxy.setReportName(reportName);
- 
-		//we don't overwrite the file name containing the environment variables
-		//the evaluated value is saved in an other file name 
-		zaproxy.setEvaluatedFilenameReports(reportName);
-		
-		
-		listener.getLogger().println("ReportName : "+reportName);
-		
-		listener.getLogger().println("------- END Replace environment variables -------");
-				
-		/*
-		 * ===================================================================================================================================================
-		 */		
-			
-		
-
-		/*
-		 * ======================================================= | USE WEB PROXY | =======================================================
-		 */
-		if (useWebProxy) {
-			// Ici on généralise l'utilisation du proxy web à tous les appels
-			// passés via la JVM
-			listener.getLogger().println("Using web proxy");
-			System.out.println("Using web proxy");
-			CustomZapClientApi.setWebProxyDetails(webProxyHost, webProxyPort, webProxyUser, webProxyPassword);
-		} else {
-			listener.getLogger().println("Skip using web proxy");
-			System.out.println("Skip using web proxy");
-		}	
-		
-		/*
-		 * ==============================================================================================================
-		 */
-
-
-			
-			
-			
-			
-			/*
-			 * ======================================================= | CHOOSE A FREE PORT  | =======================================================
-			 */
-			
-			listener.getLogger().println("------- PORT NUMBER CHOOSER -------");
-			System.out.println("------- PORT NUMBER CHOOSER -------");
-			zapProxyPort = HttpUtilities.getPortNumber();
-			
-			while(HttpUtilities.portIsToken(null, defaultProtocol, zapProxyDefaultHost, zapProxyPort, zapProxyDefaultTimeoutInSec, listener)){
-				
-				zapProxyPort = HttpUtilities.getPortNumber();
-				
-			}
-			
-			listener.getLogger().println("PORT : "+zapProxyPort);
-			System.out.println("PORT : "+zapProxyPort);
-			
-			
-			/*************** MOD DEBUG ***************************/
-			
-			if(debugMod == true){
-			zapProxyPort=debugPort;
-			listener.getLogger().println("PORT (DEBUG): "+zapProxyPort);
-			System.out.println("PORT (DEBUG): "+zapProxyPort);
-			}
-			
-			/*********************************************************************************************/
-			
-			zaproxy.setZapProxyPort(zapProxyPort);
-
-
-			listener.getLogger().println("Perform ZAProxy");
-			System.out.println("Perform ZAProxy");
-			
-			final String sshLinuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapDefaultDirectory+ "zap.sh -daemon -port " + zapProxyPort;
-			//final String windowsCommand = zapDefaultDirectory+"zapDefaultDirectoryzap.bat -daemon -port " + zapProxyPort;
-
-			
-			
-			/*
-			 * ======================================================= | start ZAP | =======================================================
-			 */
-			if (startZAPFirst) {
-				
-			listener.getLogger().println("Starting ZAP");
-			System.out.println("Starting ZAP");
-			switch(zapInstallationType){
-			
-				case "LOCALE":
-					listener.getLogger().println("Starting ZAP locally");	
-					System.out.println("Starting ZAP locally");
-					zaproxy.startZAPLocally(zapDefaultDirectory, zapProxyPort, build, listener, launcher);
-					break;
-					
-					
-				case "DISTANTE" :
-					listener.getLogger().println("Starting ZAP remotely (SSH)");	
-					System.out.println("Starting ZAP remotely (SSH)");
-					//MOD DEBUG (uncomment this line to de-activate the debug mod
-					SSHConnexion.execCommand(zapProxyDefaultHost, zapDefaultSSHPort, zapDefaultSSHUser, zapDefaultSSHPassword,HttpUtilities.getMilliseconds(zapProxyDefaultTimeoutSSHInSec ),sshLinuxCommand, listener);
-		 
-					break ;
-					
-				default :
-					System.out.println("Unsupported installation location");
-					break ;
-					
-				
-			}
-  
-  
-  
-
-			
-		}
-
-		else {
-			listener.getLogger().println("Skip starting ZAP");
-			listener.getLogger().println("startZAPFirst : " + startZAPFirst);
-		}
-		
-		/*
-		 * ======================================================= |WAIT FOR SUCCESSFUL CONNEXIONd| =======================================================
-		 */
-		
-		//ici le proxy est égal à null car on applique une configuration générale où tout appel réseau provennat de la VM passe par le proxy 
-		HttpUtilities.waitForSuccessfulConnectionToZap(null,defaultProtocol, zapProxyDefaultHost, zapProxyPort,zapProxyDefaultTimeoutInSec, listener);
- 
+//		int zapProxyDefaultTimeoutSSHInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutSSHInSec();
+//		int zapProxyDefaultTimeoutInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
+//		String defaultProtocol = ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
+//		String zapProxyDefaultHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();
+//		int zapDefaultSSHPort = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPort();
+//		String zapDefaultSSHUser = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHUser();
+//		String zapDefaultSSHPassword = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPassword();
+//		boolean useWebProxy = ZAProxyBuilder.DESCRIPTOR.isUseWebProxy();
+//		boolean startZAPFirst = ZAProxyBuilder.DESCRIPTOR.isStartZAPFirst();
+//		String zapInstallationType = ZAProxyBuilder.DESCRIPTOR.getZapInstallationType();
+//		String webProxyHost = ZAProxyBuilder.DESCRIPTOR.getWebProxyHost();
+//		int webProxyPort = ZAProxyBuilder.DESCRIPTOR.getWebProxyPort();
+//		String webProxyUser = ZAProxyBuilder.DESCRIPTOR.getWebProxyUser();
+//		String webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
+//		String zapDefaultDirectory = ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();		
+//		int zapProxyPort = 0;
+//		boolean debugMod = ZAProxyBuilder.DESCRIPTOR.isDebugMod();
+//		int debugPort=ZAProxyBuilder.DESCRIPTOR.getDebugPort();
+//		
+//		
+//		// debug mod (zap proxy port is fixed and more debug informations are shown in the debug console
+//		zaproxy.setDebugMod(debugMod);
+//		zaproxy.setDebugPort(debugPort);
+//		listener.getLogger().println("DebugMod : "+debugMod);
+//		
+//		/*
+//		 * ======================================================= | REPLACE ENVIRONEMENT VARIABLES | =======================================================
+//		 */
+//		listener.getLogger().println("------- START Replace environment variables -------");
+//		
+//		String reportName=zaproxy.getReportName();
+//		reportName=applyMacro( build,  listener,  reportName);
+//		//zaproxy.setReportName(reportName);
+// 
+//		//we don't overwrite the file name containing the environment variables
+//		//the evaluated value is saved in an other file name 
+//		zaproxy.setEvaluatedFilenameReports(reportName);
+//		
+//		
+//		listener.getLogger().println("ReportName : "+reportName);
+//		
+//		listener.getLogger().println("------- END Replace environment variables -------");
+//				
+//		/*
+//		 * ===================================================================================================================================================
+//		 */		
+//			
+//		
+//
+//		/*
+//		 * ======================================================= | USE WEB PROXY | =======================================================
+//		 */
+//		if (useWebProxy) {
+//			// Ici on généralise l'utilisation du proxy web à tous les appels
+//			// passés via la JVM
+//			listener.getLogger().println("Using web proxy");
+//			System.out.println("Using web proxy");
+//			CustomZapClientApi.setWebProxyDetails(webProxyHost, webProxyPort, webProxyUser, webProxyPassword);
+//		} else {
+//			listener.getLogger().println("Skip using web proxy");
+//			System.out.println("Skip using web proxy");
+//		}	
+//		
+//		/*
+//		 * ==============================================================================================================
+//		 */
+//
+//
+//			
+//			
+//			
+//			
+//			/*
+//			 * ======================================================= | CHOOSE A FREE PORT  | =======================================================
+//			 */
+//			
+//			listener.getLogger().println("------- PORT NUMBER CHOOSER -------");
+//			System.out.println("------- PORT NUMBER CHOOSER -------");
+//			zapProxyPort = HttpUtilities.getPortNumber();
+//			
+//			while(HttpUtilities.portIsToken(null, defaultProtocol, zapProxyDefaultHost, zapProxyPort, zapProxyDefaultTimeoutInSec, listener)){
+//				
+//				zapProxyPort = HttpUtilities.getPortNumber();
+//				
+//			}
+//			
+//			listener.getLogger().println("PORT : "+zapProxyPort);
+//			System.out.println("PORT : "+zapProxyPort);
+//			
+//			
+//			/*************** MOD DEBUG ***************************/
+//			
+//			if(debugMod == true){
+//			zapProxyPort=debugPort;
+//			listener.getLogger().println("PORT (DEBUG): "+zapProxyPort);
+//			System.out.println("PORT (DEBUG): "+zapProxyPort);
+//			}
+//			
+//			/*********************************************************************************************/
+//			
+//			zaproxy.setZapProxyPort(zapProxyPort);
+//
+//
+//			listener.getLogger().println("Perform ZAProxy");
+//			System.out.println("Perform ZAProxy");
+//			
+//			final String sshLinuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapDefaultDirectory+ "zap.sh -daemon -port " + zapProxyPort;
+//			//final String windowsCommand = zapDefaultDirectory+"zapDefaultDirectoryzap.bat -daemon -port " + zapProxyPort;
+//
+//			
+//			
+//			/*
+//			 * ======================================================= | start ZAP | =======================================================
+//			 */
+//			if (startZAPFirst) {
+//				
+//			listener.getLogger().println("Starting ZAP");
+//			System.out.println("Starting ZAP");
+//			switch(zapInstallationType){
+//			
+//				case "LOCALE":
+//					listener.getLogger().println("Starting ZAP locally");	
+//					System.out.println("Starting ZAP locally");
+//					zaproxy.startZAPLocally(zapDefaultDirectory, zapProxyPort, build, listener, launcher);
+//					break;
+//					
+//					
+//				case "DISTANTE" :
+//					listener.getLogger().println("Starting ZAP remotely (SSH)");	
+//					System.out.println("Starting ZAP remotely (SSH)");
+//					//MOD DEBUG (uncomment this line to de-activate the debug mod
+//					SSHConnexion.execCommand(zapProxyDefaultHost, zapDefaultSSHPort, zapDefaultSSHUser, zapDefaultSSHPassword,HttpUtilities.getMilliseconds(zapProxyDefaultTimeoutSSHInSec ),sshLinuxCommand, listener);
+//		 
+//					break ;
+//					
+//				default :
+//					System.out.println("Unsupported installation location");
+//					break ;
+//					
+//				
+//			}
+//  
+//  
+//  
+//
+//			
+//		}
+//
+//		else {
+//			listener.getLogger().println("Skip starting ZAP");
+//			listener.getLogger().println("startZAPFirst : " + startZAPFirst);
+//		}
+//		
+//		/*
+//		 * ======================================================= |WAIT FOR SUCCESSFUL CONNEXIONd| =======================================================
+//		 */
+//		
+//		//ici le proxy est égal à null car on applique une configuration générale où tout appel réseau provennat de la VM passe par le proxy 
+//		HttpUtilities.waitForSuccessfulConnectionToZap(null,defaultProtocol, zapProxyDefaultHost, zapProxyPort,zapProxyDefaultTimeoutInSec, listener);
+// 
 
 		boolean res;
 		try {
-			res = build.getWorkspace().act(new ZAProxyCallable(zaproxy, listener));
+			res = build.getWorkspace().act(new ZAProxyCallable(zaproxy, build,launcher,listener));
 		} catch (Exception e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
@@ -311,29 +300,29 @@ public class ZAProxyBuilder extends Builder {
 		return res;
 
 	}
-	/**
-	 * Replace macro with environment variable if it exists
-	 * @param build
-	 * @param listener
-	 * @param macro
-	 * @return
-	 * @throws InterruptedException
-	 */
-	private  String applyMacro(AbstractBuild build, BuildListener listener, String macro)
-	        throws InterruptedException{
-	    try {
-	        EnvVars envVars = new EnvVars(Computer.currentComputer().getEnvironment());
-	        envVars.putAll(build.getEnvironment(listener));
-	        envVars.putAll(build.getBuildVariables());
-	        return Util.replaceMacro(macro, envVars);
-	    } catch (IOException e) {
-	        //LOGGER.log(Level.SEVERE, "Failed to apply macro " + macro, e);
-	        listener.getLogger().println("Failed to apply macro " + macro);
-	        listener.error(ExceptionUtils.getStackTrace(e));
-	        
-	    }
-	    return macro;
-	}
+//	/**
+//	 * Replace macro with environment variable if it exists
+//	 * @param build
+//	 * @param listener
+//	 * @param macro
+//	 * @return
+//	 * @throws InterruptedException
+//	 */
+//	private  String applyMacro(AbstractBuild build, BuildListener listener, String macro)
+//	        throws InterruptedException{
+//	    try {
+//	        EnvVars envVars = new EnvVars(Computer.currentComputer().getEnvironment());
+//	        envVars.putAll(build.getEnvironment(listener));
+//	        envVars.putAll(build.getBuildVariables());
+//	        return Util.replaceMacro(macro, envVars);
+//	    } catch (IOException e) {
+//	        //LOGGER.log(Level.SEVERE, "Failed to apply macro " + macro, e);
+//	        listener.getLogger().println("Failed to apply macro " + macro);
+//	        listener.error(ExceptionUtils.getStackTrace(e));
+//	        
+//	    }
+//	    return macro;
+//	}
 
 	/**
 	 * Descriptor for {@link ZAProxyBuilder}. Used as a singleton. The class is
@@ -705,8 +694,10 @@ public class ZAProxyBuilder extends Builder {
 				/*************** MOD DEBUG ***************************/
 				
 				if(debugMod){
-				zapProxyPort=debugPort;				 
-				System.out.println("PORT (DEBUG): "+zapProxyPort);
+				System.out.println("PORT[debugPort]: "+debugPort);
+				System.out.println("PORT[zapProxyPort]: "+zapProxyPort);
+				zapProxyPort=debugPort;	
+				
 				}				
 				/*********************************************************************************************/
 				
@@ -880,17 +871,22 @@ public class ZAProxyBuilder extends Builder {
 		 * 
 		 */
 		private static final long serialVersionUID = -650973012616753534L;
-		private ZAProxy zaproxy;
+		private ZAProxy zaproxy;		
+		private AbstractBuild build;
+		private Launcher launcher;
 		private BuildListener listener;
 
-		public ZAProxyCallable(ZAProxy zaproxy, BuildListener listener) {
+		public ZAProxyCallable(ZAProxy zaproxy, AbstractBuild build,Launcher launcher,BuildListener listener) {
 			this.zaproxy = zaproxy;
+			this.build=build;
+			this.launcher=launcher;
 			this.listener = listener;
 		}
 
 		@Override
 		public Boolean invoke(File f, VirtualChannel channel) {
-			return zaproxy.executeZAP(new FilePath(f), listener);
+			return zaproxy.executeZAPBuildStep( build,  launcher,  listener) ;
+			 
 		}
 
 		@Override

@@ -235,7 +235,7 @@ SOFTWARE.
 		
 		</f:radioBlock>
 		<f:radioBlock title="${%ZAP : installé en LOCALE}" 	name="startZAPFirst" value="LOCALE" checked="${descriptor.isZAPInstaltionLocation('LOCALE')}" inline="true"/>  -->
-		<f:validateButton   title="${%Tester la connection à ZAP}" progress="${%Connexion...}"   method="testZAPConnection" with="debugMod,zapDefaultDirectory,zapProxyDefaultTimeoutInSec,defaultProtocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyDefaultHost,zapProxyDefaultPort,zapProxyDefaultApiKey,zapInstallationType,zapProxyDefaultTimeoutSSHInSec,zapDefaultSSHPort,zapDefaultSSHUser,zapDefaultSSHPassword" />
+		<f:validateButton   title="${%Tester la connection à ZAP}" progress="${%Connexion...}"   method="testZAPConnection" with="debugMod,debugPort,zapDefaultDirectory,zapProxyDefaultTimeoutInSec,defaultProtocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyDefaultHost,zapProxyDefaultPort,zapProxyDefaultApiKey,zapInstallationType,zapProxyDefaultTimeoutSSHInSec,zapDefaultSSHPort,zapDefaultSSHUser,zapDefaultSSHPassword" />
 		<!-- ******************************************************************************** -->
 	
 		<!-- </f:optionalBlock> -->	
