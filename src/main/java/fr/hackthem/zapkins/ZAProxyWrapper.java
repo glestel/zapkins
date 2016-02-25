@@ -6,27 +6,21 @@ import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
 import hudson.model.Hudson;
-import hudson.model.Descriptor.FormException;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
 import hudson.util.FormValidation;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.export.ExportedBean;
 import org.zaproxy.clientapi.core.ClientApiException;
-
-import com.jcraft.jsch.JSchException;
-
-import fr.hackthem.zapkins.ZAProxyBuilder.ZAProxyBuilderDescriptorImpl;
+import com.jcraft.jsch.JSchException; 
 import fr.hackthem.zapkins.api.CustomZapClientApi;
 import fr.hackthem.zapkins.utilities.HttpUtilities;
 import fr.hackthem.zapkins.utilities.ProxyAuthenticator;
 import fr.hackthem.zapkins.utilities.SSHConnexion;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -39,12 +33,8 @@ import java.util.Map;
 import java.util.Scanner;
 
 @ExportedBean
-public class ZAProxyWrapper extends BuildWrapper implements Serializable {
-	
+public class ZAProxyWrapper extends BuildWrapper implements Serializable {	
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -5641693402522157794L;
 	
 	private static final String ZAP_PROG_NAME_BAT = "zap.bat";
@@ -52,66 +42,22 @@ public class ZAProxyWrapper extends BuildWrapper implements Serializable {
 	public static final String CMD_LINE_PORT = "-port";
 	public static final String CMD_LINE_DAEMON = "-daemon";
 	private final ZAProxy zaproxy;
-	
-	
-//    private String zapProxyHost;
-//   // private  int zapProxyPort=8080;
-//    private String protocol;
-//    private  String zapProxyKey; 
-//    private  boolean debugMod;
 
     @DataBoundConstructor
     public ZAProxyWrapper(  ZAProxy zaproxy) {
     	
-    	this.zaproxy=zaproxy;
-    	
-    
-//    	this.protocol=ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
-//    	this.zapProxyHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();	    		 
-//    	this.zapProxyKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
-//        this.debugMod=ZAProxyBuilder.DESCRIPTOR.isDebugMod(); 
-//        
-//       
-//        this.zaproxy.setProtocol(protocol);
-//        this.zaproxy.setZapProxyHost(zapProxyHost);
-//       // this.zaproxy.setZapProxyPort(zapProxyPort);
-//        this.zaproxy.setZapProxyKey(zapProxyKey);
-//        this.zaproxy.setDebugMod(debugMod);
-       
+    	this.zaproxy=zaproxy;       
     }
+    
     
     public ZAProxy getZaproxy() {
         return zaproxy;
     }
  
-//
-//    public String getProtocol() {
-//  		return protocol;
-//  	}
-//
-//    public String getZapProxyHost() {
-//        return zapProxyHost;
-//    }
-//
-//    public int getZapProxyPort() {
-//        return zapProxyPort;
-//    }
-//    
-//    public String getZapProxyKey(){
-//    	return zapProxyKey;
-//    }  
-//
-//	public boolean isDebugMod() {
-//		return debugMod;
-//	}
-
-
-	
 
     @Override
     public Environment setUp(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
-        //final ClientApi zapClient = 
-    	//final CustomZapClientApi zapClientAPI = new CustomZapClientApi(protocol,zapProxyHost, zapProxyPort, zapProxyKey, listener,debugMod);	 
+	 
     	final CustomZapClientApi zapClientAPI=zaproxy.executeZAP( build, launcher,listener)  ;
         
         	 
@@ -142,8 +88,9 @@ public class ZAProxyWrapper extends BuildWrapper implements Serializable {
 	public static final ZAProxyWrapperDescriptorImpl DESCRIPTOR = new ZAProxyWrapperDescriptorImpl();
     
     public static final class ZAProxyWrapperDescriptorImpl extends BuildWrapperDescriptor implements Serializable {
-
-    	private static final long serialVersionUID = 1491350395205371438L;
+ 
+		private static final long serialVersionUID = 4714962003295700499L;
+	 
 		/**
 		 * To persist global configuration information, simply store it in a
 		 * field and call save().
@@ -458,24 +405,17 @@ public class ZAProxyWrapper extends BuildWrapper implements Serializable {
 				proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(webProxyHost, webProxyPort));
 			}
 			else {
-				System.out.println("Skip Using Web Proxy");
-			}
+				System.out.println("Skip Using Web Proxy");			}
 			
 			/*
-			 * ======================================================= | CHOOSE A FREE PORT  | =======================================================
-			 */		
+			 * ======================================================= | CHOOSE A FREE PORT  | =======================================================			 */		
 				
 				
-				int zapProxyPort = HttpUtilities.getPortNumber();
-				
-				
-				
+				int zapProxyPort = HttpUtilities.getPortNumber();				
 				
 				while(HttpUtilities.portIsToken(proxy, protocol, zapProxyHost, zapProxyPort, timeoutInSec)){
 					
-					zapProxyPort = HttpUtilities.getPortNumber();
-					
-				}
+					zapProxyPort = HttpUtilities.getPortNumber();		}
 				
 				
 				/*************** MOD DEBUG ***************************/
@@ -486,22 +426,15 @@ public class ZAProxyWrapper extends BuildWrapper implements Serializable {
 				zapProxyPort=debugPort;	
 				
 				}				
-				/*********************************************************************************************/
-				
-				
-				
-				
-				
+				/*********************************************************************************************/				
 				
 				/*
 				 * ======================================================= | start ZAP | =======================================================
 				 * 
 				 */
-				final String sshLinuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapProxyDirectory+ "zap.sh -daemon -port " + zapProxyPort;
+				final String sshLinuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapProxyDirectory+ "zap.sh -daemon -port " + zapProxyPort;			
 				
-				
-//				String zapLocation=ZAProxyBuilder.DESCRIPTOR.getStartZAPFirst();
-//				System.out.println("zapLocation (testZAP connection: )"+zapLocation);
+ 
 				switch(zapLocation){
 				
 								
@@ -552,21 +485,17 @@ public class ZAProxyWrapper extends BuildWrapper implements Serializable {
 				 * 
 				 */
 			    
-			    return CustomZapClientApi.testZAPConnection(protocol, zapProxyHost, zapProxyPort, zapProxyKey,proxy,timeoutInSec );
- 
- 
-		}
+			    return CustomZapClientApi.testZAPConnection(protocol, zapProxyHost, zapProxyPort, zapProxyKey,proxy,timeoutInSec );		}
 		
 		
-		
- 
 		
 		/**
-		 * test
+		 * Start ZAP locally
 		 * @throws IOException 
 		 * @throws InterruptedException 
 		 */
 		
+		@SuppressWarnings("deprecation")
 		private void startZAPLocally(String zapProxyDirectory , int zapProxyPort) throws IOException, InterruptedException{			 
 		   
 			File pathToExecutable;
@@ -636,34 +565,11 @@ public class ZAProxyWrapper extends BuildWrapper implements Serializable {
 						.error(e.getMessage() + " : Vérifier l'adresse du serveur SSH et le numéro de port !");
 			}
 
-			return FormValidation.okWithMarkup("<br><b><font color=\"green\">Connection réussie !</font></b><br>");
-		}
-		
-
+			return FormValidation.okWithMarkup("<br><b><font color=\"green\">Connection réussie !</font></b><br>");		}
 	       
         
 
     }
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

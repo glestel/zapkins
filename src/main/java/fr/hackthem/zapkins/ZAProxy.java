@@ -44,7 +44,6 @@ import hudson.slaves.SlaveComputer;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import fr.hackthem.zapkins.api.CustomZapClientApi;
-import fr.hackthem.zapkins.ZAProxyBuilder;
 import fr.hackthem.zapkins.report.ZAPreport;
 import fr.hackthem.zapkins.report.ZAPreportCollection;
 import fr.hackthem.zapkins.report.ZAPscannersCollection;
@@ -52,23 +51,17 @@ import fr.hackthem.zapkins.utilities.HttpUtilities;
 import fr.hackthem.zapkins.utilities.ProxyAuthenticator;
 import fr.hackthem.zapkins.utilities.SSHConnexion;
 import fr.hackthem.zapkins.utilities.SecurityTools;
-
-
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-
-import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -78,11 +71,6 @@ import org.apache.tools.ant.BuildException;
 import org.jenkinsci.remoting.RoleChecker;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
-import org.xml.sax.SAXException;
-import org.zaproxy.clientapi.core.ApiResponse;
-import org.zaproxy.clientapi.core.ApiResponseElement;
-import org.zaproxy.clientapi.core.ApiResponseList;
-import org.zaproxy.clientapi.core.ApiResponseSet;
 import org.zaproxy.clientapi.core.ClientApiException;
 
  
@@ -97,14 +85,7 @@ import org.zaproxy.clientapi.core.ClientApiException;
  */
 public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Serializable {
 
-	/**
-	 * 
-	 */
-	
-	//private static boolean DEBUG = false;
-	
-//	private boolean debugMod;
-//	private int debugPort;
+
 	
 	private static final long serialVersionUID = 946509532597271579L;
 	private final String user = "ZAP USER";
@@ -127,8 +108,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 
 	public static String FILE_SEPARATOR = "";
 
-	// Les attributs possÃ©dant une visibilitÃ© Final, sont initialisÃ© Ã 
-	// l'instantiation de la classe et ne peuvent pas Ãªtre modifiÃ©s Ã  la suite
+ 
 	/** the scan mode (AUTHENTICATED/NOT_AUTHENTICATED) */
 	private final String scanMode;
 
@@ -216,33 +196,6 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	 * (without extension)
 	 */
 	private final String chosenPolicy;
-//	
-
-//	/**
-//	 * Liste des urls authorisÃ©es Ã  Ãªtre scannÃ©es
-//	 */
-//	private String authorizedURL;
-//	
-//	/*
-//	 * Type de protocole de connexion au serveur ZAP
-//	 */
-//	private  String protocol;
-//	/**
-//	 *  stop ZAP at the end of scan 
-//	 */
-//	private  boolean stopZAPAtEnd;
-//
-//	/** Host configured when ZAProxy is used as proxy */
-//	private String zapProxyHost;
-//	
-//	/** Port configured when ZAProxy is used as proxy */
-//	private int zapProxyPort;
-//	
-//	/** the secret API key when ZAProxy is used */
-//	private String zapProxyKey;
-//	
-//	/** rÃ©pertoire d'installation du moteur ZAP Proxy */
-//	private String zapProxyDirectory;
 
 	/** Id of the newly created context */
 	private String contextId;
@@ -252,15 +205,6 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	
 	/** Id of the newly created scan */
 	private String scanId;
-	
-//	/** Realize a url spider or not by ZAProxy */
-//	private boolean spiderURL;
-//
-//	/** Realize a url AjaxSpider or not by ZAProxy */
-//	private boolean ajaxSpiderURL;
-//
-//	/** Realize a url scan or not by ZAProxy */
-//	private boolean scanURL;
 	
 	private CustomZapClientApi zapClientAPI;
 
@@ -279,16 +223,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 			
 			
 			super();			
-			//this.authorizedURL=ZAProxyBuilder.DESCRIPTOR.getAuthorizedURLs();
-//			this.protocol=ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
-//			this.zapProxyHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();			
-//			this.zapProxyKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
-//			this.zapProxyDirectory=ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();
-//			this.stopZAPAtEnd = ZAProxyBuilder.DESCRIPTOR.isStopZAPAtEnd();		
-//			this.spiderURL = ZAProxyBuilder.DESCRIPTOR.isSpiderURL();
-//			this.ajaxSpiderURL = ZAProxyBuilder.DESCRIPTOR.isAjaxSpiderURL();
-//			this.scanURL = ZAProxyBuilder.DESCRIPTOR.isScanURL();
-//			
+	
 			this.chosenScanners = chosenScanners;
 			this.scanMode = scanMode;
 			this.authenticationMode = authenticationMode;				
@@ -324,10 +259,6 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		String s = "";
 
 		s += "--------------------------------------------------";
-//		s += "debugMod [" + debugMod + "]\n";
-//		s += "debuPort [" + debugPort + "]\n";
-//		s += "zapProxyHost [" + zapProxyHost + "]\n";
-//		s += "zapProxyPort [" + zapProxyPort + "]\n";
 		s += "saveReports [" + saveReports + "]\n";
 		s += "chosenFormats [" + chosenFormats + "]\n";
 		s += "reportName [" + evaluatedFilenameReports + "]\n";
@@ -340,11 +271,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		s += "formLoggedInIndicator [" + formLoggedInIndicator + "]\n";
 		s += "formLoggedOutIndicator [" + formLoggedOutIndicator + "]\n";
 		s += "scriptLoggedInIndicator [" + scriptLoggedInIndicator + "]\n";
-		s += "scriptLoggedOutIndicator [" + scriptLoggedOutIndicator + "]\n";
-		s += "--------------------------------------------------";
-//		s += "spiderURL [" + spiderURL + "]\n";
-//		s += "ajaxSpiderURL [" + ajaxSpiderURL + "]\n";
-//		s += "scanURL [" + scanURL + "]\n";
+		s += "scriptLoggedOutIndicator [" + scriptLoggedOutIndicator + "]\n";	
 		s += "--------------------------------------------------";
 		s += "scriptUsername [" + scriptUsername + "]\n";
 		s += "formUsername [" + formUsername + "]\n";
@@ -353,28 +280,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		return s;
 	}
 
-//	/**
-//	 * @return the debugMod
-//	 */
-//	public boolean isDebugMod() {
-//		return debugMod;
-//	}
-//	
-//	public int getDebugPort(){
-//		return debugPort;
-//	}
-//
-//	/**
-//	 * @param debugMod the debugMod to set
-//	 */
-//	public void setDebugMod(boolean debugMod) {
-//		this.debugMod = debugMod;
-//	}
-//
-//	
-//	public void setDebugPort(int debugPort){
-//		this.debugPort=debugPort;
-//	}
+
 	// Overridden for better type safety.
 	// If your plugin doesn't really define any property on Descriptor,
 	// you don't have to do this.
@@ -396,34 +302,6 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	public static String getFileSessionExtension() {
 		return FILE_SESSION_EXTENSION;
 	}
-
-//	/**
-//	 * @return the zapProxyHost
-//	 */
-//	public String getZapProxyHost() {
-//		return zapProxyHost;
-//	}
-//
-//	/**
-//	 * @return the zapProxyPort
-//	 */
-//	public int getZapProxyPort() {
-//		return zapProxyPort;
-//	}
-//
-//	/**
-//	 * @return the zapProxyKey
-//	 */
-//	public String getZapProxyKey() {
-//		return zapProxyKey;
-//	}
-//
-//	/**
-//	 * @return the zapProxyDirectory
-//	 */
-//	public String getZapProxyDirectory() {
-//		return zapProxyDirectory;
-//	}
 
 	/**
 	 * @return the formUsername
@@ -552,18 +430,6 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		return excludedUrl;
 	}
 
-//	public boolean getSpiderURL() {
-//		return spiderURL;
-//	}
-//
-//	public boolean getAjaxSpiderURL() {
-//		return ajaxSpiderURL;
-//	}
-//
-//	public boolean getScanURL() {
-//		return scanURL;
-//	}
-
 	public boolean getSaveReports() {
 		return saveReports;
 	}
@@ -626,34 +492,6 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		return FILE_SEPARATOR;
 	}
 
-//	/**
-//	 * @return the stopZAPAtEnd
-//	 */
-//	public boolean isStopZAPAtEnd() {
-//		return stopZAPAtEnd;
-//	}
-//
-//	/**
-//	 * @return the protocol
-//	 */
-//	public String getProtocol() {
-//		return protocol;
-//	}
-//
-//	/**
-//	 * @param protocol the protocol to set
-//	 */
-//	public void setProtocol(String protocol) {
-//		this.protocol = protocol;
-//	}
-//
-//	/**
-//	 * @param stopZAPAtEnd the stopZAPAtEnd to set
-//	 */
-//	public void setStopZAPAtEnd(boolean stopZAPAtEnd) {
-//		this.stopZAPAtEnd = stopZAPAtEnd;
-//	}
-
 	/**
 	 * @param fILE_SEPARATOR
 	 *            the fILE_SEPARATOR to set
@@ -688,36 +526,6 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 				this.evaluatedFilenameReports = evaluatedFilenameReports;
 			}
 			
-	/**
-	 * Return the ZAProxy program name (zap.bat or zap.sh) depending of the build node and the OS.
-	 * 
-	 * @param build
-	 * @return the ZAProxy program name (zap.bat or zap.sh)
-	 * @throws IOException
-	 * @throws InterruptedException
-	 */
-	private String getZAPProgramName(AbstractBuild<?, ?> build) throws IOException, InterruptedException {
-		Node node = build.getBuiltOn();
-		String zapProgramName = "";
-		
-		// Append zap program following Master/Slave and Windows/Unix
-		if( "".equals(node.getNodeName())) { // Master
-			if( File.pathSeparatorChar == ':' ) { // UNIX
-				zapProgramName = ZAP_PROG_NAME_SH;
-			} else { // Windows (pathSeparatorChar == ';')
-				zapProgramName = ZAP_PROG_NAME_BAT;
-			}
-		} 
-		else { // Slave
-			if( "Unix".equals(((SlaveComputer)node.toComputer()).getOSDescription()) ) {
-				zapProgramName = ZAP_PROG_NAME_SH;
-			} else {
-				zapProgramName = ZAP_PROG_NAME_BAT;
-			}
-		}
-		return zapProgramName;
-	}
-	
 	/**
 	 * Return the ZAProxy program name with separator prefix (\zap.bat or /zap.sh) depending of the build node and the OS.
 	 * 
@@ -801,131 +609,7 @@ public void startZAPLocally(String zapProgram, int zapProxyPort,  AbstractBuild<
 	// Launch ZAP process on remote machine (on master if no remote machine)
 	launcher.launch().cmds(cmd).envs(envVars).stdout(listener).pwd(workDir).start();
 
-}
-	
-//	
-//public void startZAPLocally( AbstractBuild<?, ?> build, BuildListener listener, Launcher launcher) 
-//		throws IllegalArgumentException, IOException, InterruptedException {
-//	 
-//	
-//	FilePath ws = build.getWorkspace();
-//	if (ws == null) {
-//		Node node = build.getBuiltOn();
-//		if (node == null) {
-//			throw new NullPointerException("no such build node: " + build.getBuiltOnStr());
-//		}
-//		throw new NullPointerException("no workspace from node " + node + " which is computer " + node.toComputer() + " and has channel " + node.getChannel());
-//	}
-//	
-//	// Contains the absolute path to ZAP program
-//	FilePath zapPathWithProgName = new FilePath(ws.getChannel(), zapProxyDirectory + getZAPProgramNameWithSeparator(build));
-//	listener.getLogger().println("Start ZAProxy [" + zapPathWithProgName.getRemote() + "]");
-//	
-//	// Command to start ZAProxy with parameters
-//	List<String> cmd = new ArrayList<String>();
-//	cmd.add(zapPathWithProgName.getRemote());
-//	cmd.add(CMD_LINE_DAEMON);
-//	cmd.add(CMD_LINE_PORT);
-//	cmd.add(String.valueOf(zapProxyPort));
-//
-//		
-//	EnvVars envVars = build.getEnvironment(listener);
-//	// on Windows environment variables are converted to all upper case,
-//	// but no such conversions are done on Unix, so to make this cross-platform,
-//	// convert variables to all upper cases.
-//	for(Map.Entry<String,String> e : build.getBuildVariables().entrySet())
-//		envVars.put(e.getKey(),e.getValue());
-//	
-//	FilePath workDir = new FilePath(ws.getChannel(), zapProxyDirectory);
-//
-//	
-//	// Launch ZAP process on remote machine (on master if no remote machine)
-//	launcher.launch().cmds(cmd).envs(envVars).stdout(listener).pwd(workDir).start();
-//
-//}
-//		
-
-//public boolean executeZAP(FilePath workspace, BuildListener listener) throws ClientApiException {
-//	
-//		//permit to update the values of parameters when the admin makes changes 
-//		String authorizedURL=ZAProxyBuilder.DESCRIPTOR.getAuthorizedURLs();
-//		String protocol=ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
-//		String zapProxyHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();			
-//		String zapProxyKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
-//		String zapProxyDirectory=ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();
-//		boolean stopZAPAtEnd = ZAProxyBuilder.DESCRIPTOR.isStopZAPAtEnd();		
-//		boolean spiderURL = ZAProxyBuilder.DESCRIPTOR.isSpiderURL();
-//		boolean ajaxSpiderURL = ZAProxyBuilder.DESCRIPTOR.isAjaxSpiderURL();
-//		boolean scanURL = ZAProxyBuilder.DESCRIPTOR.isScanURL();
-//		boolean debugMod = ZAProxyBuilder.DESCRIPTOR.isDebugMod();
-//		
-//		listener.getLogger().println("targetURL : " + targetURL);
-//		listener.getLogger().println("authorizedURL : " + authorizedURL);
-//		
-//		if(!SecurityTools.isUrlAuditable(targetURL, authorizedURL)){
-//			
-//			throw new BuildException("The chosen URL is not allowed, please contact the security team to justify your choice");
-//		}	
-//		 
-//		zapClientAPI = new CustomZapClientApi(protocol,zapProxyHost, zapProxyPort, zapProxyKey, listener,debugMod);	 
-//		
-//		boolean buildSuccess = true;
-//
-//		// Try/catch here because I need to stopZAP in finally block and for
-//		// that,
-//
-//		try {
-//
-//			/*
-//			 * ======================================================= | ZAP FILE PATH SEPARATOR | =======================================================
-//			 */
-//
-//			String zapHomeDirectory = zapClientAPI.getZapHomeDirectory();
-//			listener.getLogger().println("zapHomeDirectory : " + zapHomeDirectory);
-//			if (zapHomeDirectory.startsWith("/")) {
-//				setFILE_SEPARATOR("/");
-//			} else {
-//				setFILE_SEPARATOR("\\");
-//			}
-//
-//			
-//			executeZAPSessionNotLoaded( workspace,  listener);
-//			
-//			/*
-//			 * ======================================= ACTIONS POST AUDIT ======================================================
-//			 */
-//
-//			/*
-//			 * ======================================================= | SAVE REPORTS | =======================================================
-//			 */
-//
-//			if (saveReports) {
-//				// Generates reports for all formats selected
-//				for (String format : chosenFormats) {
-//
-//					saveReport(ROOT_PATH + getFILE_SEPARATOR() + REPORTS_PATH, evaluatedFilenameReports, format, listener,
-//							workspace, zapClientAPI);
-//				}
-//			}
-//
-//
-//
-//			// }
-//		} catch (Exception e) {
-//			listener.error(ExceptionUtils.getStackTrace(e));
-//			buildSuccess = false;
-//		} finally {
-//
-//			if (stopZAPAtEnd) {				
-//
-//				stopZAP(zapClientAPI, listener);
-//			}
-//
-//			buildSuccess = true;
-//
-//		}
-//		return buildSuccess;
-//	}
+}	
 
 
 public CustomZapClientApi executeZAP(AbstractBuild build, Launcher launcher, BuildListener listener)   {
@@ -937,42 +621,34 @@ public CustomZapClientApi executeZAP(AbstractBuild build, Launcher launcher, Bui
 	//permit to update the values of parameters when the admin makes changes 	
 	//#######################################################################################################
 	
-	String zapProxyDirectory=ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();
+	String zapProxyDirectory=ZAProxyWrapper.DESCRIPTOR.getZapDefaultDirectory();
 	
-	boolean startZAPFirst = ZAProxyBuilder.DESCRIPTOR.isStartZAPFirst();
-	String zapInstallationType = ZAProxyBuilder.DESCRIPTOR.getZapInstallationType();
-	String protocol=ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
-	String zapProxyHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();	
+	boolean startZAPFirst = ZAProxyWrapper.DESCRIPTOR.isStartZAPFirst();
+	String zapInstallationType = ZAProxyWrapper.DESCRIPTOR.getZapInstallationType();
+	String protocol=ZAProxyWrapper.DESCRIPTOR.getDefaultProtocol();
+	String zapProxyHost = ZAProxyWrapper.DESCRIPTOR.getZapProxyDefaultHost();	
 	int zapProxyPort;
-	String zapProxyKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
-	int zapProxyDefaultTimeoutInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
+	String zapProxyKey = ZAProxyWrapper.DESCRIPTOR.getZapProxyDefaultApiKey();
+	int zapProxyDefaultTimeoutInSec = ZAProxyWrapper.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
 	
-	boolean stopZAPAtEnd = ZAProxyBuilder.DESCRIPTOR.isStopZAPAtEnd();		
-//	boolean spiderURL = ZAProxyBuilder.DESCRIPTOR.isSpiderURL();
-//	boolean ajaxSpiderURL = ZAProxyBuilder.DESCRIPTOR.isAjaxSpiderURL();
-//	boolean scanURL = ZAProxyBuilder.DESCRIPTOR.isScanURL();
+	boolean stopZAPAtEnd = ZAProxyWrapper.DESCRIPTOR.isStopZAPAtEnd();	
+	boolean useWebProxy = ZAProxyWrapper.DESCRIPTOR.isUseWebProxy();
+	String webProxyHost = ZAProxyWrapper.DESCRIPTOR.getWebProxyHost();
+	int webProxyPort = ZAProxyWrapper.DESCRIPTOR.getWebProxyPort();
+	String webProxyUser = ZAProxyWrapper.DESCRIPTOR.getWebProxyUser();
+	String webProxyPassword = ZAProxyWrapper.DESCRIPTOR.getWebProxyPassword();
 	
-	boolean useWebProxy = ZAProxyBuilder.DESCRIPTOR.isUseWebProxy();
-	String webProxyHost = ZAProxyBuilder.DESCRIPTOR.getWebProxyHost();
-	int webProxyPort = ZAProxyBuilder.DESCRIPTOR.getWebProxyPort();
-	String webProxyUser = ZAProxyBuilder.DESCRIPTOR.getWebProxyUser();
-	String webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
+	int zapDefaultSSHPort = ZAProxyWrapper.DESCRIPTOR.getZapDefaultSSHPort();
+	int zapProxyDefaultTimeoutSSHInSec = ZAProxyWrapper.DESCRIPTOR.getZapProxyDefaultTimeoutSSHInSec();	
+	String zapDefaultSSHUser = ZAProxyWrapper.DESCRIPTOR.getZapDefaultSSHUser();
+	String zapDefaultSSHPassword = ZAProxyWrapper.DESCRIPTOR.getZapDefaultSSHPassword();		
 	
-	int zapDefaultSSHPort = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPort();
-	int zapProxyDefaultTimeoutSSHInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutSSHInSec();	
-	String zapDefaultSSHUser = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHUser();
-	String zapDefaultSSHPassword = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPassword();		
+	boolean debugMod = ZAProxyWrapper.DESCRIPTOR.isDebugMod();
+	int debugPort=ZAProxyWrapper.DESCRIPTOR.getDebugPort();
 	
-	boolean debugMod = ZAProxyBuilder.DESCRIPTOR.isDebugMod();
-	int debugPort=ZAProxyBuilder.DESCRIPTOR.getDebugPort();
-	
-	String authorizedURL=ZAProxyBuilder.DESCRIPTOR.getAuthorizedURLs();
+	String authorizedURL=ZAProxyWrapper.DESCRIPTOR.getAuthorizedURLs();
 	//#######################################################################################################
-	
-	
-//	// debug mod (zap proxy port is fixed and more debug informations are shown in the debug console
-//	setDebugMod(debugMod);
-//	setDebugPort(debugPort);
+
 	listener.getLogger().println("DebugMod : "+debugMod);
 	
 	/*
@@ -987,7 +663,7 @@ public CustomZapClientApi executeZAP(AbstractBuild build, Launcher launcher, Bui
 		 
 		listener.error(ExceptionUtils.getStackTrace(e1));
 	}
-	//zaproxy.setReportName(reportName);
+
 
 	//we don't overwrite the file name containing the environment variables
 	//the evaluated value is saved in an other file name 
@@ -1050,16 +726,11 @@ public CustomZapClientApi executeZAP(AbstractBuild build, Launcher launcher, Bui
 		
 		/*********************************************************************************************/
 		
-		//setZapProxyPort(zapProxyPort);
-
-
 		listener.getLogger().println("Perform ZAProxy");
 		System.out.println("Perform ZAProxy");
 		
 		final String sshLinuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapProxyDirectory+ "zap.sh -daemon -port " + zapProxyPort;
-		//final String windowsCommand = zapDefaultDirectory+"zapDefaultDirectoryzap.bat -daemon -port " + zapProxyPort;
-
-		
+		//final String windowsCommand = zapDefaultDirectory+"zapDefaultDirectoryzap.bat -daemon -port " + zapProxyPort;		
 		
 		/*
 		 * ======================================================= | start ZAP | =======================================================
@@ -1092,15 +763,9 @@ public CustomZapClientApi executeZAP(AbstractBuild build, Launcher launcher, Bui
 				
 			default :
 				System.out.println("Unsupported installation location");
-				break ;
-				
+				break ;			
 			
-		}
-
-
-
-
-		
+		}		
 	}
 
 	else {
@@ -1114,8 +779,6 @@ public CustomZapClientApi executeZAP(AbstractBuild build, Launcher launcher, Bui
 	
 	//ici le proxy est égal à null car on applique une configuration générale où tout appel réseau provennat de la VM passe par le proxy 
 	HttpUtilities.waitForSuccessfulConnectionToZap(null,protocol, zapProxyHost, zapProxyPort,zapProxyDefaultTimeoutInSec, listener);
-
-
 	
 	listener.getLogger().println("targetURL : " + targetURL);
 	listener.getLogger().println("authorizedURL : " + authorizedURL);
@@ -1125,9 +788,7 @@ public CustomZapClientApi executeZAP(AbstractBuild build, Launcher launcher, Bui
 		throw new BuildException("The chosen URL is not allowed, please contact the security team to justify your choice");
 	}	
 	 
-	zapClientAPI = new CustomZapClientApi(protocol,zapProxyHost, zapProxyPort, zapProxyKey, listener,debugMod);	 
-	
-	//boolean buildSuccess = true;
+	zapClientAPI = new CustomZapClientApi(protocol,zapProxyHost, zapProxyPort, zapProxyKey, listener,debugMod);	 	
 
 	// Try/catch here because I need to stopZAP in finally block and for
 	// that,
@@ -1190,269 +851,6 @@ public CustomZapClientApi executeZAP(AbstractBuild build, Launcher launcher, Bui
 	return zapClientAPI;
 }
 
-
-public boolean executeZAPBuildStep(AbstractBuild build, Launcher launcher, BuildListener listener)   {
-	
-	
-	FilePath workspace=build.getWorkspace();
-	
-	
-	//permit to update the values of parameters when the admin makes changes 	
-	//#######################################################################################################
-	
-	String zapProxyDirectory=ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();
-	
-	boolean startZAPFirst = ZAProxyBuilder.DESCRIPTOR.isStartZAPFirst();
-	String zapInstallationType = ZAProxyBuilder.DESCRIPTOR.getZapInstallationType();
-	String protocol=ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
-	String zapProxyHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();	
-	int zapProxyPort;
-	String zapProxyKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
-	int zapProxyDefaultTimeoutInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
-	
-	boolean stopZAPAtEnd = ZAProxyBuilder.DESCRIPTOR.isStopZAPAtEnd();		
-//	boolean spiderURL = ZAProxyBuilder.DESCRIPTOR.isSpiderURL();
-//	boolean ajaxSpiderURL = ZAProxyBuilder.DESCRIPTOR.isAjaxSpiderURL();
-//	boolean scanURL = ZAProxyBuilder.DESCRIPTOR.isScanURL();
-	
-	boolean useWebProxy = ZAProxyBuilder.DESCRIPTOR.isUseWebProxy();
-	String webProxyHost = ZAProxyBuilder.DESCRIPTOR.getWebProxyHost();
-	int webProxyPort = ZAProxyBuilder.DESCRIPTOR.getWebProxyPort();
-	String webProxyUser = ZAProxyBuilder.DESCRIPTOR.getWebProxyUser();
-	String webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
-	
-	int zapDefaultSSHPort = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPort();
-	int zapProxyDefaultTimeoutSSHInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutSSHInSec();	
-	String zapDefaultSSHUser = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHUser();
-	String zapDefaultSSHPassword = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPassword();		
-	
-	boolean debugMod = ZAProxyBuilder.DESCRIPTOR.isDebugMod();
-	int debugPort=ZAProxyBuilder.DESCRIPTOR.getDebugPort();
-	
-	String authorizedURL=ZAProxyBuilder.DESCRIPTOR.getAuthorizedURLs();
-	//#######################################################################################################
-	
-	
-//	// debug mod (zap proxy port is fixed and more debug informations are shown in the debug console
-//	setDebugMod(debugMod);
-//	setDebugPort(debugPort);
-	listener.getLogger().println("DebugMod : "+debugMod);
-	
-	/*
-	 * ======================================================= | REPLACE ENVIRONEMENT VARIABLES | =======================================================
-	 */
-	listener.getLogger().println("------- START Replace environment variables -------");
-	
-	String reportName=getReportName();
-	try {
-		reportName=applyMacro( build,  listener,  reportName);
-	} catch (InterruptedException e1) {
-		 
-		listener.error(ExceptionUtils.getStackTrace(e1));
-	}
-	//zaproxy.setReportName(reportName);
-
-	//we don't overwrite the file name containing the environment variables
-	//the evaluated value is saved in an other file name 
-	setEvaluatedFilenameReports(reportName);
-	
-	
-	listener.getLogger().println("ReportName : "+reportName);
-	
-	listener.getLogger().println("------- END Replace environment variables -------");
-			
-	/*
-	 * ===================================================================================================================================================
-	 */		
-		
-	
-
-	/*
-	 * ======================================================= | USE WEB PROXY | =======================================================
-	 */
-	if (useWebProxy) {
-		// Ici on généralise l'utilisation du proxy web à tous les appels
-		// passés via la JVM
-		listener.getLogger().println("Using web proxy");
-		System.out.println("Using web proxy");
-		CustomZapClientApi.setWebProxyDetails(webProxyHost, webProxyPort, webProxyUser, webProxyPassword);
-	} else {
-		listener.getLogger().println("Skip using web proxy");
-		System.out.println("Skip using web proxy");
-	}	
-	
-	/*
-	 * ===================================================================================================================================		
-		
-		
-		/*
-		 * =================================================== | CHOOSE A FREE PORT  | =======================================================
-		 */
-		
-		listener.getLogger().println("------- PORT NUMBER CHOOSER -------");
-		System.out.println("------- PORT NUMBER CHOOSER -------");
-		zapProxyPort = HttpUtilities.getPortNumber();
-		
-		while(HttpUtilities.portIsToken(null, protocol, zapProxyHost, zapProxyPort, zapProxyDefaultTimeoutInSec, listener)){
-			
-			zapProxyPort = HttpUtilities.getPortNumber();
-			
-		}
-		
-		listener.getLogger().println("PORT : "+zapProxyPort);
-		System.out.println("PORT : "+zapProxyPort);
-		
-		
-		/*************** MOD DEBUG ***************************/
-		
-		if(debugMod == true){
-		zapProxyPort=debugPort;
-		listener.getLogger().println("PORT (DEBUG): "+zapProxyPort);
-		System.out.println("PORT (DEBUG): "+zapProxyPort);
-		}
-		
-		/*********************************************************************************************/
-		
-		//setZapProxyPort(zapProxyPort);
-
-
-		listener.getLogger().println("Perform ZAProxy");
-		System.out.println("Perform ZAProxy");
-		
-		final String sshLinuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapProxyDirectory+ "zap.sh -daemon -port " + zapProxyPort;
-		//final String windowsCommand = zapDefaultDirectory+"zapDefaultDirectoryzap.bat -daemon -port " + zapProxyPort;
-
-		
-		
-		/*
-		 * ======================================================= | start ZAP | =======================================================
-		 */
-		if (startZAPFirst) {
-			
-		listener.getLogger().println("Starting ZAP");
-		System.out.println("Starting ZAP");
-		switch(zapInstallationType){
-		
-			case "LOCALE":
-				listener.getLogger().println("Starting ZAP locally");	
-				System.out.println("Starting ZAP locally");
-					try {
-						startZAPLocally(zapProxyDirectory, zapProxyPort, build, listener, launcher);
-					} catch (IllegalArgumentException | IOException | InterruptedException e) {
-						
-						listener.error(ExceptionUtils.getStackTrace(e));
-					}
-				break;
-				
-				
-			case "DISTANTE" :
-				listener.getLogger().println("Starting ZAP remotely (SSH)");	
-				System.out.println("Starting ZAP remotely (SSH)");
-				//MOD DEBUG (uncomment this line to de-activate the debug mod
-				SSHConnexion.execCommand(zapProxyHost, zapDefaultSSHPort, zapDefaultSSHUser, zapDefaultSSHPassword,HttpUtilities.getMilliseconds(zapProxyDefaultTimeoutSSHInSec ),sshLinuxCommand, listener);
-	 
-				break ;
-				
-			default :
-				System.out.println("Unsupported installation location");
-				break ;
-				
-			
-		}
-
-
-
-
-		
-	}
-
-	else {
-		listener.getLogger().println("Skip starting ZAP");
-		listener.getLogger().println("startZAPFirst : " + startZAPFirst);
-	}
-	
-	/*
-	 * ======================================================= |WAIT FOR SUCCESSFUL CONNEXIONd| =======================================================
-	 */
-	
-	//ici le proxy est égal à null car on applique une configuration générale où tout appel réseau provennat de la VM passe par le proxy 
-	HttpUtilities.waitForSuccessfulConnectionToZap(null,protocol, zapProxyHost, zapProxyPort,zapProxyDefaultTimeoutInSec, listener);
-
-
-	
-	listener.getLogger().println("targetURL : " + targetURL);
-	listener.getLogger().println("authorizedURL : " + authorizedURL);
-	
-	if(!SecurityTools.isUrlAuditable(targetURL, authorizedURL)){
-		
-		throw new BuildException("The chosen URL is not allowed, please contact the security team to justify your choice");
-	}	
-	 
-	zapClientAPI = new CustomZapClientApi(protocol,zapProxyHost, zapProxyPort, zapProxyKey, listener,debugMod);	 
-	
-	boolean buildSuccess = true;
-
-	// Try/catch here because I need to stopZAP in finally block and for
-	// that,
-
-	try {
-
-		/*
-		 * ======================================================= | ZAP FILE PATH SEPARATOR | =======================================================
-		 */
-
-		String zapHomeDirectory = zapClientAPI.getZapHomeDirectory();
-		listener.getLogger().println("zapHomeDirectory : " + zapHomeDirectory);
-		if (zapHomeDirectory.startsWith("/")) {
-			setFILE_SEPARATOR("/");
-		} else {
-			setFILE_SEPARATOR("\\");
-		}
-
-		
-		executeZAPSessionNotLoaded( workspace,  listener);
-		
-		/*
-		 * ======================================= ACTIONS POST AUDIT ======================================================
-		 */
-
-		/*
-		 * ======================================================= | SAVE REPORTS | =======================================================
-		 */
-
-		if (saveReports) {
-			// Generates reports for all formats selected
-			for (String format : chosenFormats) {
-
-				saveReport(ROOT_PATH + getFILE_SEPARATOR() + REPORTS_PATH, evaluatedFilenameReports, format, listener,
-						workspace, zapClientAPI);
-			}
-		}
-
-
-
-		// }
-	} catch (Exception e) {
-		listener.error(ExceptionUtils.getStackTrace(e));
-		buildSuccess = false;
-	} finally {
-
-		if (stopZAPAtEnd) {				
-
-			try {
-				stopZAP(zapClientAPI, listener);
-			} catch (ClientApiException e) {
-				listener.error(ExceptionUtils.getStackTrace(e));
-			}
-		}
-
-		buildSuccess = true;
-
-	}
-	
-	return buildSuccess;
-}
-
 /**
  * Replace macro with environment variable if it exists
  * @param build
@@ -1476,27 +874,11 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
     }
     return macro;
 }
-	private void executeZAPSessionNotLoaded(FilePath workspace, BuildListener listener) throws IOException {
+	private void executeZAPSessionNotLoaded(FilePath workspace, BuildListener listener) throws IOException { 
 		
-		//permit to update the values of parameters when the admin makes changes 
-//		this.authorizedURL=ZAProxyBuilder.DESCRIPTOR.getAuthorizedURLs();
-//		this.protocol=ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
-//		this.zapProxyHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();			
-//		this.zapProxyKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
-//		this.zapProxyDirectory=ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();
-//		this.stopZAPAtEnd = ZAProxyBuilder.DESCRIPTOR.isStopZAPAtEnd();		
-//		this.spiderURL = ZAProxyBuilder.DESCRIPTOR.isSpiderURL();
-//		this.ajaxSpiderURL = ZAProxyBuilder.DESCRIPTOR.isAjaxSpiderURL();
-//		this.scanURL = ZAProxyBuilder.DESCRIPTOR.isScanURL();
-		
-		boolean spiderURL = ZAProxyBuilder.DESCRIPTOR.isSpiderURL();
-		boolean ajaxSpiderURL = ZAProxyBuilder.DESCRIPTOR.isAjaxSpiderURL();
-		boolean scanURL = ZAProxyBuilder.DESCRIPTOR.isScanURL();
-		
-		
-		
-		//CustomZapClientApi zapClientAPI = new CustomZapClientApi( zapProxyHost, zapProxyPort, zapProxyKey, listener, debugMod);		 
-		
+		boolean spiderURL = ZAProxyWrapper.DESCRIPTOR.isSpiderURL();
+		boolean ajaxSpiderURL = ZAProxyWrapper.DESCRIPTOR.isAjaxSpiderURL();
+		boolean scanURL = ZAProxyWrapper.DESCRIPTOR.isScanURL();		
 		listener.getLogger().println("Skip loadSession");
 
 		/*
@@ -1512,9 +894,7 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 		/*
 		 * ======================================================= | SET UP SCANNER | =======================================================
 		 */
-		setUpScanners(zapClientAPI, listener);
-		
-		
+		setUpScanners(zapClientAPI, listener);		
 		
 		switch (scanMode) {
 
@@ -1666,16 +1046,6 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 	public String isAuthenticationMode(String testTypeName) {
 		return this.authenticationMode.equalsIgnoreCase(testTypeName) ? "true" : "";
 	}
-	
-	
-	
-
-//	/**
-//	 * @param zapProxyPort the zapProxyPort to set
-//	 */
-//	public void setZapProxyPort(int zapProxyPort) {
-//		this.zapProxyPort = zapProxyPort;
-//	}
 
 	/**
 	 * @param reportName the reportName to set
@@ -1722,8 +1092,7 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 			 
 				FileUtils.writeByteArrayToFile(reportsFile, clientApi.generateHtmlReport());
 				listener.getLogger().println("File [" + reportsFile.getAbsolutePath() + "] saved");
-				break;
-			 
+				break;	 
 
 		}
 
@@ -2000,7 +1369,7 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 	 * @throws ClientApiException
 	 */
 	public void stopZAP(CustomZapClientApi zapClientAPI, BuildListener listener) throws ClientApiException {
-		String zapProxyKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
+		String zapProxyKey = ZAProxyWrapper.DESCRIPTOR.getZapProxyDefaultApiKey();
 		if (zapClientAPI != null) {
 			listener.getLogger().println("Shutdown ZAProxy");
 			zapClientAPI.stopZap(zapProxyKey, listener);
@@ -2021,7 +1390,7 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 	public static class ZAProxyDescriptorImpl extends Descriptor<ZAProxy> implements Serializable {
 
 		private static final long serialVersionUID = 4028279269334325901L;
-		//private static final int MILLISECONDS_IN_SECOND = 1000;
+
 		/**
 		 * To persist global configuration information, simply store it in a
 		 * field and call save().
@@ -2090,7 +1459,7 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 		public FormValidation doCheckTargetURL(@QueryParameter("targetURL") final String targetURL) {
 			
 			
-			String  authorizedURL=ZAProxyBuilder.DESCRIPTOR.getAuthorizedURLs();
+			String  authorizedURL=ZAProxyWrapper.DESCRIPTOR.getAuthorizedURLs();
 			
 			if(!SecurityTools.isUrlAuditable(targetURL, authorizedURL)){
 				
@@ -2299,27 +1668,27 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 		public FormValidation doLoadScriptsList() {		
 			
 			 
-			final int zapProxyDefaultTimeoutInSec = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
+			final int zapProxyDefaultTimeoutInSec = ZAProxyWrapper.DESCRIPTOR.getZapProxyDefaultTimeoutInSec();
 			
-			final String defaultProtocol = ZAProxyBuilder.DESCRIPTOR.getDefaultProtocol();
-			final String zapProxyDefaultHost = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultHost();
-			final String zapProxyDefaultApiKey = ZAProxyBuilder.DESCRIPTOR.getZapProxyDefaultApiKey();
-			final String zapDefaultDirectory = ZAProxyBuilder.DESCRIPTOR.getZapDefaultDirectory();
+			final String defaultProtocol = ZAProxyWrapper.DESCRIPTOR.getDefaultProtocol();
+			final String zapProxyDefaultHost = ZAProxyWrapper.DESCRIPTOR.getZapProxyDefaultHost();
+			final String zapProxyDefaultApiKey = ZAProxyWrapper.DESCRIPTOR.getZapProxyDefaultApiKey();
+			final String zapDefaultDirectory = ZAProxyWrapper.DESCRIPTOR.getZapDefaultDirectory();
 
-			final int zapDefaultSSHPort = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPort();
-			final String zapDefaultSSHUser = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHUser();
-			final String zapDefaultSSHPassword = ZAProxyBuilder.DESCRIPTOR.getZapDefaultSSHPassword();
+			final int zapDefaultSSHPort = ZAProxyWrapper.DESCRIPTOR.getZapDefaultSSHPort();
+			final String zapDefaultSSHUser = ZAProxyWrapper.DESCRIPTOR.getZapDefaultSSHUser();
+			final String zapDefaultSSHPassword = ZAProxyWrapper.DESCRIPTOR.getZapDefaultSSHPassword();
 
-			final boolean useWebProxy = ZAProxyBuilder.DESCRIPTOR.isUseWebProxy();
-			final String webProxyHost = ZAProxyBuilder.DESCRIPTOR.getWebProxyHost();
-			final int webProxyPort = ZAProxyBuilder.DESCRIPTOR.getWebProxyPort();
-			final String webProxyUser = ZAProxyBuilder.DESCRIPTOR.getWebProxyUser();
-			final String webProxyPassword = ZAProxyBuilder.DESCRIPTOR.getWebProxyPassword();
+			final boolean useWebProxy = ZAProxyWrapper.DESCRIPTOR.isUseWebProxy();
+			final String webProxyHost = ZAProxyWrapper.DESCRIPTOR.getWebProxyHost();
+			final int webProxyPort = ZAProxyWrapper.DESCRIPTOR.getWebProxyPort();
+			final String webProxyUser = ZAProxyWrapper.DESCRIPTOR.getWebProxyUser();
+			final String webProxyPassword = ZAProxyWrapper.DESCRIPTOR.getWebProxyPassword();
 
-			final String zapInstallationType = ZAProxyBuilder.DESCRIPTOR.getZapInstallationType();
+			final String zapInstallationType = ZAProxyWrapper.DESCRIPTOR.getZapInstallationType();
 			
-			final boolean  debugMod = ZAProxyBuilder.DESCRIPTOR.isDebugMod();			
-			final int debugPort = ZAProxyBuilder.DESCRIPTOR.getDebugPort();
+			final boolean  debugMod = ZAProxyWrapper.DESCRIPTOR.isDebugMod();			
+			final int debugPort = ZAProxyWrapper.DESCRIPTOR.getDebugPort();
             
  
 
@@ -2336,25 +1705,19 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 			}
 			else {
 				System.out.println("Skip Using Web Proxy");
-			}
-			
+			}			
 			
 			/*
 			 * ======================================================= | CHOOSE A FREE PORT  | =======================================================
-			 */
-			
+			 */			
 			
 			int zapProxyPort = HttpUtilities.getPortNumber();
 			
 			while(HttpUtilities.portIsToken(proxy, defaultProtocol, zapProxyDefaultHost, zapProxyPort, zapProxyDefaultTimeoutInSec)){
 				
-				zapProxyPort = HttpUtilities.getPortNumber();
-				
+				zapProxyPort = HttpUtilities.getPortNumber();				
 			}	
-			
-			
-			
-			
+						
 			/*************** MOD DEBUG ***************************/
 			
 			if(debugMod){
@@ -2363,7 +1726,6 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 			}
 			
 			/*********************************************************************************************/
-			
 			
 			/*
 			 * ======================================================= | start ZAP | =======================================================
@@ -2478,14 +1840,5 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 		
 	}
 
-//	public void setZapProxyHost(String zapProxyHost) {
-//		// TODO Auto-generated method stub
-//		this.zapProxyHost=zapProxyHost;
-//	}
-
-	public void setZapProxyKey(String zapProxyKey2) {
-		// TODO Auto-generated method stub
-		
-	}
 
 }
