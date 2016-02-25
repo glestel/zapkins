@@ -86,7 +86,7 @@ public class ZAProxyBuilder extends Builder {
 	private final ZAProxy zaproxy;
 	// On ne peut pas rendre ce champs final, car on ne peut l'initialiser à
 	// travers le constructeur
-	private BuildListener listener;
+	//private BuildListener listener;
 	
 	 
 	
@@ -104,12 +104,12 @@ public class ZAProxyBuilder extends Builder {
 		return zaproxy;
 	}
 
-	/**
-	 * @return the listener
-	 */
-	public BuildListener getListener() {
-		return listener;
-	}
+//	/**
+//	 * @return the listener
+//	 */
+//	public BuildListener getListener() {
+//		return listener;
+//	}
 	// Overridden for better type safety.
 	// If your plugin doesn't really define any property on Descriptor,
 	// you don't have to do this.

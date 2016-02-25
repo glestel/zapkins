@@ -1,5 +1,147 @@
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
-         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"  xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    
+    
+    
+    <!--
+	This jelly script is used for per-project configuration.
+
+	See global.jelly for a general discussion about jelly script.
+	-->
+<!-- 	
+	<f:section title="${%Informations de connexion au serveur distant ZAP}">
+
+		<f:advanced>
+   
+		
+	    <f:entry  title="Type de protocole" field="protocol"> 	
+		<select name="protocol">
+		  <j:choose>
+			<j:when test="${instance.protocol eq 'https'}">
+			  <option value="https" selected="selected">HTTPS</option>
+			  <option value="http"  >HTTP</option>
+			</j:when>
+			<j:otherwise>
+			  <option value="http" selected="selected">HTTP</option>
+			  <option value="https">HTTPS</option>
+			</j:otherwise>
+		  </j:choose>
+			  
+		</select>
+	   </f:entry> 
+		
+		
+		<f:entry title="${%Adresse du serveur ZAP}" field="zapProxyHost"
+		description="L'adresse par défaut est : ${descriptor.zapProxyDefaultHost} (${%Configurée dans l'interface d'administration de Jenkins})">
+			<f:textbox clazz="required" default="${descriptor.zapProxyDefaultHost}" />
+		</f:entry>
+		
+		<f:entry title="${%Numéro de port du serveur ZAP}" field="zapProxyPort"
+		description="Le port par défaut est : ${descriptor.zapProxyDefaultPort} (${%Configuré dans l'interface d'administration de Jenkins})">
+			<f:number default="${descriptor.zapProxyDefaultPort}" clazz="required positive-number" />
+		</f:entry>
+		
+		<f:entry title="${%Clé API du serveur ZAP}" field="zapProxyKey"
+		description="La clé par défaut est : ${descriptor.zapProxyDefaultApiKey} (${%Configurée dans l'interface d'administration de Jenkins})">
+			<f:textbox default="${descriptor.zapProxyDefaultApiKey}" clazz="required" />
+		</f:entry>
+		
+ 		<f:entry title="${%Délais d'attente de connexion, en secondes}" field="timeoutInSec"
+		description="Le délais d'attente de connexion par défaut est : ${descriptor.zapProxyDefaultTimeoutInSec} (${%Configuré dans l'interface d'administration de Jenkins})">
+			<f:textbox default="${descriptor.zapProxyDefaultTimeoutInSec}" clazz="required positive-number" />
+		</f:entry>
+		
+	    <f:optionalBlock title="${%Utiliser un serveur proxy web}" field="useWebProxy" inline="true" >
+		<f:entry>
+		<table width="100%">
+		
+			<f:entry title="${%Adresse du serveur proxy web}" field="webProxyHost"
+			description="Entrer L'adresse du serveur proxy web">
+				<f:textbox default="10.234.168.99" clazz="required" />
+			</f:entry>
+			
+			<f:entry title="${%Port du serveur proxy web}" field="webProxyPort"
+			description="Entrer Le numéro de port du serveur proxy web">
+				<f:number default="8080" clazz="required positive-number" />
+			</f:entry>
+			
+			<f:entry title="${%Nom de l'utilisateur}" field="webProxyUser"
+			description="Entrer Le nom de l'utilisateur">
+				<f:textbox default="username" clazz="required" />
+			</f:entry>
+			
+			<f:entry title="${%Mot de passe de l'utilisateur}" field="webProxyPassword"
+			description="Entrer Le mot de passe de l'utilisateur">
+				<f:password default="password" clazz="required" />
+			</f:entry>
+ 
+		</table>
+		</f:entry>	
+		</f:optionalBlock>
+		
+		<f:validateButton   title="${%Tester la connection}" progress="${%Connexion...}"   method="testZAPConnection" with="timeoutInSec,protocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyHost,zapProxyPort,zapProxyKey" />
+		
+		
+		<f:entry title="${%Répertoire d'installation du serveur ZAP}" field="zapProxyDirectory"
+		description="Le répertoire par défaut est : ${descriptor.zapDefaultDirectory} (${%Configuré dans l'interface d'administration de Jenkins})">
+			<f:textbox  default="${descriptor.zapDefaultDirectory}" />
+		</f:entry>
+
+		
+		<f:optionalBlock title="${%Démarrer ZAP à distance}" field="startZAPFirst" inline="true" >
+		
+		
+		<f:entry>
+		<table width="100%">
+		
+			<f:entry title="${%Numéro de port SSH du serveur ZAP}" field="zapSSHPort"
+			description="Le port par défaut est : ${descriptor.zapDefaultSSHPort} (${%Configuré dans l'interface d'administration de Jenkins})">
+				<f:number default="${descriptor.zapDefaultSSHPort}" clazz="required positive-number" />
+			</f:entry>
+			
+			<f:entry title="${%Délais d'attente de connexion, en secondes}" field="timeoutSSHInSec"
+		description="Le délais d'attente de connexion par défaut est : ${descriptor.zapProxyDefaultTimeoutSSHInSec} (${%Configuré dans l'interface d'administration de Jenkins})">
+			<f:textbox default="${descriptor.zapProxyDefaultTimeoutSSHInSec}" clazz="required positive-number" />
+		</f:entry>
+			
+			<f:entry title="${%Nom d'utilisateur SSH}" field="zapSSHUser"
+			description="Le nom d'utilisateur par défaut est : ${descriptor.zapDefaultSSHUser} (${%Configuré dans l'interface d'administration de Jenkins})">
+			<f:textbox clazz="required" default="${descriptor.zapDefaultSSHUser}" />
+			</f:entry>
+			
+			<f:entry title="${%Mot de passe d'utilisateur SSH}" field="zapSSHPassword"
+			description="(${%Configuré dans l'interface d'administration de Jenkins})">
+			<f:password clazz="required" default="${descriptor.zapDefaultSSHPassword}" />
+			</f:entry>
+		</table>
+		</f:entry>	
+		
+		<f:validateButton   title="${%Tester la connection}" progress="${%Connexion...}"   method="testSSHConnection" with="timeoutSSHInSec,zapProxyHost,zapSSHPort,zapSSHUser,zapSSHPassword" />
+		
+	
+		</f:optionalBlock>	
+		<f:optionalBlock title="${%Arrêter ZAP à la fin du scan}" field="stopZAPAtEnd" inline="true" />	
+	
+			
+			
+			
+		</f:advanced>
+
+		
+	</f:section> -->
+		
+	<!-- <f:section title="${%Options pré-audit}" /> -->
+	<!--	<f:optionalBlock title="${%Start ZAProxy in a pre-build step}" field="startZAPFirst" inline="true" />  -->
+		
+		<!-- Load the config.jelly bind to ZAProxy class 
+		This code doesn't work : <st:include page="config.jelly" class="fr.novia.zaproxyplugin.ZAProxy"/>
+		It doesn't create an ZAProxy instance.	So, I use f:property	
+		-->
+		    
+    
+    
     
 	<f:property field="zaproxy" />
+	
+	
+	
 </j:jelly>
