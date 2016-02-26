@@ -23,7 +23,6 @@
  * SOFTWARE.
  */
 
-
 package fr.hackthem.zapkins.api;
 
 import java.io.File;
@@ -38,8 +37,13 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -57,55 +61,54 @@ import hudson.FilePath;
 import hudson.model.BuildListener;
 import hudson.util.FormValidation;
 import fr.hackthem.zapkins.utilities.HttpUtilities;
-import  fr.hackthem.zapkins.utilities.ProxyAuthenticator;
+import fr.hackthem.zapkins.utilities.ProxyAuthenticator;
 import org.zaproxy.clientapi.core.ApiResponseList;
 import org.zaproxy.clientapi.core.ApiResponseSet;
-
-
 
 public class CustomZapClientApi implements Serializable {
 
 	private static final long serialVersionUID = 3961600153488729709L;
 	private static final int MILLISECONDS_IN_SECOND = 1000;
+
 	private final String zapProxyKey;
-	
-	
 	public final CustomZapApi api;
-	//private  final boolean  debug;
+	private final boolean debug;
 
 	private BuildListener listener;
-	private  String PROTOCOL;	
-	
-	
+	private String PROTOCOL;
+
 	/*******************************************
 	 * Constructeurs de classe
 	 *****************************************************/
 
-	public CustomZapClientApi(String ZAP_ADDRESS, int zapProxyPort, String ZAP_API_KEY, BuildListener listener, boolean debug) {
+	public CustomZapClientApi(String ZAP_ADDRESS, int zapProxyPort, String ZAP_API_KEY, BuildListener listener,
+			boolean debug) {
 		super();
-		
+
 		this.zapProxyKey = ZAP_API_KEY;
 		this.listener = listener;
-		//this.debug=debug;
+		this.debug = debug;
 
 		this.api = new CustomZapApi(ZAP_ADDRESS, "" + zapProxyPort + "", listener, debug);
 	}
 
-	public CustomZapClientApi(String PROTOCOL,String ZAP_ADDRESS, int zapProxyPort, String ZAP_API_KEY, BuildListener listener, boolean debug) {
+	public CustomZapClientApi(String PROTOCOL, String ZAP_ADDRESS, int zapProxyPort, String ZAP_API_KEY,
+			BuildListener listener, boolean debug) {
 		super();
-		this.PROTOCOL=PROTOCOL;
+		this.PROTOCOL = PROTOCOL;
 		this.zapProxyKey = ZAP_API_KEY;
 		this.listener = listener;
-		//this.debug=debug;
+		this.debug = debug;
 
 		this.api = new CustomZapApi(PROTOCOL, ZAP_ADDRESS, "" + zapProxyPort + "", listener, debug);
 	}
+
 	public CustomZapClientApi(String zapProxyHost, int zapProxyPort, String zapProxyKey, boolean debug) {
-		// TODO Auto-generated constructor stub
+
 		super();
 
 		this.zapProxyKey = zapProxyKey;
-		//this.debug=debug;
+		this.debug = debug;
 		this.api = new CustomZapApi(zapProxyHost, "" + zapProxyPort + "", debug);
 	}
 
@@ -154,8 +157,9 @@ public class CustomZapClientApi implements Serializable {
 		Document doc = db.parse(uc.getInputStream());
 		return ApiResponseFactory.getResponse(doc.getFirstChild());
 	}
-    
-	public static  FormValidation testZAPConnection(String protocol, String zapProxyHost, int zapProxyPort, String zapProxyKey, Proxy proxy, int timeoutInSec ){
+
+	public static FormValidation testZAPConnection(String protocol, String zapProxyHost, int zapProxyPort,
+			String zapProxyKey, Proxy proxy, int timeoutInSec) {
 
 		int responseCode = 0;
 		try {
@@ -163,12 +167,11 @@ public class CustomZapClientApi implements Serializable {
 			URL url = new URL(protocol + "://" + zapProxyHost + ":" + zapProxyPort);
 
 			HttpURLConnection conn;
-			
-			if(proxy == null){
+
+			if (proxy == null) {
 				conn = (HttpURLConnection) url.openConnection();
-			}
-			else {
-				
+			} else {
+
 				conn = (HttpURLConnection) url.openConnection(proxy);
 			}
 
@@ -188,28 +191,28 @@ public class CustomZapClientApi implements Serializable {
 				// faire des nouveaux tests pour valider la clé api
 				Map<String, String> map = null;
 				map = new HashMap<String, String>();
-				
+
 				if (zapProxyKey != null) {
 					map.put("apikey", zapProxyKey);
 				}
-				
+
 				ApiResponseElement response;
 				// si la clé n'est pas correcte, une exception est lancée
 
 				try {
-					response = (ApiResponseElement)  sendRequest(protocol, zapProxyHost,
-							zapProxyPort, "xml", "pscan", "action", "enableAllScanners", map, proxy, timeoutInSec);
+					response = (ApiResponseElement) sendRequest(protocol, zapProxyHost, zapProxyPort, "xml", "pscan",
+							"action", "enableAllScanners", map, proxy, timeoutInSec);
 				} catch (IOException e) {
 					return FormValidation.error("Invalid or missing API key");
 				}
 
 				// si la clé est correcte on affiche la version de ZAP
 				// installée
-				response = (ApiResponseElement) sendRequest(protocol, zapProxyHost, zapProxyPort,
-						"xml", "core", "view", "version", null, proxy, timeoutInSec);
+				response = (ApiResponseElement) sendRequest(protocol, zapProxyHost, zapProxyPort, "xml", "core", "view",
+						"version", null, proxy, timeoutInSec);
 
 				return FormValidation.okWithMarkup("<br><b><FONT COLOR=\"green\">Success : 200\nSite is up" + "<br>"
-						+ "ZAP Proxy(" + response.getName() + ")=" + response.getValue() + "</FONT></b></br>"); 
+						+ "ZAP Proxy(" + response.getName() + ")=" + response.getValue() + "</FONT></b></br>");
 
 			} else {
 				System.out.println(String.format("<br>Site is up, but returns non-ok status = %d", responseCode));
@@ -225,60 +228,65 @@ public class CustomZapClientApi implements Serializable {
 			e.printStackTrace();
 			return FormValidation.error(e.getMessage());
 		} catch (ParserConfigurationException e) {
-			
+
 			e.printStackTrace();
 			return FormValidation.error(e.getMessage() + "\nHTTP Response code=" + responseCode);
 		} catch (SAXException e) {
-			
+
 			e.printStackTrace();
 			return FormValidation.error(e.getMessage() + "\nHTTP Response code=" + responseCode);
 		} catch (ClientApiException e) {
-			
+
 			e.printStackTrace();
 			return FormValidation.error(e.getMessage() + "\nHTTP Response code=" + responseCode);
 		}
-		
-		finally{
-			
+
+		finally {
+
 			/*
-			 * ======================================================= | Stop ZAP | =======================================================
-			 */	
-		 
+			 * ======================================================= | Stop
+			 * ZAP | =======================================================
+			 */
+
 			Map<String, String> map = null;
 			map = new HashMap<String, String>();
 			map.put("apikey", zapProxyKey);
 			try {
-				 
-				 sendRequest(protocol, zapProxyHost,zapProxyPort, "xml", "core", "action", "shutdown", map, proxy, timeoutInSec);
-				
+
+				sendRequest(protocol, zapProxyHost, zapProxyPort, "xml", "core", "action", "shutdown", map, proxy,
+						timeoutInSec);
+
 			} catch (IOException | ParserConfigurationException | SAXException | ClientApiException e) {
-				 
+
 				e.printStackTrace();
-				return FormValidation.error(e.getMessage() );
+				return FormValidation.error(e.getMessage());
 			}
-			 
+
 		}
 	}
-	
-	
-	public static FormValidation loadAuthenticationScriptsList(String defaultProtocol, String zapProxyDefaultHost, int zapProxyPort, String zapProxyDefaultApiKey,Proxy proxy, int zapProxyDefaultTimeoutInSec
-			,String ROOT_PATH, String AUTHENTICATION_SCRIPTS_PATH, String AUTHENTICATION_SCRIPTS_LIST_FILE,FilePath workspace ){
- 
+
+	public static FormValidation loadAuthenticationScriptsList(String defaultProtocol, String zapProxyDefaultHost,
+			int zapProxyPort, String zapProxyDefaultApiKey, Proxy proxy, int zapProxyDefaultTimeoutInSec,
+			String ROOT_PATH, String AUTHENTICATION_SCRIPTS_PATH, String AUTHENTICATION_SCRIPTS_LIST_FILE,
+			FilePath workspace) {
+
 		/*
-		 * ======================================================= | ZAP FILE PATH SEPARATOR | =======================================================
+		 * ======================================================= | ZAP FILE
+		 * PATH SEPARATOR |
+		 * =======================================================
 		 */
-		
-		String  FILE_SEPARATOR="";
+
+		String FILE_SEPARATOR = "";
 		try {
 
-			ApiResponseElement set = (ApiResponseElement)  sendRequest(defaultProtocol, zapProxyDefaultHost,
+			ApiResponseElement set = (ApiResponseElement) sendRequest(defaultProtocol, zapProxyDefaultHost,
 					zapProxyPort, "xml", "core", "view", "homeDirectory", null, proxy, zapProxyDefaultTimeoutInSec);
 			String zapHomeDirectory = set.getValue();
 
 			if (zapHomeDirectory.startsWith("/")) {
-				FILE_SEPARATOR="/";
+				FILE_SEPARATOR = "/";
 			} else {
-				FILE_SEPARATOR="\\";
+				FILE_SEPARATOR = "\\";
 			}
 
 			/* ======================================================= */
@@ -286,8 +294,8 @@ public class CustomZapClientApi implements Serializable {
 			StringBuilder sb1 = new StringBuilder();
 
 			ApiResponseList configParamsList = null;
-			configParamsList = (ApiResponseList)  sendRequest(defaultProtocol, zapProxyDefaultHost,
-					zapProxyPort, "xml", "script", "view", "listScripts", null, proxy, zapProxyDefaultTimeoutInSec);
+			configParamsList = (ApiResponseList) sendRequest(defaultProtocol, zapProxyDefaultHost, zapProxyPort, "xml",
+					"script", "view", "listScripts", null, proxy, zapProxyDefaultTimeoutInSec);
 
 			for (ApiResponse r : configParamsList.getItems()) {
 				ApiResponseSet set1 = (ApiResponseSet) r;
@@ -299,7 +307,7 @@ public class CustomZapClientApi implements Serializable {
 
 			// probleme avec getFILE_SEPARATOR(), avant le build cette
 			// fonction doit retourner une valeur
-			String filePth = ROOT_PATH + FILE_SEPARATOR + AUTHENTICATION_SCRIPTS_PATH +FILE_SEPARATOR
+			String filePth = ROOT_PATH + FILE_SEPARATOR + AUTHENTICATION_SCRIPTS_PATH + FILE_SEPARATOR
 					+ AUTHENTICATION_SCRIPTS_LIST_FILE;
 			if (workspace != null) {
 				File scriptsListFile = new File(workspace.getRemote(), filePth);
@@ -307,11 +315,11 @@ public class CustomZapClientApi implements Serializable {
 			} else {
 				// remplir la liste des scripts
 				return FormValidation.okWithMarkup("<br><b><FONT COLOR=\"green\">Success : The scripts list is loaded."
-								+ "<br>Scripts :<br>" + scripstList + "</FONT></b></br>");
+						+ "<br>Scripts :<br>" + scripstList + "</FONT></b></br>");
 			}
 
-				return FormValidation.okWithMarkup("<br><b><FONT COLOR=\"green\">Success : The scripts list is loaded."
-							+ "<br>Please reload the page in order to access to the scripts list</FONT></b></br>");
+			return FormValidation.okWithMarkup("<br><b><FONT COLOR=\"green\">Success : The scripts list is loaded."
+					+ "<br>Please reload the page in order to access to the scripts list</FONT></b></br>");
 
 		} catch (MalformedURLException e1) {
 
@@ -340,28 +348,30 @@ public class CustomZapClientApi implements Serializable {
 			e.printStackTrace();
 			return FormValidation.error(e.getMessage());
 		}
-		
-		finally{
-			
+
+		finally {
+
 			/*
-			 * ======================================================= | Stop ZAP | =======================================================
-			 */	
-		 
+			 * ======================================================= | Stop
+			 * ZAP | =======================================================
+			 */
+
 			Map<String, String> map = null;
 			map = new HashMap<String, String>();
 			map.put("apikey", zapProxyDefaultApiKey);
 			try {
-				ApiResponseElement set = (ApiResponseElement) CustomZapClientApi.sendRequest(defaultProtocol, zapProxyDefaultHost,
-						zapProxyPort, "xml", "core", "action", "shutdown", map, proxy, zapProxyDefaultTimeoutInSec);
+				ApiResponseElement set = (ApiResponseElement) CustomZapClientApi.sendRequest(defaultProtocol,
+						zapProxyDefaultHost, zapProxyPort, "xml", "core", "action", "shutdown", map, proxy,
+						zapProxyDefaultTimeoutInSec);
 			} catch (IOException | ParserConfigurationException | SAXException | ClientApiException e) {
-				 
+
 				e.printStackTrace();
 			}
-			 
+
 		}
-		
-		
+
 	}
+
 	/**
 	 * Converts seconds in milliseconds.
 	 * 
@@ -379,24 +389,27 @@ public class CustomZapClientApi implements Serializable {
 
 	public void listUserConfigInformation(String contextId, BuildListener listener) {
 
-		ApiResponseList configParamsList = null;
-		try {
-			configParamsList = (ApiResponseList) api.getAuthenticationCredentialsConfigParams(contextId);
-		} catch (ClientApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			listener.error(ExceptionUtils.getStackTrace(e));
-		}
+		if (debug) {
 
-		StringBuilder sb = new StringBuilder("Users' config params: ");
-		for (ApiResponse r : configParamsList.getItems()) {
-			ApiResponseSet set = (ApiResponseSet) r;
-			sb.append(set.getAttribute("name")).append(" (");
-			sb.append((set.getAttribute("mandatory").equals("true") ? "mandatory" : "optional"));
-			sb.append("), ");
-		}
+			ApiResponseList configParamsList = null;
+			try {
+				configParamsList = (ApiResponseList) api.getAuthenticationCredentialsConfigParams(contextId);
+			} catch (ClientApiException e) {
 
-		listener.getLogger().println(sb.deleteCharAt(sb.length() - 2).toString());
+				e.printStackTrace();
+				listener.error(ExceptionUtils.getStackTrace(e));
+			}
+
+			StringBuilder sb = new StringBuilder("Users' config params: ");
+			for (ApiResponse r : configParamsList.getItems()) {
+				ApiResponseSet set = (ApiResponseSet) r;
+				sb.append(set.getAttribute("name")).append(" (");
+				sb.append((set.getAttribute("mandatory").equals("true") ? "mandatory" : "optional"));
+				sb.append("), ");
+			}
+
+			listener.getLogger().println(sb.deleteCharAt(sb.length() - 2).toString());
+		}
 	}
 
 	private static String extractUserId(ApiResponse response) {
@@ -428,7 +441,6 @@ public class CustomZapClientApi implements Serializable {
 
 		return sb.toString();
 	}
-	
 
 	/****************************
 	 * HOME DIRECTORY
@@ -441,7 +453,7 @@ public class CustomZapClientApi implements Serializable {
 			set = (ApiResponseElement) api.getZAPHomeDirectory();
 
 		} catch (ClientApiException e) {
-			
+
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -460,53 +472,51 @@ public class CustomZapClientApi implements Serializable {
 			return set.getAttribute("id");
 
 		} catch (ClientApiException e) {
-			
+
 			System.out.println("Context dose not exist\nIt will be created...");
 			listener.getLogger().println("Context dose not exist\nIt will be created...");
-			
+
 			try {
 				api.newContext(zapProxyKey, contextname);
-				 System.out.println("Context created...");
+				System.out.println("Context created...");
 				listener.getLogger().println("Context created...");
 				return getContextId(contextname, listener);
 			} catch (ClientApiException e1) {
-				
+
 				e1.printStackTrace();
 				listener.error(ExceptionUtils.getStackTrace(e1));
 			}
-			
+
 		}
 		return null;
 	}
-	
-	
-	public String  getUserId(String contextid, BuildListener listener) throws ClientApiException {
-		
-		
+
+	public String getUserId(String contextid, BuildListener listener) throws ClientApiException {
+
 		ApiResponseList userParamsList = (ApiResponseList) api.usersList(contextid);
 		String userId = null;
 		StringBuilder sb = new StringBuilder("Users' config params: \n");
-		
+
 		for (ApiResponse r : userParamsList.getItems()) {
 			ApiResponseSet set = (ApiResponseSet) r;
-			userId=set.getAttribute("id");
-			sb.append("id="+set.getAttribute("id"));
+			userId = set.getAttribute("id");
+			sb.append("id=" + set.getAttribute("id"));
 			sb.append("\n");
-			
-			sb.append("enabled="+set.getAttribute("enabled"));
+
+			sb.append("enabled=" + set.getAttribute("enabled"));
 			sb.append("\n");
-			
-			sb.append("contextId="+set.getAttribute("contextId"));
+
+			sb.append("contextId=" + set.getAttribute("contextId"));
 			sb.append("\n");
-			
-			sb.append("name="+set.getAttribute("name"));
+
+			sb.append("name=" + set.getAttribute("name"));
 			sb.append("\n");
 			sb.append("/************************/");
-			 
+
 		}
 		listener.getLogger().println(sb);
-			return userId;
-		 
+		return userId;
+
 	}
 
 	/****************************
@@ -576,11 +586,11 @@ public class CustomZapClientApi implements Serializable {
 		StringBuilder formBasedConfig = new StringBuilder();
 		try {
 			formBasedConfig.append("loginUrl=").append(URLEncoder.encode(loginUrl, "UTF-8"));
-			
-			loginRequestData = usernameParameter + "={%username%}&" + passwordParameter + "={%password%}&" + loginRequestData;
-			formBasedConfig.append("&loginRequestData=").append(URLEncoder.encode(loginRequestData,	"UTF-8"));
-			
-			
+
+			loginRequestData = usernameParameter + "={%username%}&" + passwordParameter + "={%password%}&"
+					+ loginRequestData;
+			formBasedConfig.append("&loginRequestData=").append(URLEncoder.encode(loginRequestData, "UTF-8"));
+
 			listener.getLogger()
 					.println("Setting form based authentication configuration as: " + formBasedConfig.toString());
 			api.setAuthenticationMethod(zapProxyKey, contextId, "formBasedAuthentication", formBasedConfig.toString());
@@ -608,16 +618,16 @@ public class CustomZapClientApi implements Serializable {
 					.println("Setting Script based authentication configuration as: " + scriptBasedConfig.toString());
 			api.setAuthenticationMethod(zapProxyKey, contextId, "scriptBasedAuthentication",
 					scriptBasedConfig.toString());
-					
+
 			listener.getLogger()
 					.println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));
-			
+
 		} catch (UnsupportedEncodingException e) {
-			
+
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		} catch (ClientApiException e) {
-			 
+
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -640,18 +650,16 @@ public class CustomZapClientApi implements Serializable {
 			listener.getLogger()
 					.println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));
 
-
-		} catch (UnsupportedEncodingException e) {		
+		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		} catch (ClientApiException e) {
-		
+
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
 
 	}
-
 
 	/**
 	 * permet de spécifier les données d'authentification liées à l'utilisateur
@@ -680,11 +688,11 @@ public class CustomZapClientApi implements Serializable {
 			api.setAuthenticationCredentials(zapProxyKey, contextId, userId, userAuthConfig.toString());
 			listener.getLogger().println("Authentication config: " + api.getUserById(contextId, userId).toString(0));
 		} catch (ClientApiException e) {
-		
+
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		} catch (UnsupportedEncodingException e) {
-			
+
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -719,11 +727,11 @@ public class CustomZapClientApi implements Serializable {
 			api.setAuthenticationCredentials(zapProxyKey, contextId, userId, userAuthConfig.toString());
 			listener.getLogger().println("Authentication config: " + api.getUserById(contextId, userId).toString(0));
 		} catch (ClientApiException e) {
-			
+
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		} catch (UnsupportedEncodingException e) {
-			 
+
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -739,19 +747,21 @@ public class CustomZapClientApi implements Serializable {
 	 */
 	public void includeInContext(String url, String contextname, BuildListener listener) {
 		try {
-			String[] urls = url.split("\n");		
+			String[] urls = url.split("\n");
 
 			for (int i = 0; i < urls.length; i++) {
 				urls[i] = urls[i].trim();
 				if (!urls[i].isEmpty()) {
-					ApiResponse status = api.includeInContext(zapProxyKey, contextname, urls[i]);					
-					listener.getLogger().println(((ApiResponseElement) status).getValue());
+					ApiResponse status = api.includeInContext(zapProxyKey, contextname, urls[i]);
+					 
+						if (debug == true)
+							listener.getLogger().println(((ApiResponseElement) status).getValue());
 				}
 
 			}
 
 		} catch (ClientApiException e) {
-			
+
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -769,13 +779,13 @@ public class CustomZapClientApi implements Serializable {
 		try {
 
 			String[] urls = url.split("\n");
-		
 
 			for (int i = 0; i < urls.length; i++) {
 				urls[i] = urls[i].trim();
 				if (!urls[i].isEmpty()) {
 					ApiResponse status = api.excludeFromContext(zapProxyKey, contextname, urls[i]);
-					listener.getLogger().println(((ApiResponseElement) status).getValue());
+					if (debug == true)
+						listener.getLogger().println(((ApiResponseElement) status).getValue());
 				}
 
 			}
@@ -791,7 +801,8 @@ public class CustomZapClientApi implements Serializable {
 
 		try {
 			ApiResponse status = api.setUserEnabled(zapProxyKey, contextid, userid, "true");
-			listener.getLogger().println(((ApiResponseElement) status).getValue());
+			if (debug == true)
+				listener.getLogger().println(((ApiResponseElement) status).getValue());
 
 		} catch (ClientApiException e) {
 			e.printStackTrace();
@@ -799,7 +810,6 @@ public class CustomZapClientApi implements Serializable {
 		}
 	}
 
- 
 	public static void setWebProxyDetails(String webProxyHost, int webProxyPort, String webProxyUser,
 			String webProxyPassword) {
 
@@ -816,7 +826,7 @@ public class CustomZapClientApi implements Serializable {
 
 		try {
 			return api.setPolicyAttackStrength(zapProxyKey, id, attackstrength, scanpolicyname);
-		} catch (ClientApiException e) {			
+		} catch (ClientApiException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -853,7 +863,7 @@ public class CustomZapClientApi implements Serializable {
 		try {
 			api.setScannerAlertThreshold(zapProxyKey, id, attackstrength, scanpolicyname);
 		} catch (ClientApiException e) {
-			 
+
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -871,7 +881,7 @@ public class CustomZapClientApi implements Serializable {
 		try {
 			return api.loadSession(zapProxyKey, name);
 		} catch (ClientApiException e) {
-			 
+
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -882,39 +892,42 @@ public class CustomZapClientApi implements Serializable {
 
 		try {
 			ApiResponse status = api.saveSession(zapProxyKey, name, overwrite);
-			listener.getLogger().println(((ApiResponseElement) status).getValue());
+			if (debug == true)
+				listener.getLogger().println(((ApiResponseElement) status).getValue());
 
 			return ((ApiResponseElement) status).getValue();
 
 		} catch (ClientApiException e) {
-			 
+
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
-			
+
 		}
 		return "KO";
 	}
-	
+
 	/**
-	 * Creates a new session, optionally overwriting existing files. If a relative path is specified it will be resolved against the "session" directory in ZAP "home" dir.
+	 * Creates a new session, optionally overwriting existing files. If a
+	 * relative path is specified it will be resolved against the "session"
+	 * directory in ZAP "home" dir.
 	 */
-	public String newSession(String name, String overwrite, BuildListener listener)   {
+	public String newSession(String name, String overwrite, BuildListener listener) {
 		try {
-		ApiResponse status = api.newSession(zapProxyKey, name, overwrite);
-		listener.getLogger().println(((ApiResponseElement) status).getValue());
+			ApiResponse status = api.newSession(zapProxyKey, name, overwrite);
+			if (debug == true)
+				listener.getLogger().println(((ApiResponseElement) status).getValue());
 
-		return ((ApiResponseElement) status).getValue();
-		
-	} catch (ClientApiException e) {
-		 
-		e.printStackTrace();
-		listener.error(ExceptionUtils.getStackTrace(e));
-		
-	}
-	return "KO";
-	
-	}
+			return ((ApiResponseElement) status).getValue();
 
+		} catch (ClientApiException e) {
+
+			e.printStackTrace();
+			listener.error(ExceptionUtils.getStackTrace(e));
+
+		}
+		return "KO";
+
+	}
 
 	/**************************************************************************/
 
@@ -923,7 +936,7 @@ public class CustomZapClientApi implements Serializable {
 		try {
 			return api.setOptionPostForm(zapProxyKey, bool);
 		} catch (ClientApiException e) {
-			 
+
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -934,7 +947,7 @@ public class CustomZapClientApi implements Serializable {
 
 		try {
 			return api.setOptionProcessForm(zapProxyKey, bool);
-		} catch (ClientApiException e) {			 
+		} catch (ClientApiException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -945,7 +958,7 @@ public class CustomZapClientApi implements Serializable {
 
 		try {
 			return api.setOptionHandleODataParametersVisited(zapProxyKey, bool);
-		} catch (ClientApiException e) {			 
+		} catch (ClientApiException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -956,7 +969,7 @@ public class CustomZapClientApi implements Serializable {
 
 		try {
 			return api.setOptionShowAdvancedDialog(zapProxyKey, bool);
-		} catch (ClientApiException e) {			 
+		} catch (ClientApiException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -967,7 +980,7 @@ public class CustomZapClientApi implements Serializable {
 
 		try {
 			return api.setOptionParseComments(zapProxyKey, bool);
-		} catch (ClientApiException e) {			 
+		} catch (ClientApiException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -978,7 +991,7 @@ public class CustomZapClientApi implements Serializable {
 
 		try {
 			return api.setOptionParseRobotsTxt(zapProxyKey, bool);
-		} catch (ClientApiException e) {			 
+		} catch (ClientApiException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -988,7 +1001,7 @@ public class CustomZapClientApi implements Serializable {
 	public ApiResponse setOptionParseSitemapXml(boolean bool) {
 		try {
 			return api.setOptionParseSitemapXml(zapProxyKey, bool);
-		} catch (ClientApiException e) {			 
+		} catch (ClientApiException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -1004,8 +1017,8 @@ public class CustomZapClientApi implements Serializable {
 		try {
 			response = api.contextList();
 		} catch (ClientApiException e) {
-			 e.printStackTrace();
-			 listener.error(ExceptionUtils.getStackTrace(e));
+			e.printStackTrace();
+			listener.error(ExceptionUtils.getStackTrace(e));
 		}
 
 		return ((ApiResponseElement) response).getValue();
@@ -1052,26 +1065,25 @@ public class CustomZapClientApi implements Serializable {
 		ApiResponse status;
 		String scanid = null;
 		try {
-			status = api.spiderAsUser(zapProxyKey, url, contextid, userid, maxchildren);			
+			status = api.spiderAsUser(zapProxyKey, url, contextid, userid, maxchildren);
 			scanid = ((ApiResponseElement) status).getValue();
 			Map<String, String> params2 = new HashMap<String, String>();
 			params2.put("scanid", scanid);
 			int progress;
 
 			while (true) {
-				Thread.sleep(1000);				
+				Thread.sleep(1000);
 				status = api.spiderStatus(params2);
-				progress = Integer.parseInt(((ApiResponseElement) status).getValue());				
-				listener.getLogger().println("Spider progress : " + progress + "%");				
+				progress = Integer.parseInt(((ApiResponseElement) status).getValue());
+				listener.getLogger().println("Spider progress : " + progress + "%");
 				if (progress >= 100) {
 					break;
 				}
 			}
-			
-			listener.getLogger().println("Spider complete");
-			
 
-		} catch (ClientApiException e) {			
+			listener.getLogger().println("Spider complete");
+
+		} catch (ClientApiException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		} catch (InterruptedException e) {
@@ -1102,27 +1114,27 @@ public class CustomZapClientApi implements Serializable {
 		ApiResponse status;
 		String scanid = null;
 		try {
-			status = api.spider(zapProxyKey, url, maxchildren);			
+			status = api.spider(zapProxyKey, url, maxchildren);
 			scanid = ((ApiResponseElement) status).getValue();
 			Map<String, String> params2 = new HashMap<String, String>();
 			params2.put("scanid", scanid);
 			int progress;
 
 			while (true) {
-				Thread.sleep(1000);				
+				Thread.sleep(1000);
 				status = api.spiderStatus(params2);
-				progress = Integer.parseInt(((ApiResponseElement) status).getValue());				
-				listener.getLogger().println("Spider progress : " + progress + "%");				
+				progress = Integer.parseInt(((ApiResponseElement) status).getValue());
+				listener.getLogger().println("Spider progress : " + progress + "%");
 				if (progress >= 100) {
 					break;
 				}
-			}			
-			listener.getLogger().println("Spider complete");			
+			}
+			listener.getLogger().println("Spider complete");
 
-		} catch (ClientApiException e) {			
+		} catch (ClientApiException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
-		} catch (InterruptedException e) {			
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -1131,8 +1143,8 @@ public class CustomZapClientApi implements Serializable {
 	}
 
 	public String ajaxSpiderURL(String url, String inscope, BuildListener listener) {
-		String result, METHOD, URL;
-		String[] splitedResult, header;		
+		// String result, METHOD, URL;
+		// String[] splitedResult, header;
 		ApiResponse status;
 		String scanid = null;
 		try {
@@ -1148,30 +1160,35 @@ public class CustomZapClientApi implements Serializable {
 				String nbrOfResults = ((ApiResponseElement) api.ajaxNumberOfResults()).getValue();
 				listener.getLogger().println("Number of results : " + nbrOfResults);
 				if (!progress.equals("running")) {
-						break;
+					break;
 				}
-			}			
-			listener.getLogger().println("Ajax Spidering complete");			
-			listener.getLogger().println("*************************************** Liste des URLS trouvées ***************************************");			
-			String nbrOfResults = ((ApiResponseElement) api.ajaxNumberOfResults()).getValue();			
-			listener.getLogger().println("Ajax Spidering number of results : " + nbrOfResults);
-			ApiResponseList results = (ApiResponseList) (api.ajaxResults("1", String.valueOf(nbrOfResults)));
-
-			for (ApiResponse r : results.getItems()) {
-				result = ((ApiResponseSet) r).getAttribute("requestHeader");
-				splitedResult = result.split("\n");
-				header = (splitedResult[0]).split(" ");
-				METHOD = header[0];
-				URL = header[1];
-				listener.getLogger().println(METHOD + " : " + URL);
-				listener.getLogger().println("*********************************************************************************************************");
-
 			}
+			listener.getLogger().println("Ajax Spidering complete");
+			// listener.getLogger().println("***************************************
+			// Liste des URLS trouvées
+			// ***************************************");
+			// String nbrOfResults = ((ApiResponseElement)
+			// api.ajaxNumberOfResults()).getValue();
+			// listener.getLogger().println("Ajax Spidering number of results :
+			// " + nbrOfResults);
+			// ApiResponseList results = (ApiResponseList) (api.ajaxResults("1",
+			// String.valueOf(nbrOfResults)));
+			//
+			// for (ApiResponse r : results.getItems()) {
+			// result = ((ApiResponseSet) r).getAttribute("requestHeader");
+			// splitedResult = result.split("\n");
+			// header = (splitedResult[0]).split(" ");
+			// METHOD = header[0];
+			// URL = header[1];
+			// listener.getLogger().println(METHOD + " : " + URL);
+			// listener.getLogger().println("*********************************************************************************************************");
+			//
+			// }
 
-		} catch (ClientApiException e) {			
+		} catch (ClientApiException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
-		} catch (InterruptedException e) {			
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -1192,7 +1209,7 @@ public class CustomZapClientApi implements Serializable {
 
 			listener.getLogger().println("------------------- DEBUT : RESULTATS DU SPIDERING ------------------- ");
 
-			for (ApiResponse r : results.getItems()) {			
+			for (ApiResponse r : results.getItems()) {
 				listener.getLogger().println(((ApiResponseElement) r).getValue());
 			}
 			listener.getLogger().println("------------------- FIN : RESULTATS DU SPIDERING ------------------- ");
@@ -1205,14 +1222,62 @@ public class CustomZapClientApi implements Serializable {
 
 	}
 
+	/**
+	 * Affiche les résultats de la phase spidering
+	 * 
+	 * @param api
+	 * @param scanId
+	 */
+	public void viewAjaxSpiderResults(BuildListener listener) {
+
+		String result, METHOD, URL;
+		String[] splitedResult, header;
+		ArrayList<String> list = new ArrayList<String>();
+		Set<String> set = new HashSet<String>();
+
+		listener.getLogger().println("------------------- DEBUT : RESULTATS DE L'AJAX SPIDERING ------------------- ");
+		String nbrOfResults;
+		try {
+			nbrOfResults = ((ApiResponseElement) api.ajaxNumberOfResults()).getValue();
+
+			listener.getLogger().println("Ajax Spidering number of results : " + nbrOfResults);
+			ApiResponseList results = (ApiResponseList) (api.ajaxResults("1", String.valueOf(nbrOfResults)));
+
+			for (ApiResponse r : results.getItems()) {
+				result = ((ApiResponseSet) r).getAttribute("requestHeader");
+				splitedResult = result.split("\n");
+				header = (splitedResult[0]).split(" ");
+				METHOD = header[0];
+				URL = header[1];
+				list.add(URL);
+				// listener.getLogger().println(METHOD + " : " + URL);
+			}
+
+			set.addAll(list);
+			ArrayList<String> distinctList = new ArrayList<String>(set);
+
+			Iterator<String> it = distinctList.iterator();
+			while (it.hasNext()) {
+				listener.getLogger().println(it.next());
+			}
+
+			listener.getLogger()
+					.println("------------------- FIN : RESULTATS DE L'AJAX SPIDERING ------------------- ");
+
+		} catch (ClientApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	/*******************************************************************************************************************************/
 
 	/*************************************************** Scanning ******************************************************************/
 	public void scanURL(String url, String scanid, String scanPolicyName, BuildListener listener) {
-		
+
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("apikey", zapProxyKey);
-		params.put("recurse", "true");		
+		params.put("recurse", "true");
 		params.put("scanPolicyName", scanPolicyName);
 		params.put("inScopeOnly", "false");
 		params.put("url", url);
@@ -1226,21 +1291,21 @@ public class CustomZapClientApi implements Serializable {
 			while (true) {
 				Thread.sleep(5000);
 				status = api.scanStatus(params2);
-				progress = Integer.parseInt(((ApiResponseElement) status).getValue());				
+				progress = Integer.parseInt(((ApiResponseElement) status).getValue());
 				listener.getLogger().println("Active Scan progress : " + progress + "%");
 
 				if (progress >= 100) {
 					break;
 				}
-			}			
+			}
 			listener.getLogger().println("Active Scan complete");
-			String nbrAlerts = api.numberOfAlerts("").toString(2);			
+			String nbrAlerts = api.numberOfAlerts("").toString(2);
 			listener.getLogger().println("Alerts number = " + nbrAlerts);
 
-		} catch (ClientApiException e) {			
+		} catch (ClientApiException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
-		} catch (InterruptedException e) {			
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -1248,7 +1313,7 @@ public class CustomZapClientApi implements Serializable {
 	}
 
 	public void scanURLAsUser(String url, String scanid, String contextid, String userid, String recurse,
-			String ScanPolicyName, BuildListener listener) {		
+			String ScanPolicyName, BuildListener listener) {
 		ApiResponse status;
 		try {
 			status = api.scanAsUser(zapProxyKey, url, contextid, userid, recurse, ScanPolicyName);
@@ -1259,21 +1324,21 @@ public class CustomZapClientApi implements Serializable {
 			while (true) {
 				Thread.sleep(5000);
 				status = api.scanStatus(params2);
-				progress = Integer.parseInt(((ApiResponseElement) status).getValue());				
+				progress = Integer.parseInt(((ApiResponseElement) status).getValue());
 				listener.getLogger().println("Active Scan progress : " + progress + "%");
 
 				if (progress >= 100) {
 					break;
 				}
 			}
-			
+
 			listener.getLogger().println("Active Scan complete");
-			String nbrAlerts = api.numberOfAlerts("").toString(2);			
+			String nbrAlerts = api.numberOfAlerts("").toString(2);
 			listener.getLogger().println("Alerts number = " + nbrAlerts);
 
-		} catch (ClientApiException e) {			
+		} catch (ClientApiException e) {
 			e.printStackTrace();
-		} catch (InterruptedException e) {			
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
@@ -1323,9 +1388,10 @@ public class CustomZapClientApi implements Serializable {
 
 		ApiResponse status;
 		try {
-			status = api.isForcedUserModeEnabled();			
-			listener.getLogger().println(((ApiResponseElement) status).getValue());
-		} catch (ClientApiException e) {			
+			status = api.isForcedUserModeEnabled();
+			if (debug == true)
+				listener.getLogger().println(((ApiResponseElement) status).getValue());
+		} catch (ClientApiException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -1335,9 +1401,10 @@ public class CustomZapClientApi implements Serializable {
 	public void getForcedUser(String contextid, BuildListener listener) {
 		ApiResponse status;
 		try {
-			status = api.getForcedUser(contextid);			
-			listener.getLogger().println(((ApiResponseElement) status).getValue());
-		} catch (ClientApiException e) {			
+			status = api.getForcedUser(contextid);
+			if (debug == true)
+				listener.getLogger().println(((ApiResponseElement) status).getValue());
+		} catch (ClientApiException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -1348,9 +1415,10 @@ public class CustomZapClientApi implements Serializable {
 
 		ApiResponse status;
 		try {
-			status = api.setForcedUser(zapProxyKey, contextid, userid);			
-			listener.getLogger().println(((ApiResponseElement) status).getValue());
-		} catch (ClientApiException e) {			
+			status = api.setForcedUser(zapProxyKey, contextid, userid);
+			if (debug == true)
+				listener.getLogger().println(((ApiResponseElement) status).getValue());
+		} catch (ClientApiException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -1361,9 +1429,10 @@ public class CustomZapClientApi implements Serializable {
 
 		ApiResponse status;
 		try {
-			status = api.setForcedUserModeEnabled(zapProxyKey, bool);			
-			listener.getLogger().println(((ApiResponseElement) status).getValue());
-		} catch (ClientApiException e) {			
+			status = api.setForcedUserModeEnabled(zapProxyKey, bool);
+			if (debug == true)
+				listener.getLogger().println(((ApiResponseElement) status).getValue());
+		} catch (ClientApiException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -1372,10 +1441,11 @@ public class CustomZapClientApi implements Serializable {
 
 	/*******************************************************************************************************************************/
 
-	public void enableAllScanners(String scanpolicyname, BuildListener listener) {	
+	public void enableAllScanners(String scanpolicyname, BuildListener listener) {
 		try {
 			ApiResponse status = api.enableAllScanners(zapProxyKey, scanpolicyname);
-			listener.getLogger().println(((ApiResponseElement) status).getValue());
+			if (debug == true)
+				listener.getLogger().println(((ApiResponseElement) status).getValue());
 
 		} catch (ClientApiException e) {
 			e.printStackTrace();
@@ -1388,9 +1458,10 @@ public class CustomZapClientApi implements Serializable {
 
 		try {
 			ApiResponse status = api.disableAllScanners(zapProxyKey, scanpolicyname);
-			listener.getLogger().println(((ApiResponseElement) status).getValue());
+			if (debug == true)
+				listener.getLogger().println(((ApiResponseElement) status).getValue());
 
-		} catch (ClientApiException e) {			
+		} catch (ClientApiException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -1401,9 +1472,10 @@ public class CustomZapClientApi implements Serializable {
 
 		try {
 			ApiResponse status = api.enableScanners(zapProxyKey, ids);
-			listener.getLogger().println(((ApiResponseElement) status).getValue());
+			if (debug == true)
+				listener.getLogger().println(((ApiResponseElement) status).getValue());
 
-		} catch (ClientApiException e) {			
+		} catch (ClientApiException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -1414,9 +1486,10 @@ public class CustomZapClientApi implements Serializable {
 
 		try {
 			ApiResponse status = api.disableScanners(zapProxyKey, ids);
-			listener.getLogger().println(((ApiResponseElement) status).getValue());
+			if (debug == true)
+				listener.getLogger().println(((ApiResponseElement) status).getValue());
 
-		} catch (ClientApiException e) {			
+		} catch (ClientApiException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -1427,7 +1500,8 @@ public class CustomZapClientApi implements Serializable {
 
 		try {
 			ApiResponse status = api.setEnabledPolicies(zapProxyKey, ids);
-			listener.getLogger().println(((ApiResponseElement) status).getValue());
+			if (debug == true)
+				listener.getLogger().println(((ApiResponseElement) status).getValue());
 
 		} catch (ClientApiException e) {
 			e.printStackTrace();
@@ -1440,9 +1514,10 @@ public class CustomZapClientApi implements Serializable {
 
 		try {
 			ApiResponse status = api.PsEnableAllScanners(zapProxyKey);
-			listener.getLogger().println(((ApiResponseElement) status).getValue());
+			if (debug == true)
+				listener.getLogger().println(((ApiResponseElement) status).getValue());
 
-		} catch (ClientApiException e) {			
+		} catch (ClientApiException e) {
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
@@ -1453,7 +1528,8 @@ public class CustomZapClientApi implements Serializable {
 
 		try {
 			ApiResponse status = api.PsDisableAllScanners(zapProxyKey);
-			listener.getLogger().println(((ApiResponseElement) status).getValue());
+			if (debug == true)
+				listener.getLogger().println(((ApiResponseElement) status).getValue());
 
 		} catch (ClientApiException e) {
 			e.printStackTrace();
@@ -1462,18 +1538,16 @@ public class CustomZapClientApi implements Serializable {
 
 	}
 
-
 	/**
 	 * Shuts down ZAP
-	 * @throws ClientApiException 
+	 * 
+	 * @throws ClientApiException
 	 */
 	public void stopZap(String apikey, BuildListener listener) throws ClientApiException {
 
-	
-			ApiResponse status = api.shutdown(zapProxyKey);
+		ApiResponse status = api.shutdown(zapProxyKey);
+		if (debug == true)
 			listener.getLogger().println(((ApiResponseElement) status).getValue());
-
-		
 
 	}
 

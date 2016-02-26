@@ -10,6 +10,8 @@ import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
 import hudson.util.FormValidation;
 import net.sf.json.JSONObject;
+
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -33,9 +35,9 @@ import java.util.Map;
 import java.util.Scanner;
 
 @ExportedBean
-public class ZAProxyWrapper extends BuildWrapper implements Serializable {	
+public class ZAProxyWrapper extends BuildWrapper  {	
 
-	private static final long serialVersionUID = -5641693402522157794L;
+	
 	
 	private static final String ZAP_PROG_NAME_BAT = "zap.bat";
 	private static final String ZAP_PROG_NAME_SH = "zap.sh";
@@ -487,7 +489,18 @@ public class ZAProxyWrapper extends BuildWrapper implements Serializable {
 			    
 			    return CustomZapClientApi.testZAPConnection(protocol, zapProxyHost, zapProxyPort, zapProxyKey,proxy,timeoutInSec );		}
 		
-		
+		public FormValidation doCheckZapDefaultDirectory(@QueryParameter("zapDefaultDirectory") final String zapDefaultDirectory) {
+			if (zapDefaultDirectory.isEmpty())
+				return FormValidation.error("Ce champ est obligatoire");
+			
+			if(zapDefaultDirectory.endsWith("/") || zapDefaultDirectory.endsWith("\\") ){
+				
+				return FormValidation.ok();
+			}			
+			
+			return FormValidation.error("Le chemin d'accès doit se terminer par '/' ou '\\' selon l'environement d'installation choisi");
+			
+		}
 		
 		/**
 		 * Start ZAP locally

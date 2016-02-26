@@ -270,6 +270,8 @@ private static boolean checkURL(Proxy proxy,URL url, int connectionTimeoutInMs, 
 
 	/******************************************/
 	HttpURLConnection conn;
+	
+	//use proxy or not 
 	if(proxy != null){
 	conn = (HttpURLConnection) url.openConnection(proxy);
 	}
@@ -277,6 +279,7 @@ private static boolean checkURL(Proxy proxy,URL url, int connectionTimeoutInMs, 
 		
 	conn = (HttpURLConnection) url.openConnection();	
 	}
+	
 	conn.setRequestMethod("GET");
 	conn.setConnectTimeout(connectionTimeoutInMs);
 	System.out.println(String.format("Fetching %s ...", url));

@@ -867,7 +867,6 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
         envVars.putAll(build.getBuildVariables());
         return Util.replaceMacro(macro, envVars);
     } catch (IOException e) {
-        //LOGGER.log(Level.SEVERE, "Failed to apply macro " + macro, e);
         listener.getLogger().println("Failed to apply macro " + macro);
         listener.error(ExceptionUtils.getStackTrace(e));
         
@@ -908,6 +907,7 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 			if (spiderURL) {
 				listener.getLogger().println("Spider the site [" + targetURL + "] without credentials");
 				spiderURL(targetURL, zapClientAPI, listener);
+				zapClientAPI.viewSpiderResults(scanId, listener);
 			} else {
 				listener.getLogger().println("Skip spidering the site [" + targetURL + "]");
 			}
@@ -920,17 +920,11 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 			if (ajaxSpiderURL) {
 				listener.getLogger().println("Ajax Spider the site [" + targetURL + "] without credentials");
 				ajaxSpiderURL(targetURL, listener, zapClientAPI);
+				zapClientAPI.viewAjaxSpiderResults(listener);
 			} else {
 				listener.getLogger().println("Skip Ajax spidering the site [" + targetURL + "]");
 			}
-			/*
-			 * ======================================================= |
-			 * VIEW SPIDER RESULTS |
-			 * =======================================================
-			 */
-			if (spiderURL || ajaxSpiderURL) {
-				zapClientAPI.viewSpiderResults(scanId, listener);
-			}
+			 
 			/*
 			 * ======================================================= |
 			 * SCAN URL |
@@ -979,6 +973,7 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 				listener.getLogger().println("Spider the site [" + targetURL + "] As User [" + userId + "]");
 
 				spiderURLAsUser(targetURL, listener, zapClientAPI, this.getContextId(), this.getUserId());
+				zapClientAPI.viewSpiderResults(scanId, listener);
 
 			} else {
 				listener.getLogger()
@@ -994,20 +989,13 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 				listener.getLogger()
 						.println("Ajax Spider the site [" + targetURL + "] As User [" + userId + "]");
 				ajaxSpiderURL(targetURL, listener, zapClientAPI);
+				zapClientAPI.viewAjaxSpiderResults(listener);
 			} else {
 				listener.getLogger()
 						.println("Skip Ajax spidering the site [" + targetURL + "] As User [" + userId + "]");
 			}
 
-			/*
-			 * ======================================================= |
-			 * VIEW SPIDER RESULTS |
-			 * =======================================================
-			 */
-
-			if (spiderURL || ajaxSpiderURL) {
-				zapClientAPI.viewSpiderResults(scanId, listener);
-			}
+			 
 
 			/*
 			 * ======================================================= |
@@ -1040,10 +1028,16 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 	 * @return Whether or not the test type string matches.
 	 */
 	public String isScanMode(String testTypeName) {
+		if(scanMode  == null )
+			return "" ;
+		else 
 		return this.scanMode.equalsIgnoreCase(testTypeName) ? "true" : "";
 	}
 
 	public String isAuthenticationMode(String testTypeName) {
+		if(authenticationMode  == null )
+			return "" ;
+		else 
 		return this.authenticationMode.equalsIgnoreCase(testTypeName) ? "true" : "";
 	}
 

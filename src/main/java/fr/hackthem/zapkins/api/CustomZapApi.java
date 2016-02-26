@@ -47,9 +47,6 @@ import org.zaproxy.clientapi.core.ClientApiException;
 
 import hudson.model.BuildListener;
 
- 
-
-
 
 public class CustomZapApi implements Serializable {
 
