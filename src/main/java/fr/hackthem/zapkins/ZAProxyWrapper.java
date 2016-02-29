@@ -35,10 +35,14 @@ import java.util.Map;
 import java.util.Scanner;
 
 @ExportedBean
-public class ZAProxyWrapper extends BuildWrapper  {	
+public class ZAProxyWrapper extends BuildWrapper implements Serializable  {	
 
 	
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1953744336555803437L;
 	private static final String ZAP_PROG_NAME_BAT = "zap.bat";
 	private static final String ZAP_PROG_NAME_SH = "zap.sh";
 	public static final String CMD_LINE_PORT = "-port";
