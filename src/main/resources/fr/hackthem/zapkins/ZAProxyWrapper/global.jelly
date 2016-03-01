@@ -106,6 +106,13 @@ SOFTWARE.
 			
 		<f:optionalBlock title="${%Démarrer ZAP}" field="startZAPFirst" inline="true" >	
 		</f:optionalBlock>
+		<f:optionalBlock title="${%Activer le mode debuggage}" field="debugMod" description="Ce mode permet de fixer le numéro de port du serveur ZAP et afficher plus de détails de debug" inline="true" >	
+					
+			<f:entry title="${%Le numéro de port à utiliser}" field="debugPort"	description="Entrer le numéro de port sur lequel ZAP doit écouter">
+				<f:number default="8080" clazz="required positive-number" />
+			</f:entry>
+		
+		</f:optionalBlock>
 		
 		
       <f:entry  title="Type d'installation de ZAP" field="zapInstallationType"> 	
@@ -228,7 +235,7 @@ SOFTWARE.
 		
 		</f:radioBlock>
 		<f:radioBlock title="${%ZAP : installé en LOCALE}" 	name="startZAPFirst" value="LOCALE" checked="${descriptor.isZAPInstaltionLocation('LOCALE')}" inline="true"/>  -->
-		<f:validateButton   title="${%Tester la connection à ZAP}" progress="${%Connexion...}"   method="testZAPConnection" with="zapDefaultDirectory,zapProxyDefaultTimeoutInSec,defaultProtocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyDefaultHost,zapProxyDefaultPort,zapProxyDefaultApiKey,zapInstallationType,zapProxyDefaultTimeoutSSHInSec,zapDefaultSSHPort,zapDefaultSSHUser,zapDefaultSSHPassword" />
+		<f:validateButton   title="${%Tester la connection à ZAP}" progress="${%Connexion...}"   method="testZAPConnection" with="debugMod,debugPort,zapDefaultDirectory,zapProxyDefaultTimeoutInSec,defaultProtocol,useWebProxy,webProxyHost,webProxyPort,webProxyUser,webProxyPassword,zapProxyDefaultHost,zapProxyDefaultPort,zapProxyDefaultApiKey,zapInstallationType,zapProxyDefaultTimeoutSSHInSec,zapDefaultSSHPort,zapDefaultSSHUser,zapDefaultSSHPassword" />
 		<!-- ******************************************************************************** -->
 	
 		<!-- </f:optionalBlock> -->	

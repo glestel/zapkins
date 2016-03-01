@@ -90,7 +90,7 @@ SOFTWARE.
 <!-- ======================================================== SCAN : MODE NON AUTHENTIFIE ======================================================================================================================= -->
 	
 	<!-- <f:radioBlock title="${%Scan en mode non authentifié}" 	name="scanMode" value="NOT_AUTHENTICATED" checked="${instance.isScanMode('NOT_AUTHENTICATED')}" inline="true"> -->
-	<f:radioBlock title="${%Scan en mode non authentifié}" 	name="scanMode" value="NOT_AUTHENTICATED" checked="true" inline="true">
+	<f:radioBlock title="${%Scan en mode non authentifié}" 	name="scanMode" value="NOT_AUTHENTICATED" checked="${instance.isScanMode('NOT_AUTHENTICATED')}" inline="true">
 		<!-- <f:entry>
 			<table>
 			<f:optionalBlock title="${%Spider URL}" field="spiderURL" inline="true" />
@@ -103,13 +103,16 @@ SOFTWARE.
 <!-- ======================================================== SCAN : MODE AUTHENTIFIE ====================================================================================================================== -->
 	
 	<f:radioBlock title="${%Scan en mode authentifié}" 	name="scanMode" value="AUTHENTICATED" checked="${instance.isScanMode('AUTHENTICATED')}" inline="true">
- 				<f:entry>
-				   <table>
+ 	  <f:nested>
+		<f:entry>
+				<table >
+				 
 					  <!-- =========================================================== authentification basée sur le script  ========================================================================= -->
-					  <f:radioBlock title="${%Authentification basée sur un script}" 	name="authenticationMode" value="SCRIPT_BASED" checked="${instance.isAuthenticationMode('SCRIPT_BASED')}" inline="true">
-					  
-						<f:nested>
-						  <f:entry title="${%Nom du scripit d'authentification}" field="scriptName">
+					  <f:radioBlock title="${%Authentification basée sur un script}" 	name="authenticationMode" value="SCRIPT_BASED" checked="${instance.isScanMode('AUTHENTICATED') and instance.isAuthenticationMode('SCRIPT_BASED') }" inline="true">
+					  <f:nested>
+						<f:entry>
+							<table width="100%">
+						  <f:entry title="${%Nom du script d'authentification}" field="scriptName">
 								<!-- <f:textbox clazz="required" /> -->
 								<f:select />
 						  </f:entry>
@@ -143,16 +146,19 @@ SOFTWARE.
 						<f:entry title="${%Preuve de déconnexion}" field="scriptLoggedOutIndicator" description="L'expression de déconnexion doit être écrite de cette façon : \QLog in\E.*" >
 										<f:textbox  />
 						</f:entry>	
-					</f:nested>						
-					  
-					  </f:radioBlock>	
-					     
+					 					
+					  </table>
+					</f:entry>
+					</f:nested>
+				</f:radioBlock>	
+				      
 					<!-- =========================================================== authentification basée sur formulaire  ========================================================================= -->
-	
-					<f:radioBlock title="${%Authentification basée sur un formulaire}" 	name="authenticationMode" value="FORM_BASED" checked="${instance.isAuthenticationMode('FORM_BASED')}" inline="true"> 
+			 
+				<f:radioBlock title="${%Authentification basée sur un formulaire}" 	name="authenticationMode" value="FORM_BASED" checked="${instance.isScanMode('AUTHENTICATED') and instance.isAuthenticationMode('FORM_BASED')}" inline="true"> 
 					<!-- <f:radioBlock title="${%Authentification basée sur un formulaire}" 	name="authenticationMode" value="FORM_BASED" checked="true" inline="true"> -->
-				 
-					  
+							 <f:nested>
+					  			<f:entry>
+									<table width="100%">
 									<f:entry title="${%URL d'authentification}" field="loginUrl">
 										<f:textbox clazz="required" />
 									</f:entry>
@@ -183,21 +189,25 @@ SOFTWARE.
 									
 									<f:entry title="${%Preuve de déconnexion}" field="formLoggedOutIndicator">
 										<f:textbox  />
-									</f:entry>					  
-					  
+									</f:entry>	
+
+									</table>
+								</f:entry>
+						</f:nested>
 					  </f:radioBlock>	
-					  
-					  </table>  
-	  </f:entry> 
+						
+					 
+				</table>
+			 </f:entry> 
 	  <!-- <f:optionalBlock title="${%Spider URL As User}" field="spiderAsUser" inline="true" />
 	  <f:optionalBlock title="${%Ajax Spider URL As User}" field="ajaxSpiderURLAsUser" inline="true" />
 	  <f:optionalBlock title="${%Scan URL As User}"  field="scanURLAsUser" inline="true" />	 -->
-
-</f:radioBlock>	
-
+	  </f:nested>
+	</f:radioBlock>	
+</f:section>
 <!-- ================================================================================================================================================================================== -->
  	
-</f:section>
+
 	<f:section title="${%Options post audit}">	
 		<!-- ****************************************************************** -->	
 		<f:optionalBlock title="${%Générer le rapport d'audit}"  field="saveReports" inline="true">
