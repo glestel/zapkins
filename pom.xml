@@ -11,7 +11,7 @@
   
   <groupId>fr.hackthem</groupId>
   <artifactId>zapkins</artifactId>
-  <version>2.0.3</version>
+  <version>2.0.4</version>
   <packaging>hpi</packaging>
   <name>zapkins</name>
   <description>Ce plugin permet de lancer ZAP à travers Jenkins. Cette version est orientée développeur d'où la migration de plusieurs options de configuration vers l'interface d'administration.</description>
