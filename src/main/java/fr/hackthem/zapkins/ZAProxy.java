@@ -43,7 +43,7 @@ import hudson.remoting.VirtualChannel;
 import hudson.slaves.SlaveComputer;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-import fr.hackthem.zapkins.api.CustomZapClientApi;
+import fr.hackthem.zapkins.api.CustomZapClientApi; 
 import fr.hackthem.zapkins.report.ZAPreport;
 import fr.hackthem.zapkins.report.ZAPreportCollection;
 import fr.hackthem.zapkins.report.ZAPscannersCollection;
@@ -93,10 +93,14 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	public static final String FILE_SCRIPTS_EXTENSION = ".scripts";
 	public static final String AUTHENTICATION_SCRIPTS_LIST_FILE = "authenticationScriptsList.scripts";
 	public static final String SESSIONS_LIST_FILE = "sessionsListFile.session";
+	
+	public static final String SPIDERING_RESULTS_FILE = "spidering.txt";
+	public static final String AJAX_SPIDERING_RESULTS_FILE = "ajaxSpidering.txt";
 
 	public final static String ROOT_PATH = "ZAPRProxy";
 	public final String REPORTS_PATH = "reports";
 	public final String SESSIONS_PATH = "sessions";
+	public final String LOGS_PATH = "logs";
 	public final static String AUTHENTICATION_SCRIPTS_PATH = "scripts";
 	
 	private static final String ZAP_PROG_NAME_BAT = "zap.bat";
@@ -781,7 +785,7 @@ public CustomZapClientApi executeZAP(AbstractBuild build, Launcher launcher, Bui
 	HttpUtilities.waitForSuccessfulConnectionToZap(null,protocol, zapProxyHost, zapProxyPort,zapProxyDefaultTimeoutInSec, listener);
 	
 	listener.getLogger().println("targetURL : " + targetURL);
-	listener.getLogger().println("authorizedURL : " + authorizedURL);
+	listener.getLogger().println("authorizedURL : \n" + authorizedURL);
 	
 	if(!SecurityTools.isUrlAuditable(targetURL, authorizedURL)){
 		
@@ -878,6 +882,8 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 		boolean spiderURL = ZAProxyWrapper.DESCRIPTOR.isSpiderURL();
 		boolean ajaxSpiderURL = ZAProxyWrapper.DESCRIPTOR.isAjaxSpiderURL();
 		boolean scanURL = ZAProxyWrapper.DESCRIPTOR.isScanURL();		
+		boolean debugMod = ZAProxyWrapper.DESCRIPTOR.isDebugMod();
+		String zapHomeDirectory = ZAProxyWrapper.DESCRIPTOR.getZapDefaultDirectory();
 		listener.getLogger().println("Skip loadSession");
 
 		/*
@@ -907,7 +913,12 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 			if (spiderURL) {
 				listener.getLogger().println("Spider the site [" + targetURL + "] without credentials");
 				spiderURL(targetURL, zapClientAPI, listener);
+				zapClientAPI.logSpiderResults( scanId, workspace, zapHomeDirectory,  ROOT_PATH,   LOGS_PATH,   SPIDERING_RESULTS_FILE);
+				
+				if(debugMod==true)
 				zapClientAPI.viewSpiderResults(scanId, listener);
+				
+				
 			} else {
 				listener.getLogger().println("Skip spidering the site [" + targetURL + "]");
 			}
@@ -920,6 +931,9 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 			if (ajaxSpiderURL) {
 				listener.getLogger().println("Ajax Spider the site [" + targetURL + "] without credentials");
 				ajaxSpiderURL(targetURL, listener, zapClientAPI);
+				zapClientAPI.logAjaxSpiderResults(workspace,zapHomeDirectory,ROOT_PATH,LOGS_PATH, AJAX_SPIDERING_RESULTS_FILE );
+				
+				if(debugMod==true)
 				zapClientAPI.viewAjaxSpiderResults(listener);
 			} else {
 				listener.getLogger().println("Skip Ajax spidering the site [" + targetURL + "]");
@@ -973,6 +987,9 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 				listener.getLogger().println("Spider the site [" + targetURL + "] As User [" + userId + "]");
 
 				spiderURLAsUser(targetURL, listener, zapClientAPI, this.getContextId(), this.getUserId());
+				zapClientAPI.logSpiderResults( scanId, workspace, zapHomeDirectory,  ROOT_PATH,   LOGS_PATH,   SPIDERING_RESULTS_FILE);
+				
+				if(debugMod==true)
 				zapClientAPI.viewSpiderResults(scanId, listener);
 
 			} else {
@@ -989,6 +1006,9 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 				listener.getLogger()
 						.println("Ajax Spider the site [" + targetURL + "] As User [" + userId + "]");
 				ajaxSpiderURL(targetURL, listener, zapClientAPI);
+				zapClientAPI.logAjaxSpiderResults(workspace,zapHomeDirectory,ROOT_PATH,LOGS_PATH, AJAX_SPIDERING_RESULTS_FILE );
+				
+				if(debugMod==true)
 				zapClientAPI.viewAjaxSpiderResults(listener);
 			} else {
 				listener.getLogger()

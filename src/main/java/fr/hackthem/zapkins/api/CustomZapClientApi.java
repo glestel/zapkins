@@ -605,7 +605,8 @@ public class CustomZapClientApi implements Serializable {
 			
 
 			listener.getLogger().println("Setting form based authentication configuration as: " + formBasedConfigWithoutPassword.toString());
-			//listener.getLogger().println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));	
+			if(debug == true)
+			listener.getLogger().println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));	
 			
 
 		} catch (UnsupportedEncodingException e) {
@@ -630,7 +631,8 @@ public class CustomZapClientApi implements Serializable {
 			api.setAuthenticationMethod(zapProxyKey, contextId, "scriptBasedAuthentication",
 					scriptBasedConfig.toString());
 
-			//listener.getLogger().println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));
+			if(debug == true)
+			listener.getLogger().println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));
 
 		} catch (UnsupportedEncodingException e) {
 
@@ -657,7 +659,8 @@ public class CustomZapClientApi implements Serializable {
 					.println("Setting Script based authentication configuration as: " + scriptBasedConfig.toString());
 			api.setAuthenticationMethod(zapProxyKey, contextId, "scriptBasedAuthentication",
 					scriptBasedConfig.toString());
-			//listener.getLogger().println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));
+			if(debug == true)
+			listener.getLogger().println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));
 
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
@@ -705,6 +708,7 @@ public class CustomZapClientApi implements Serializable {
 			
 			
 			api.setAuthenticationCredentials(zapProxyKey, contextId, userId, userAuthConfig.toString());
+			if(debug == true)
 			listener.getLogger().println("Authentication config: " + api.getUserById(contextId, userId).toString(0));
 			
 			
@@ -757,7 +761,8 @@ public class CustomZapClientApi implements Serializable {
 			
 			
 			api.setAuthenticationCredentials(zapProxyKey, contextId, userId, userAuthConfig.toString());
-			//listener.getLogger().println("Authentication config: " + api.getUserById(contextId, userId).toString(0));
+			if(debug == true)
+				listener.getLogger().println("Authentication config: " + api.getUserById(contextId, userId).toString(0));
 		} catch (ClientApiException e) {
 
 			e.printStackTrace();
@@ -1253,6 +1258,64 @@ public class CustomZapClientApi implements Serializable {
 		}
 
 	}
+	
+	/**
+	 * Affiche les résultats de la phase spidering
+	 * 
+	 * @param api
+	 * @param scanId
+	 */
+	public void logSpiderResults(String scanId, FilePath workspace,String zapHomeDirectory,String ROOT_PATH, String LOGS_PATH, String SPIDERING_RESULTS_FILE ) {
+		
+		String FILE_SEPARATOR;
+		
+		if (zapHomeDirectory.startsWith("/")) {
+			FILE_SEPARATOR = "/";
+		} else {
+			FILE_SEPARATOR = "\\";
+		}
+
+		/* ======================================================= */
+
+		StringBuilder sb = new StringBuilder();	
+
+		// probleme avec getFILE_SEPARATOR(), avant le build cette
+		// fonction doit retourner une valeur
+		String filePth = ROOT_PATH + FILE_SEPARATOR + LOGS_PATH + FILE_SEPARATOR+ SPIDERING_RESULTS_FILE;
+		
+		try {
+			ApiResponseList results = (ApiResponseList) api.results(scanId);
+
+			//listener.getLogger().println("------------------- DEBUT : RESULTATS DU SPIDERING ------------------- ");
+			sb.append("------------------- DEBUT : RESULTATS DU SPIDERING ------------------- \n\n");
+			
+
+			for (ApiResponse r : results.getItems()) {
+				//listener.getLogger().println(((ApiResponseElement) r).getValue());
+				sb.append(((ApiResponseElement) r).getValue()+"\n");
+			}
+			//listener.getLogger().println("------------------- FIN : RESULTATS DU SPIDERING ------------------- ");
+			sb.append("\n------------------- FIN : RESULTATS DU SPIDERING ------------------- \n");
+			
+			
+			String spideringResults = sb.toString();
+			
+			if (workspace != null) {
+				File spideringResultsFile = new File(workspace.getRemote(), filePth);
+				FileUtils.writeByteArrayToFile(spideringResultsFile, spideringResults.getBytes());
+			
+			}
+
+		} catch (ClientApiException e) {
+
+			e.printStackTrace();
+			listener.error(ExceptionUtils.getStackTrace(e));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
 
 	/**
 	 * Affiche les résultats de la phase spidering
@@ -1300,6 +1363,92 @@ public class CustomZapClientApi implements Serializable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	
+	/**
+	 * Affiche les résultats de la phase spidering
+	 * 
+	 * @param api
+	 * @param scanId
+	 */
+	public void logAjaxSpiderResults(FilePath workspace,String zapHomeDirectory,String ROOT_PATH, String LOGS_PATH, String AJAX_SPIDERING_RESULTS_FILE ) {
+		
+		String FILE_SEPARATOR;
+		String result, METHOD, URL;
+		String[] splitedResult, header;
+		ArrayList<String> list = new ArrayList<String>();
+		Set<String> set = new HashSet<String>();
+		StringBuilder sb = new StringBuilder();	
+		String nbrOfResults;
+		
+		if (zapHomeDirectory.startsWith("/")) {
+			FILE_SEPARATOR = "/";
+		} else {
+			FILE_SEPARATOR = "\\";
+		}
+
+		/* ======================================================= */
+
+		
+
+		// probleme avec getFILE_SEPARATOR(), avant le build cette
+		// fonction doit retourner une valeur
+		String filePth = ROOT_PATH + FILE_SEPARATOR + LOGS_PATH + FILE_SEPARATOR+ AJAX_SPIDERING_RESULTS_FILE;
+		
+		try {
+		
+			//listener.getLogger().println("------------------- DEBUT : RESULTATS DU SPIDERING ------------------- ");
+			sb.append("------------------- DEBUT : RESULTATS DE L'AJAX SPIDERING ------------------- \n\n");
+			
+			nbrOfResults = ((ApiResponseElement) api.ajaxNumberOfResults()).getValue();
+
+			//listener.getLogger().println("Ajax Spidering number of results : " + nbrOfResults);
+			ApiResponseList results = (ApiResponseList) (api.ajaxResults("1", String.valueOf(nbrOfResults)));
+
+			for (ApiResponse r : results.getItems()) {
+				result = ((ApiResponseSet) r).getAttribute("requestHeader");
+				splitedResult = result.split("\n");
+				header = (splitedResult[0]).split(" ");
+				METHOD = header[0];
+				URL = header[1];
+				list.add(URL);
+				// listener.getLogger().println(METHOD + " : " + URL);
+			}
+
+			set.addAll(list);
+			ArrayList<String> distinctList = new ArrayList<String>(set);
+
+			Iterator<String> it = distinctList.iterator();
+			while (it.hasNext()) {
+				//listener.getLogger().println(it.next());
+				sb.append(it.next()+"\n");
+			}
+
+			
+			
+
+			//listener.getLogger().println("------------------- FIN : RESULTATS DU SPIDERING ------------------- ");
+			sb.append("\n------------------- FIN : RESULTATS DE L'AJAX SPIDERING ------------------- \n");
+			
+			
+			String spideringResults = sb.toString();
+			
+			if (workspace != null) {
+				File spideringResultsFile = new File(workspace.getRemote(), filePth);
+				FileUtils.writeByteArrayToFile(spideringResultsFile, spideringResults.getBytes());
+			
+			}
+
+		} catch (ClientApiException e) {
+
+			e.printStackTrace();
+			listener.error(ExceptionUtils.getStackTrace(e));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	/*******************************************************************************************************************************/
