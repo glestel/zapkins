@@ -584,18 +584,29 @@ public class CustomZapClientApi implements Serializable {
 			String usernameParameter, String passwordParameter, BuildListener listener) {
 
 		StringBuilder formBasedConfig = new StringBuilder();
+		
+		//debug
+		StringBuilder formBasedConfigWithoutPassword = new StringBuilder();
+		String loginRequestDataWithoutPassword=loginRequestData;
+		
 		try {
-			formBasedConfig.append("loginUrl=").append(URLEncoder.encode(loginUrl, "UTF-8"));
+			formBasedConfig.append("loginUrl=").append(URLEncoder.encode(loginUrl, "UTF-8"));			
 
-			loginRequestData = usernameParameter + "={%username%}&" + passwordParameter + "={%password%}&"
-					+ loginRequestData;
+			loginRequestData = usernameParameter + "={%username%}&" + passwordParameter + "={%password%}&"	+ loginRequestData;
 			formBasedConfig.append("&loginRequestData=").append(URLEncoder.encode(loginRequestData, "UTF-8"));
 
-			listener.getLogger()
-					.println("Setting form based authentication configuration as: " + formBasedConfig.toString());
-			api.setAuthenticationMethod(zapProxyKey, contextId, "formBasedAuthentication", formBasedConfig.toString());
-			listener.getLogger()
-					.println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));
+			api.setAuthenticationMethod(zapProxyKey, contextId, "formBasedAuthentication", formBasedConfig.toString());			
+			
+			//debug			
+			formBasedConfigWithoutPassword.append("loginUrl=").append(URLEncoder.encode(loginUrl, "UTF-8"));
+			loginRequestDataWithoutPassword = usernameParameter + "={%username%}&" + passwordParameter + "=xxxxxxxxxxxxx&"
+					+ loginRequestDataWithoutPassword;
+			formBasedConfigWithoutPassword.append("&loginRequestData=").append(URLEncoder.encode(loginRequestDataWithoutPassword, "UTF-8"));
+			
+
+			listener.getLogger().println("Setting form based authentication configuration as: " + formBasedConfigWithoutPassword.toString());
+			listener.getLogger().println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));	
+			
 
 		} catch (UnsupportedEncodingException e) {
 
@@ -679,14 +690,29 @@ public class CustomZapClientApi implements Serializable {
 			BuildListener listener) {
 
 		String userId = null;
+		StringBuilder userAuthConfig = new StringBuilder();
+		StringBuilder userAuthConfigWithoutPassword = new StringBuilder();
+		
+		
 		try {
 			userId = extractUserId(api.newUser(zapProxyKey, contextId, user));
-			StringBuilder userAuthConfig = new StringBuilder();
+			
+			
 			userAuthConfig.append("Username=").append(URLEncoder.encode(username, "UTF-8"));
-			//userAuthConfig.append("&Password=").append(URLEncoder.encode(password, "UTF-8"));
-			listener.getLogger().println("Setting user authentication configuration as: " + userAuthConfig.toString());
+			userAuthConfig.append("&Password=").append(URLEncoder.encode(password, "UTF-8"));
+			//debug
+			userAuthConfigWithoutPassword.append("Username=").append(URLEncoder.encode(username, "UTF-8"));
+			userAuthConfigWithoutPassword.append("&Password=").append(URLEncoder.encode("xxxxxx", "UTF-8"));			
+			listener.getLogger().println("Setting user authentication configuration as: " + userAuthConfigWithoutPassword.toString());
+			
+			
 			api.setAuthenticationCredentials(zapProxyKey, contextId, userId, userAuthConfig.toString());
 			listener.getLogger().println("Authentication config: " + api.getUserById(contextId, userId).toString(0));
+			
+			
+			
+			
+			
 		} catch (ClientApiException e) {
 
 			e.printStackTrace();
@@ -718,12 +744,20 @@ public class CustomZapClientApi implements Serializable {
 			BuildListener listener) {
 
 		String userId = null;
+		StringBuilder userAuthConfig = new StringBuilder();
+		StringBuilder userAuthConfigWithoutPassword = new StringBuilder();
 		try {
 			userId = extractUserId(api.newUser(zapProxyKey, contextId, user));
-			StringBuilder userAuthConfig = new StringBuilder();
+			
 			userAuthConfig.append("username=").append(URLEncoder.encode(username, "UTF-8"));
-			//userAuthConfig.append("&password=").append(URLEncoder.encode(password, "UTF-8"));
-			listener.getLogger().println("Setting user authentication configuration as: " + userAuthConfig.toString());
+			userAuthConfig.append("&password=").append(URLEncoder.encode(password, "UTF-8"));
+			
+			//debug
+			userAuthConfigWithoutPassword.append("username=").append(URLEncoder.encode(username, "UTF-8"));
+			userAuthConfigWithoutPassword.append("&password=").append(URLEncoder.encode("xxxxx", "UTF-8"));			
+			listener.getLogger().println("Setting user authentication configuration as: " + userAuthConfigWithoutPassword.toString());
+			
+			
 			api.setAuthenticationCredentials(zapProxyKey, contextId, userId, userAuthConfig.toString());
 			listener.getLogger().println("Authentication config: " + api.getUserById(contextId, userId).toString(0));
 		} catch (ClientApiException e) {
