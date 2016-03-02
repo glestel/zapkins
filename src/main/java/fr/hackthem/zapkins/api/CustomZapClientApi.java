@@ -683,7 +683,7 @@ public class CustomZapClientApi implements Serializable {
 			userId = extractUserId(api.newUser(zapProxyKey, contextId, user));
 			StringBuilder userAuthConfig = new StringBuilder();
 			userAuthConfig.append("Username=").append(URLEncoder.encode(username, "UTF-8"));
-			userAuthConfig.append("&Password=").append(URLEncoder.encode(password, "UTF-8"));
+			//userAuthConfig.append("&Password=").append(URLEncoder.encode(password, "UTF-8"));
 			listener.getLogger().println("Setting user authentication configuration as: " + userAuthConfig.toString());
 			api.setAuthenticationCredentials(zapProxyKey, contextId, userId, userAuthConfig.toString());
 			listener.getLogger().println("Authentication config: " + api.getUserById(contextId, userId).toString(0));
@@ -722,7 +722,7 @@ public class CustomZapClientApi implements Serializable {
 			userId = extractUserId(api.newUser(zapProxyKey, contextId, user));
 			StringBuilder userAuthConfig = new StringBuilder();
 			userAuthConfig.append("username=").append(URLEncoder.encode(username, "UTF-8"));
-			userAuthConfig.append("&password=").append(URLEncoder.encode(password, "UTF-8"));
+			//userAuthConfig.append("&password=").append(URLEncoder.encode(password, "UTF-8"));
 			listener.getLogger().println("Setting user authentication configuration as: " + userAuthConfig.toString());
 			api.setAuthenticationCredentials(zapProxyKey, contextId, userId, userAuthConfig.toString());
 			listener.getLogger().println("Authentication config: " + api.getUserById(contextId, userId).toString(0));
