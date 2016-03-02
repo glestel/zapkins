@@ -605,7 +605,7 @@ public class CustomZapClientApi implements Serializable {
 			
 
 			listener.getLogger().println("Setting form based authentication configuration as: " + formBasedConfigWithoutPassword.toString());
-			listener.getLogger().println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));	
+			//listener.getLogger().println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));	
 			
 
 		} catch (UnsupportedEncodingException e) {
@@ -630,8 +630,7 @@ public class CustomZapClientApi implements Serializable {
 			api.setAuthenticationMethod(zapProxyKey, contextId, "scriptBasedAuthentication",
 					scriptBasedConfig.toString());
 
-			listener.getLogger()
-					.println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));
+			//listener.getLogger().println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));
 
 		} catch (UnsupportedEncodingException e) {
 
@@ -658,8 +657,7 @@ public class CustomZapClientApi implements Serializable {
 					.println("Setting Script based authentication configuration as: " + scriptBasedConfig.toString());
 			api.setAuthenticationMethod(zapProxyKey, contextId, "scriptBasedAuthentication",
 					scriptBasedConfig.toString());
-			listener.getLogger()
-					.println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));
+			//listener.getLogger().println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));
 
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
@@ -759,7 +757,7 @@ public class CustomZapClientApi implements Serializable {
 			
 			
 			api.setAuthenticationCredentials(zapProxyKey, contextId, userId, userAuthConfig.toString());
-			listener.getLogger().println("Authentication config: " + api.getUserById(contextId, userId).toString(0));
+			//listener.getLogger().println("Authentication config: " + api.getUserById(contextId, userId).toString(0));
 		} catch (ClientApiException e) {
 
 			e.printStackTrace();
