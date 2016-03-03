@@ -207,7 +207,7 @@ SOFTWARE.
 							 <f:nested>
 					  			<f:entry>
 									<table width="100%">
-									<f:entry title="${%Nom du serveur d'authentification sans http/https}" field="httpHostname">
+									<f:entry title="${%Nom du serveur d'authentification}" field="httpHostname">
 										<f:textbox clazz="required" />
 									</f:entry>
 									<f:entry title="${%Numéro de port}" field="httpAuthenticationPort">

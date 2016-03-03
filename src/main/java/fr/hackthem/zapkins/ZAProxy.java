@@ -221,7 +221,9 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	/** Id of the newly created scan */
 	private String scanId;
 	
-	private CustomZapClientApi zapClientAPI;
+	
+	//ce champ n'a pas besoin d'être sérialisé, faire attention à ce point si on souhaite garder la configuration du plugin peristente
+	private transient CustomZapClientApi zapClientAPI;
 
 
 		@DataBoundConstructor

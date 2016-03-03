@@ -35,14 +35,10 @@ import java.util.Map;
 import java.util.Scanner;
 
 @ExportedBean
-public class ZAProxyWrapper extends BuildWrapper implements Serializable  {	
+public class ZAProxyWrapper extends BuildWrapper  {	
 
 	
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1953744336555803437L;
+
 	private static final String ZAP_PROG_NAME_BAT = "zap.bat";
 	private static final String ZAP_PROG_NAME_SH = "zap.sh";
 	public static final String CMD_LINE_PORT = "-port";
@@ -50,7 +46,7 @@ public class ZAProxyWrapper extends BuildWrapper implements Serializable  {
 	
 	//this is important "transient" if you encounter the probleme : Exception when saving the job configuration
 	//e.g : https://groups.google.com/forum/#!search/Failed$20to$20serialize$20buildWrappers/jenkinsci-issues/MiOjNXdXazg/TmyqzVWODswJ
-	private final transient ZAProxy zaproxy;
+	private final  ZAProxy zaproxy;
 
     @DataBoundConstructor
     public ZAProxyWrapper(  ZAProxy zaproxy) {
@@ -96,10 +92,9 @@ public class ZAProxyWrapper extends BuildWrapper implements Serializable  {
    
 	public static final ZAProxyWrapperDescriptorImpl DESCRIPTOR = new ZAProxyWrapperDescriptorImpl();
     
-    public static final class ZAProxyWrapperDescriptorImpl extends BuildWrapperDescriptor implements Serializable {
+    public static final class ZAProxyWrapperDescriptorImpl extends BuildWrapperDescriptor  {
  
-		private static final long serialVersionUID = 4714962003295700499L;
-	 
+		
 		/**
 		 * To persist global configuration information, simply store it in a
 		 * field and call save().
