@@ -71,6 +71,7 @@ import org.apache.tools.ant.BuildException;
 import org.jenkinsci.remoting.RoleChecker;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
+import org.zaproxy.clientapi.core.ClientApi;
 import org.zaproxy.clientapi.core.ClientApiException;
 
  
@@ -111,6 +112,16 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	
 
 	public static String FILE_SEPARATOR = "";
+	
+	
+	
+	private final String httpHostname;
+	private final String httpRealm ;
+	private final String httpLoggedInIndicator ;
+	private final String httpLoggedOutIndicator;
+	private final String httpUsername ;
+	private final String httpPassword ;
+	private final int httpAuthenticationPort;
 
  
 	/** the scan mode (AUTHENTICATED/NOT_AUTHENTICATED) */
@@ -214,7 +225,8 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 
 
 		@DataBoundConstructor
-		public ZAProxy( ArrayList<String> chosenScanners, String scanMode,
+		public ZAProxy( String httpHostname, String httpRealm , String httpLoggedInIndicator ,String httpLoggedOutIndicator,String httpUsername ,String httpPassword,int httpAuthenticationPort,
+				ArrayList<String> chosenScanners, String scanMode,
 				String authenticationMode,   
 				String targetURL, boolean spiderURL, boolean ajaxSpiderURL, boolean scanURL,  
 				String scriptName, String loginUrl, String contextName, String includedUrl, String excludedUrl,
@@ -226,7 +238,14 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 				String contextId, String userId, String scanId) {
 			
 			
-			super();			
+			super();	
+			this.httpHostname=httpHostname;
+			this.httpRealm=httpRealm;
+			this.httpLoggedInIndicator=httpLoggedInIndicator;
+			this.httpLoggedOutIndicator=httpLoggedOutIndicator;
+			this.httpUsername=httpUsername;
+			this.httpPassword=httpPassword;
+			this.httpAuthenticationPort=httpAuthenticationPort;
 	
 			this.chosenScanners = chosenScanners;
 			this.scanMode = scanMode;
@@ -263,6 +282,13 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		String s = "";
 
 		s += "--------------------------------------------------";
+		s += "httpHostname [" + httpHostname + "]\n";
+		s += "httpRealm [" + httpRealm + "]\n";
+		s += "httpLoggedInIndicator [" + httpLoggedInIndicator + "]\n";
+		s += "httpLoggedOutIndicator [" + httpLoggedOutIndicator + "]\n";
+		s += "httpUsername [" + httpUsername + "]\n";
+		s += "httpAuthenticationPort [" + httpAuthenticationPort + "]\n";		
+		s += "--------------------------------------------------";
 		s += "saveReports [" + saveReports + "]\n";
 		s += "chosenFormats [" + chosenFormats + "]\n";
 		s += "reportName [" + evaluatedFilenameReports + "]\n";
@@ -284,6 +310,34 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		return s;
 	}
 
+
+	public String getHttpHostname() {
+		return httpHostname;
+	}
+
+	public String getHttpRealm() {
+		return httpRealm;
+	}
+
+	public String getHttpLoggedInIndicator() {
+		return httpLoggedInIndicator;
+	}
+
+	public String getHttpLoggedOutIndicator() {
+		return httpLoggedOutIndicator;
+	}
+
+	public String getHttpUsername() {
+		return httpUsername;
+	}
+
+	public String getHttpPassword() {
+		return httpPassword;
+	}
+	
+	public int getHttpAuthenticationPort(){
+		return httpAuthenticationPort;
+	}
 
 	// Overridden for better type safety.
 	// If your plugin doesn't really define any property on Descriptor,
@@ -974,6 +1028,12 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 				setUpFormBasedAuthenticationConf(zapClientAPI, listener);
 				break;
 			}
+			
+			case "HTTP_BASED": {
+				listener.getLogger().println("AUTHENTICATION_MOD :  : HTTP_BASED");
+				setUpHttpBasedAuthenticationConf(zapClientAPI, listener);
+				break;
+			}
 
 			}
 			
@@ -1278,6 +1338,56 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 		zapClientAPI.setForcedUserModeEnabled(true, listener);
 		zapClientAPI.isForcedUserModeEnabled(listener);
 
+		/*********************************************************************/
+
+	}
+	/**
+	 * Set up all authentication details
+	 * 
+	 * @author Abdellah AZOUGARH
+	 * @param username
+	 *            user name to be used in authentication
+	 * @param password
+	 *            password for the authentication user
+	 * @param usernameParameter
+	 *            parameter define in passing username
+	 * @param passwordParameter
+	 *            parameter that define in passing password for the user
+	 * @param loginUrl
+	 *            login page url
+	 * @param loggedInIdicator
+	 *            indication for know its logged in
+	 * @throws ClientApiException
+	 * @throws InterruptedException
+	 * @throws UnsupportedEncodingException
+	 */
+	private void setUpHttpBasedAuthenticationConf(CustomZapClientApi zapClientAPI, BuildListener listener) {
+
+		/***************** AUTHENTIFICATION ********************/
+		listener.getLogger().println("---------------------------------------");
+
+		zapClientAPI.setHttpBasedAuthentication(contextId, httpHostname,httpRealm, httpAuthenticationPort, listener);
+		
+		
+		if (!httpLoggedInIndicator.equals("")) {
+		listener.getLogger().println("---------------------------------------");
+		zapClientAPI.setLoggedInIndicator(contextId, httpLoggedInIndicator, listener);
+		}
+		
+		if (!httpLoggedOutIndicator.equals("")) {
+		listener.getLogger().println("---------------------------------------");
+		zapClientAPI.setLoggedOutIndicator(contextId, httpLoggedOutIndicator, listener);
+		}
+		
+		
+		listener.getLogger().println("---------------------------------------");
+		zapClientAPI.listUserConfigInformation(contextId, listener);
+
+		listener.getLogger().println("---------------------------------------");
+		
+		String userid =zapClientAPI.setUpUser(listener, httpUsername, httpPassword,  contextId);
+		
+		this.setUserId(userid);
 		/*********************************************************************/
 
 	}

@@ -197,6 +197,49 @@ SOFTWARE.
 					  </f:radioBlock>	
 						
 					 
+				 
+	
+	
+	<!-- =========================================================== authentification basique  ========================================================================= -->
+			 
+				<f:radioBlock title="${%Authentification basique HTTP/NTLM}" 	name="authenticationMode" value="HTTP_BASED" checked="${instance.isScanMode('AUTHENTICATED') and instance.isAuthenticationMode('HTTP_BASED')}" inline="true"> 
+					<!-- <f:radioBlock title="${%Authentification basée sur un formulaire}" 	name="authenticationMode" value="FORM_BASED" checked="true" inline="true"> -->
+							 <f:nested>
+					  			<f:entry>
+									<table width="100%">
+									<f:entry title="${%Nom du serveur d'authentification sans http/https}" field="httpHostname">
+										<f:textbox clazz="required" />
+									</f:entry>
+									<f:entry title="${%Numéro de port}" field="httpAuthenticationPort">
+										<f:number default="80" clazz="required" />
+									</f:entry>									
+									
+									<f:entry title="${%Valeur du champ realm}" field="httpRealm">
+										<f:textbox clazz="required" />
+									</f:entry> 
+									
+									<f:entry title="${%Nom de l'utilisateur}" field="httpUsername">
+										<f:textbox clazz="required" />
+									</f:entry>
+									
+									<f:entry title="${%Mot de passe de l'utilisateur}" field="httpPassword">
+										<f:password clazz="required" />
+									</f:entry>	
+									
+									<f:entry title="${%Preuve de déconnexion}" field="httpLoggedOutIndicator">
+										<f:textbox clazz="required" />
+									</f:entry>	
+									
+									<f:entry title="${%Preuve d'authentification}" field="httpLoggedInIndicator">
+										<f:textbox  />
+									</f:entry>
+
+									</table>
+								</f:entry>
+						</f:nested>
+					  </f:radioBlock>	
+						
+					 
 				</table>
 			 </f:entry> 
 	  <!-- <f:optionalBlock title="${%Spider URL As User}" field="spiderAsUser" inline="true" />

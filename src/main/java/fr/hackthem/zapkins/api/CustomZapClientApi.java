@@ -64,6 +64,7 @@ import fr.hackthem.zapkins.utilities.HttpUtilities;
 import fr.hackthem.zapkins.utilities.ProxyAuthenticator;
 import org.zaproxy.clientapi.core.ApiResponseList;
 import org.zaproxy.clientapi.core.ApiResponseSet;
+import org.zaproxy.clientapi.core.ClientApi;
 
 public class CustomZapClientApi implements Serializable {
 
@@ -626,10 +627,9 @@ public class CustomZapClientApi implements Serializable {
 		StringBuilder scriptBasedConfig = new StringBuilder();
 		try {
 			scriptBasedConfig.append("scriptName=").append(URLEncoder.encode(scriptName, "UTF-8"));
-			listener.getLogger()
-					.println("Setting Script based authentication configuration as: " + scriptBasedConfig.toString());
-			api.setAuthenticationMethod(zapProxyKey, contextId, "scriptBasedAuthentication",
-					scriptBasedConfig.toString());
+			
+			listener.getLogger().println("Setting Script based authentication configuration as: " + scriptBasedConfig.toString());
+			api.setAuthenticationMethod(zapProxyKey, contextId, "scriptBasedAuthentication",scriptBasedConfig.toString());
 
 			if(debug == true)
 			listener.getLogger().println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));
@@ -646,23 +646,23 @@ public class CustomZapClientApi implements Serializable {
 
 	}
 
-	public void setScriptBasedAuthentication(String contextId, String LoginUrl, String postData, String Cookie,
-			String scriptName, BuildListener listener) {
+	public void setHttpBasedAuthentication(String contextId, String hostname,String realm, int httpAuthenticationPort,BuildListener listener) {
 
-		StringBuilder scriptBasedConfig = new StringBuilder();
+		StringBuilder httpBasedConfig = new StringBuilder();
+		String port = String.valueOf(httpAuthenticationPort);
 		try {
-			scriptBasedConfig.append("scriptName=").append(URLEncoder.encode(scriptName, "UTF-8"));
-			scriptBasedConfig.append("&LoginUrl=").append(URLEncoder.encode(LoginUrl, "UTF-8"));
-			scriptBasedConfig.append("&postData=").append(URLEncoder.encode(postData, "UTF-8"));
-			scriptBasedConfig.append("&Cookie=").append(URLEncoder.encode(Cookie, "UTF-8"));
-			listener.getLogger()
-					.println("Setting Script based authentication configuration as: " + scriptBasedConfig.toString());
-			api.setAuthenticationMethod(zapProxyKey, contextId, "scriptBasedAuthentication",
-					scriptBasedConfig.toString());
+			httpBasedConfig.append("hostname=").append(URLEncoder.encode(hostname, "UTF-8"));
+			httpBasedConfig.append("&realm=").append(URLEncoder.encode(realm, "UTF-8"));
+			httpBasedConfig.append("&port=").append(URLEncoder.encode(port, "UTF-8"));
+			
+			listener.getLogger().println("Setting HTTP based authentication configuration as: " + httpBasedConfig.toString());
+			api.setAuthenticationMethod(zapProxyKey, contextId, "httpAuthentication",httpBasedConfig.toString());
+
 			if(debug == true)
 			listener.getLogger().println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));
 
 		} catch (UnsupportedEncodingException e) {
+
 			e.printStackTrace();
 			listener.error(ExceptionUtils.getStackTrace(e));
 		} catch (ClientApiException e) {
@@ -672,6 +672,32 @@ public class CustomZapClientApi implements Serializable {
 		}
 
 	}
+//	public void setScriptBasedAuthentication(String contextId, String LoginUrl, String postData, String Cookie,
+//			String scriptName, BuildListener listener) {
+//
+//		StringBuilder scriptBasedConfig = new StringBuilder();
+//		try {
+//			scriptBasedConfig.append("scriptName=").append(URLEncoder.encode(scriptName, "UTF-8"));
+//			scriptBasedConfig.append("&LoginUrl=").append(URLEncoder.encode(LoginUrl, "UTF-8"));
+//			scriptBasedConfig.append("&postData=").append(URLEncoder.encode(postData, "UTF-8"));
+//			scriptBasedConfig.append("&Cookie=").append(URLEncoder.encode(Cookie, "UTF-8"));
+//			listener.getLogger()
+//					.println("Setting Script based authentication configuration as: " + scriptBasedConfig.toString());
+//			api.setAuthenticationMethod(zapProxyKey, contextId, "scriptBasedAuthentication",
+//					scriptBasedConfig.toString());
+//			if(debug == true)
+//			listener.getLogger().println("Authentication config: " + api.getAuthenticationMethod(contextId).toString(0));
+//
+//		} catch (UnsupportedEncodingException e) {
+//			e.printStackTrace();
+//			listener.error(ExceptionUtils.getStackTrace(e));
+//		} catch (ClientApiException e) {
+//
+//			e.printStackTrace();
+//			listener.error(ExceptionUtils.getStackTrace(e));
+//		}
+//
+//	}
 
 	/**
 	 * permet de spécifier les données d'authentification liées à l'utilisateur
@@ -776,6 +802,74 @@ public class CustomZapClientApi implements Serializable {
 		return userId;
 	}
 
+	/**
+	 * set up user for the context and enable user
+	 * @param listener the listener to display log during the job execution in jenkins
+	 * @param zapClientAPI the client API to use ZAP API methods
+	 * @param username user name to be used in authentication
+	 * @param password password for the authentication user
+	 * @param contextId id of the created context
+	 * @return userId id of the newly setup user
+	 * @throws ClientApiException
+	 * @throws UnsupportedEncodingException 
+	 */
+	public String setUpUser(BuildListener listener,  String username,
+						String password, String contextId)   {
+
+		String userIdTemp = null;
+		// add new user and authentication details
+		// Make sure we have at least one user
+		// extract user id 
+		try {
+			userIdTemp = extractUserId(api.newUser(zapProxyKey, contextId, username));
+			
+			// Prepare the configuration in a format similar to how URL parameters are formed. This
+			// means that any value we add for the configuration values has to be URL encoded.
+			StringBuilder userAuthConfig = new StringBuilder();
+			userAuthConfig.append("username=").append(URLEncoder.encode(username, "UTF-8"));
+			userAuthConfig.append("&password=").append(URLEncoder.encode(password, "UTF-8"));
+			String authCon=userAuthConfig.toString();
+			
+			api.setAuthenticationCredentials(zapProxyKey, contextId, userIdTemp, authCon);
+
+			listener.getLogger().println("New user added. username :" +username);
+			
+			api.setUserEnabled(zapProxyKey, contextId,userIdTemp,"true");
+			listener.getLogger().println("User : "+username+" is now Enabled");
+			
+			//to make spidering and ajax spidering in authentication mod
+			setUpForcedUser(listener,  contextId,  userIdTemp) ;
+			
+		} catch (ClientApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+
+
+		return userIdTemp;
+	}
+	/**
+	 * set up forced user for the context and enable user, this help to make spidering and ajax spidering as authenticated user
+	 * @param listener the listener to display log during the job execution in jenkins
+	 * @param zapClientAPI the client API to use ZAP API methods
+	 * @param contextId id of the created context
+	 * @return userId id of the newly setup user
+	 * @throws ClientApiException
+	 * @throws UnsupportedEncodingException 
+	 */
+	private void setUpForcedUser(BuildListener listener, String contextid, String userid) 
+						throws ClientApiException, UnsupportedEncodingException {
+		
+		api.setForcedUser(zapProxyKey, contextid,userid);
+		api.setForcedUserModeEnabled(zapProxyKey, true);
+		
+
+	}
+	
 	/**
 	 * permet d'inclure une url dans un contexte
 	 * 
