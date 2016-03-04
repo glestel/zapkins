@@ -104,8 +104,10 @@ SOFTWARE.
 <!-- ======================================================== SCAN : MODE AUTHENTIFIE ====================================================================================================================== -->
 	
 	<f:radioBlock title="${%Scan en mode authentifié}" 	name="scanMode" value="AUTHENTICATED" checked="${instance.isScanMode('AUTHENTICATED')}" inline="true">
- 	  <table >
-		<f:entry>
+ 	  <f:entry>
+	  
+	  <table >
+		
 				
 				 
 					  <!-- =========================================================== authentification basée sur le script  ========================================================================= -->
