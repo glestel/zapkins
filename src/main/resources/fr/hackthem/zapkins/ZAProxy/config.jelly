@@ -76,11 +76,11 @@ SOFTWARE.
 			<f:textbox  />
 		</f:entry>
 		
-		<f:entry title="${%URL à inclure dans le contexte}" field="includedUrl" description="L'url doit être écrite de cette façon : \Qhttp://www.exemple.fr\E.*">
+		<f:entry title="${%URL à inclure dans le contexte}" field="includedUrl" description="L'url doit être écrite de cette façon : http://www.exemple.fr/.*">
 			<f:textarea clazz="required" />
 		</f:entry>
 			
-		<f:entry title="${%URL à exclure du contexte}" field="excludedUrl" description="L'url doit être écrite de cette façon : \Qhttp://www.exemple.fr/logout.php\E">
+		<f:entry title="${%URL à exclure du contexte}" field="excludedUrl" description="L'url doit être écrite de cette façon : http://www.exemple.fr/logout.php">
 			<f:textarea  />
 		</f:entry>
 		
