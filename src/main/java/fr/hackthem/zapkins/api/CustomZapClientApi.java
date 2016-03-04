@@ -927,7 +927,64 @@ public class CustomZapClientApi implements Serializable {
 		}
 
 	}
+	
+	/**
+	 * permet d'inclure une url dans un contexte
+	 * 
+	 * @param api
+	 * @param url
+	 */
+	public void excludeFromSpider(String urlRegex, BuildListener listener) {
 
+		try {
+
+			String[] urls = urlRegex.split("\n");
+
+			for (int i = 0; i < urls.length; i++) {
+				urls[i] = urls[i].trim();
+				if (!urls[i].isEmpty()) {
+					ApiResponse status = api.excludeFromSpider(zapProxyKey, urls[i]);
+					if (debug == true)
+						listener.getLogger().println(((ApiResponseElement) status).getValue());
+				}
+
+			}
+
+		} catch (ClientApiException e) {
+			e.printStackTrace();
+			listener.error(ExceptionUtils.getStackTrace(e));
+		}
+
+	}
+
+	/**
+	 * permet d'inclure une url dans un contexte
+	 * 
+	 * @param api
+	 * @param url
+	 */
+	public void excludeFromActifScan(String urlRegex, BuildListener listener) {
+
+		try {
+
+			String[] urls = urlRegex.split("\n");
+
+			for (int i = 0; i < urls.length; i++) {
+				urls[i] = urls[i].trim();
+				if (!urls[i].isEmpty()) {
+					ApiResponse status = api.excludeFromActifScan(zapProxyKey, urls[i]);
+					if (debug == true)
+						listener.getLogger().println(((ApiResponseElement) status).getValue());
+				}
+
+			}
+
+		} catch (ClientApiException e) {
+			e.printStackTrace();
+			listener.error(ExceptionUtils.getStackTrace(e));
+		}
+
+	}
 	public void enableUser(String contextid, String userid, BuildListener listener) {
 
 		try {

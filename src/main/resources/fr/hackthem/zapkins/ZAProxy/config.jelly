@@ -90,7 +90,8 @@ SOFTWARE.
 <!-- ======================================================== SCAN : MODE NON AUTHENTIFIE ======================================================================================================================= -->
 	
 	<!-- <f:radioBlock title="${%Scan en mode non authentifié}" 	name="scanMode" value="NOT_AUTHENTICATED" checked="${instance.isScanMode('NOT_AUTHENTICATED')}" inline="true"> -->
-	<f:radioBlock title="${%Scan en mode non authentifié}" 	name="scanMode" value="NOT_AUTHENTICATED" checked="${instance.isScanMode('NOT_AUTHENTICATED')}" inline="true">
+	<f:radioBlock title="${%Scan en mode non authentifié}" 	name="scanMode" value="NOT_AUTHENTICATED" checked="${instance.isScanMode('NOT_AUTHENTICATED')}"  inline="true">
+		 
 		<!-- <f:entry>
 			<table>
 			<f:optionalBlock title="${%Spider URL}" field="spiderURL" inline="true" />
@@ -98,18 +99,18 @@ SOFTWARE.
 			<f:optionalBlock title="${%Scan URL}"  field="scanURL" inline="true" />
 			</table>
 		</f:entry>	 -->	
-			
+		 
 	</f:radioBlock>	
 <!-- ======================================================== SCAN : MODE AUTHENTIFIE ====================================================================================================================== -->
 	
 	<f:radioBlock title="${%Scan en mode authentifié}" 	name="scanMode" value="AUTHENTICATED" checked="${instance.isScanMode('AUTHENTICATED')}" inline="true">
- 	  <f:nested>
+ 	  <table >
 		<f:entry>
-				<table >
+				
 				 
 					  <!-- =========================================================== authentification basée sur le script  ========================================================================= -->
-					  <f:radioBlock title="${%Authentification basée sur un script}" 	name="authenticationMode" value="SCRIPT_BASED" checked="${instance.isScanMode('AUTHENTICATED') and instance.isAuthenticationMode('SCRIPT_BASED') }" inline="true">
-					  <f:nested>
+					  <f:radioBlock title="${%Authentification basée sur un script}" 	name="authenticationMode" value="SCRIPT_BASED" checked="${instance.isScanMode('AUTHENTICATED') and instance.isAuthenticationMode('SCRIPT_BASED') }" inline="true" >
+					  
 						<f:entry>
 							<table width="100%">
 						  <f:entry title="${%Nom du script d'authentification}" field="scriptName">
@@ -149,14 +150,14 @@ SOFTWARE.
 					 					
 					  </table>
 					</f:entry>
-					</f:nested>
+					 
 				</f:radioBlock>	
 				      
 					<!-- =========================================================== authentification basée sur formulaire  ========================================================================= -->
 			 
 				<f:radioBlock title="${%Authentification basée sur un formulaire}" 	name="authenticationMode" value="FORM_BASED" checked="${instance.isScanMode('AUTHENTICATED') and instance.isAuthenticationMode('FORM_BASED')}" inline="true"> 
 					<!-- <f:radioBlock title="${%Authentification basée sur un formulaire}" 	name="authenticationMode" value="FORM_BASED" checked="true" inline="true"> -->
-							 <f:nested>
+							 
 					  			<f:entry>
 									<table width="100%">
 									<f:entry title="${%URL d'authentification}" field="loginUrl">
@@ -193,18 +194,15 @@ SOFTWARE.
 
 									</table>
 								</f:entry>
-						</f:nested>
+						 
 					  </f:radioBlock>	
 						
-					 
-				 
-	
-	
+				
 	<!-- =========================================================== authentification basique  ========================================================================= -->
 			 
-				<f:radioBlock title="${%Authentification basique HTTP/NTLM}" 	name="authenticationMode" value="HTTP_BASED" checked="${instance.isScanMode('AUTHENTICATED') and instance.isAuthenticationMode('HTTP_BASED')}" inline="true"> 
+				<f:radioBlock title="${%Authentification basique HTTP/NTLM}" 	name="authenticationMode" value="HTTP_BASED" checked="${instance.isScanMode('AUTHENTICATED') and instance.isAuthenticationMode('HTTP_BASED')}"  inline="true"> 
 					<!-- <f:radioBlock title="${%Authentification basée sur un formulaire}" 	name="authenticationMode" value="FORM_BASED" checked="true" inline="true"> -->
-							 <f:nested>
+							 
 					  			<f:entry>
 									<table width="100%">
 									<f:entry title="${%Nom du serveur d'authentification}" field="httpHostname">
@@ -236,7 +234,7 @@ SOFTWARE.
 
 									</table>
 								</f:entry>
-						</f:nested>
+					 
 					  </f:radioBlock>	
 						
 					 
@@ -245,7 +243,7 @@ SOFTWARE.
 	  <!-- <f:optionalBlock title="${%Spider URL As User}" field="spiderAsUser" inline="true" />
 	  <f:optionalBlock title="${%Ajax Spider URL As User}" field="ajaxSpiderURLAsUser" inline="true" />
 	  <f:optionalBlock title="${%Scan URL As User}"  field="scanURLAsUser" inline="true" />	 -->
-	  </f:nested>
+	   
 	</f:radioBlock>	
 </f:section>
 <!-- ================================================================================================================================================================================== -->

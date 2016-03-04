@@ -1278,6 +1278,10 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 		
 		if (!excludedUrl.equals("")) {
 			zapClientAPI.excludeFromContext(excludedUrl, contextName, listener);
+			//voir à quel moment il faut appeler les deux action ci-dessous :
+			zapClientAPI.excludeFromSpider(excludedUrl, listener);
+			zapClientAPI.excludeFromActifScan(excludedUrl, listener);
+			
 		}
 
 	}

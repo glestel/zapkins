@@ -542,7 +542,28 @@ public class CustomZapApi implements Serializable {
 		map.put("regex", regex);
 		return callApi("context", "action", "excludeFromContext", map);
 	}
-
+	
+	
+	public ApiResponse excludeFromSpider(String apikey, String regex) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("regex", regex);
+		return callApi("spider", "action", "excludeFromScan", map);
+	}
+	public ApiResponse excludeFromActifScan(String apikey, String regex) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("regex", regex);
+		return callApi("ascan", "action", "excludeFromScan", map);
+	}
+	
+	
 	
 	public ApiResponse setUserEnabled(String apikey, String contextid, String userid, String enabled) throws ClientApiException {
 		Map<String, String> map = null;
