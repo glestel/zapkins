@@ -76,8 +76,12 @@ public class ZAProxyWrapper extends BuildWrapper  {
 
             @Override
             public boolean tearDown(AbstractBuild build, BuildListener listener) {
+            	boolean stopZAP = ZAProxyWrapper.DESCRIPTOR.isStopZAPAtEnd();
                 try {
-                    zaproxy.stopZAP(zapClientAPI, listener);
+                	if(stopZAP == true)
+                		zaproxy.stopZAP(zapClientAPI, listener);
+                	else 
+                		listener.getLogger().println("ZAP is not shutting down as demanded");
                 } catch (ClientApiException e) {
                     listener.error(ExceptionUtils.getStackTrace(e));
                     return false;
