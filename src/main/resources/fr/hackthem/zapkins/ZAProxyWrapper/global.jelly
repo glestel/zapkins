@@ -251,7 +251,7 @@ SOFTWARE.
 		</f:entry>		
 		<!-- ******************************************************************************** -->
  
-	<f:entry title="${%URLs ou domaines autorisés}" field="authorizedURLs" description="Un ensemble d'URLS peut être représenté via une regex. e.g:tout le domaine orange => https?://[^/]+.orange.fr/.*">
+	<f:entry title="${%URLs ou domaines autorisés}" field="authorizedURLs" description="Un ensemble d'URLS peut être représenté via une regex. e.g:tout le domaine exemple => ^https?://([A-Za-z0-9.-]+)\.exemple\.com/">
 			<f:textarea clazz="required" />
 		</f:entry>
 	
