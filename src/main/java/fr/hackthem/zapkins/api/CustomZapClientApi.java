@@ -997,6 +997,34 @@ public class CustomZapClientApi implements Serializable {
 			listener.error(ExceptionUtils.getStackTrace(e));
 		}
 	}
+	
+	
+	/**
+	 * 
+	 * @param contextId
+	 * @param ruleId
+	 * @param url
+	 * @param parameter
+	 * @param urlIsRegex
+	 */
+	public void addAlertFilter(String contextId, String ruleId, String url, String parameter,  String urlIsRegex){
+		String newLevel="-1";
+		 String enabled="true";
+		
+		try {
+			ApiResponse status = api.addAlertFilter(zapProxyKey, contextId, ruleId, url, parameter,  newLevel, urlIsRegex, enabled) ;
+				if (debug == true)
+					listener.getLogger().println(((ApiResponseElement) status).getValue());
+
+			} catch (ClientApiException e) {
+				e.printStackTrace();
+				listener.error(ExceptionUtils.getStackTrace(e));
+			}
+			
+	}
+	
+	
+	
 
 	public static void setWebProxyDetails(String webProxyHost, int webProxyPort, String webProxyUser,
 			String webProxyPassword) {

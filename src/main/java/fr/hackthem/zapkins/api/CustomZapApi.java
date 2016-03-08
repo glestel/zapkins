@@ -564,6 +564,27 @@ public class CustomZapApi implements Serializable {
 	}
 	
 	
+	/** add alert filter **/ 
+	
+	public ApiResponse addAlertFilter(String apikey, String contextId, String ruleId, String url, String parameter, String newLevel, String urlIsRegex,  String enabled) throws ClientApiException {
+		
+		
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("contextId", contextId);
+		map.put("ruleId", ruleId);
+		map.put("newLevel", newLevel);
+		map.put("url", url);
+		map.put("urlIsRegex", urlIsRegex);
+		map.put("parameter", parameter);
+		map.put("enabled", enabled);
+		
+		return callApi("alertFilter", "action", "addAlertFilter", map);
+	}
+	
 	
 	public ApiResponse setUserEnabled(String apikey, String contextid, String userid, String enabled) throws ClientApiException {
 		Map<String, String> map = null;
