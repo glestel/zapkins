@@ -36,7 +36,7 @@
   <scm>
     <connection>scm:git:https://github.com/hackthem/zapkins.git</connection>
     <developerConnection>scm:git:https://github.com/hackthem/zapkins.git</developerConnection>
-    <tag>zapkins-3.0.3</tag>
+    <tag>zapkins-3.0.4</tag>
     <url>https://github.com/hackthem/zapkins.git</url>
   </scm>
  

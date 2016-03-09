@@ -64,8 +64,7 @@ public class ZAPscannersCollection implements Serializable {
 		mapScannersTypes.put("Cross Site Scripting (Persistent) - Prime", "40016");
 		mapScannersTypes.put("Cross Site Scripting (Persistent) - Spider", "40017");
 		
-		mapScannersTypes.put("SQL Injection", "40018");
-		mapScannersTypes.put("Session Fixation", "40013");
+		mapScannersTypes.put("SQL Injection", "40018");		
 		mapScannersTypes.put("LDAP Injection", "40015");
 		mapScannersTypes.put("SQL Injection - MySQL", "40019");
 		mapScannersTypes.put("SQL Injection - Hypersonic SQL", "40020");
@@ -75,7 +74,7 @@ public class ZAPscannersCollection implements Serializable {
 		mapScannersTypes.put("SQL Injection - SQLite", "40024");
 		 
 		
-		mapScannersTypes.put("Anti CSRF tokens scanner", "20012");
+		mapScannersTypes.put("Session Fixation", "40013"); 
 		mapScannersTypes.put("HTTP Parameter Pollution scanner", "20014");
 		
 		mapScannersTypes.put("Possible Username Enumeration", "40023");
