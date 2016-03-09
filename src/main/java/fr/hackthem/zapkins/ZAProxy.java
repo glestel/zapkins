@@ -26,12 +26,57 @@
 
 package fr.hackthem.zapkins;
  
+import java.io.File;
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.Authenticator;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+
+import javax.xml.parsers.DocumentBuilder;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.tools.ant.BuildException;
+import org.jenkinsci.remoting.RoleChecker;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.zaproxy.clientapi.core.ApiResponse;
+import org.zaproxy.clientapi.core.ApiResponseElement;
+import org.zaproxy.clientapi.core.ClientApiException;
+
+import fr.hackthem.zapkins.api.CustomZapClientApi;
+import fr.hackthem.zapkins.report.ZAPreport;
+import fr.hackthem.zapkins.report.ZAPreportCollection;
+import fr.hackthem.zapkins.report.ZAPscannersCollection;
+import fr.hackthem.zapkins.utilities.HttpUtilities;
+import fr.hackthem.zapkins.utilities.ProxyAuthenticator;
+import fr.hackthem.zapkins.utilities.SSHConnexion;
+import fr.hackthem.zapkins.utilities.SecurityTools;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
+import hudson.FilePath.FileCallable;
 import hudson.Launcher;
 import hudson.Util;
-import hudson.FilePath.FileCallable;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.BuildListener;
@@ -43,36 +88,6 @@ import hudson.remoting.VirtualChannel;
 import hudson.slaves.SlaveComputer;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-import fr.hackthem.zapkins.api.CustomZapClientApi; 
-import fr.hackthem.zapkins.report.ZAPreport;
-import fr.hackthem.zapkins.report.ZAPreportCollection;
-import fr.hackthem.zapkins.report.ZAPscannersCollection;
-import fr.hackthem.zapkins.utilities.HttpUtilities;
-import fr.hackthem.zapkins.utilities.ProxyAuthenticator;
-import fr.hackthem.zapkins.utilities.SSHConnexion;
-import fr.hackthem.zapkins.utilities.SecurityTools;
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.Authenticator;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.tools.ant.BuildException;
-import org.jenkinsci.remoting.RoleChecker;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
-import org.zaproxy.clientapi.core.ClientApi;
-import org.zaproxy.clientapi.core.ClientApiException;
 
  
 
@@ -113,7 +128,8 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 
 	public static String FILE_SEPARATOR = "";
 	
-	
+	private final boolean alertFilter;
+	private final String xmlAlertFilters;
 	
 	private final String httpHostname;
 	private final String httpRealm ;
@@ -227,7 +243,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 
 
 		@DataBoundConstructor
-		public ZAProxy( String httpHostname, String httpRealm , String httpLoggedInIndicator ,String httpLoggedOutIndicator,String httpUsername ,String httpPassword,int httpAuthenticationPort,
+		public ZAProxy( boolean alertFilter,String xmlAlertFilters,String httpHostname, String httpRealm , String httpLoggedInIndicator ,String httpLoggedOutIndicator,String httpUsername ,String httpPassword,int httpAuthenticationPort,
 				ArrayList<String> chosenScanners, String scanMode,
 				String authenticationMode,   
 				String targetURL, boolean spiderURL, boolean ajaxSpiderURL, boolean scanURL,  
@@ -240,7 +256,10 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 				String contextId, String userId, String scanId) {
 			
 			
-			super();	
+			super();
+			this.alertFilter=alertFilter;
+			this.xmlAlertFilters=xmlAlertFilters;
+			
 			this.httpHostname=httpHostname;
 			this.httpRealm=httpRealm;
 			this.httpLoggedInIndicator=httpLoggedInIndicator;
@@ -284,6 +303,8 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		String s = "";
 
 		s += "--------------------------------------------------";
+		 
+		s += "alertFilter [" + alertFilter + "]\n";
 		s += "httpHostname [" + httpHostname + "]\n";
 		s += "httpRealm [" + httpRealm + "]\n";
 		s += "httpLoggedInIndicator [" + httpLoggedInIndicator + "]\n";
@@ -312,6 +333,14 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 		return s;
 	}
 
+
+	public boolean isAlertFilter() {
+		return alertFilter;
+	}
+
+	public String getXmlAlertFilters() {
+		return xmlAlertFilters;
+	}
 
 	public String getHttpHostname() {
 		return httpHostname;
@@ -955,7 +984,14 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 		/*
 		 * ======================================================= | SET UP SCANNER | =======================================================
 		 */
-		setUpScanners(zapClientAPI, listener);		
+		setUpScanners(zapClientAPI, listener);	
+		
+		/*
+		 * ======================================================= | SET UP ALERTS FILTERS | =======================================================
+		 */
+		if(alertFilter){
+			setUpAlertFiltersText( xmlAlertFilters,zapClientAPI, listener);
+		}
 		
 		switch (scanMode) {
 
@@ -1187,7 +1223,115 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 	}
 
 	
+	private void setUpAlertFiltersXml( String xmlAlertFilters,CustomZapClientApi clientApi, BuildListener listener){
+		
+		
+		try {				
+			
+			 listener.getLogger().println("************ DEBUT : LISTE DES FAUX POSITIFS A IGNORER ************");
+			 String contextId = zapClientAPI.getContextId(contextName, listener);
+		     InputSource is = new InputSource(new StringReader(xmlAlertFilters)); 
+	         
+	         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();	         
+	         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+	         Document doc = dBuilder.parse(is);
+	         doc.getDocumentElement().normalize();       
+	         
+	         
+	         NodeList nList = doc.getElementsByTagName("filter");	         
+	         
+	         for (int temp = 0; temp < nList.getLength(); temp++) {
+	            org.w3c.dom.Node nNode = nList.item(temp);
+	           
+	            
+	            if (nNode.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+	            	
+	            	
+	               Element eElement = (Element) nNode;
+	               
+	               String ruleId= eElement.getElementsByTagName("pluginid").item(0).getTextContent();
+	               String alert = eElement.getElementsByTagName("alert").item(0).getTextContent();
+	               listener.getLogger().println("*** "+alert);
+	               
+	               NodeList instanceList = doc.getElementsByTagName("instance");
+	               
+	               
+	               for (int temp1 = 0; temp1 < instanceList.getLength(); temp1++) {
+	            	   
+	            	   org.w3c.dom.Node nNode1 = instanceList.item(temp);	                   
+	                   
+	                   if (nNode1.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
+	                   	
+	                   	
+	                      Element eElement1 = (Element) nNode1;
+	                      
+	                      String url = eElement1.getElementsByTagName("url").item(0).getTextContent() ;
+	                      String parameter = eElement1.getElementsByTagName("parameter").item(0).getTextContent();
+	                      
+	                      clientApi.addAlertFilter(contextId, ruleId, url, parameter);
+	                      listener.getLogger().println("url : "+url+" , parameter : "+parameter);
+	                      
+	                      
+	                      
+	            	   
+	            	   
+	               }
+	                   
+	               }               
+	               
+	            }
+	         }
+	         
+	         listener.getLogger().println("************ FIN : LISTE DES FAUX POSITIFS A IGNORER ************");
+	         
+	      } catch (Exception e) {
+	         e.printStackTrace();
+	         listener.error(ExceptionUtils.getStackTrace(e));
+	      }	
+		
+		
+		
+		
+		
+	}
 	
+private void setUpAlertFiltersText( String textAlertFilters,CustomZapClientApi clientApi, BuildListener listener){
+		
+		listener.getLogger().println("************ DEBUT : LISTE DES FAUX POSITIFS A IGNORER ************");
+		String contextId = zapClientAPI.getContextId(contextName, listener);
+ 
+		String[] filters = textAlertFilters.split("\n");
+		String ruleId,url,parameter;
+        
+
+		for (int i = 0; i < filters.length; i++) {
+			filters[i] = filters[i].trim();
+			if (!filters[i].isEmpty()) {
+				
+				String [] elements = filters[i].split(";");
+				if(elements.length == 3 ){
+					
+					ruleId=elements[0].trim();
+					url=elements[1].trim();
+					parameter=elements[2].trim();
+					
+					clientApi.addAlertFilter(contextId, ruleId, url, parameter);
+					listener.getLogger().println("ruleId : "+ruleId+" ,url : "+url+" , parameter : "+parameter);
+				}
+				else {
+					int lineN=i+1;
+					listener.error("The alert filter (line "+lineN+" ) is not implemented due to a sytax error (field separator : ;)");
+				}
+			}
+
+		}
+
+	 
+		listener.getLogger().println("************ FIN : LISTE DES FAUX POSITIFS A IGNORER ************");
+		
+		
+		
+	}
 	
 	private void setUpOptions(CustomZapClientApi zapClientAPI, BuildListener listener){
 		

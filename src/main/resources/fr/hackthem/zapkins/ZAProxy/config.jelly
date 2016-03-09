@@ -249,7 +249,19 @@ SOFTWARE.
 	</f:radioBlock>	
 </f:section>
 <!-- ================================================================================================================================================================================== -->
- 	
+ <f:section title="${%Gestion des alertes}">	
+
+		<f:optionalBlock title="${%Ignorer les faux positifs}"  field="alertFilter" inline="true">	
+			<f:entry>
+				<table width="100%">
+					<f:entry  description="Inserer des lignes de la forme : pluginId; url; parameter " field="xmlAlertFilters">
+						<f:textarea clazz="required" />
+					</f:entry>
+				</table>	
+			</f:entry>
+		</f:optionalBlock> 
+ 
+ </f:section>
 
 	<f:section title="${%Options post audit}">	
 		<!-- ****************************************************************** -->	

@@ -1007,9 +1007,10 @@ public class CustomZapClientApi implements Serializable {
 	 * @param parameter
 	 * @param urlIsRegex
 	 */
-	public void addAlertFilter(String contextId, String ruleId, String url, String parameter,  String urlIsRegex){
+	public void addAlertFilter(String contextId, String ruleId, String url, String parameter ){
 		String newLevel="-1";
 		 String enabled="true";
+		 String urlIsRegex="false";
 		
 		try {
 			ApiResponse status = api.addAlertFilter(zapProxyKey, contextId, ruleId, url, parameter,  newLevel, urlIsRegex, enabled) ;
