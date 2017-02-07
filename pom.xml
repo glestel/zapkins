@@ -5,8 +5,8 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>1.580.1</version>
-    <relativePath></relativePath>
+    <version>2.11</version>
+    <relativePath />
   </parent>
   
   <groupId>fr.hackthem</groupId>
@@ -109,9 +109,8 @@
          
     <dependency>
       <groupId>org.zaproxy</groupId>
-      <artifactId>zap-api</artifactId>
-      <version>2.4</version>
-      <classifier>v6</classifier>
+      <artifactId>zap-clientapi</artifactId>
+      <version>1.0.0</version>
       <scope>compile</scope>
     </dependency>
    <dependency>
@@ -158,10 +157,6 @@
       <url>http://repo.jenkins-ci.org/public/</url>
     </repository>
     <repository>
-      <id>store.polymont-itservices.fr</id>
-      <url>https://store.polymont-itservices.fr/libs-release</url>
-    </repository>
-    <repository>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -188,11 +183,11 @@
     </pluginRepository>
   </pluginRepositories>
   <build>
-    <sourceDirectory>C:\Users\GDRB6297\git\zapkins\src\main\java</sourceDirectory>
-    <scriptSourceDirectory>C:\Users\GDRB6297\git\zapkins\src\main\scripts</scriptSourceDirectory>
-    <testSourceDirectory>C:\Users\GDRB6297\git\zapkins\src\test\java</testSourceDirectory>
-    <outputDirectory>C:\Users\GDRB6297\git\zapkins\target\classes</outputDirectory>
-    <testOutputDirectory>C:\Users\GDRB6297\git\zapkins\target\test-classes</testOutputDirectory>
+    <sourceDirectory>src/main</sourceDirectory>
+    <scriptSourceDirectory>src/main/scripts</scriptSourceDirectory>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
+    <outputDirectory>target/classes</outputDirectory>
+    <testOutputDirectory>target/test-classes</testOutputDirectory>
     <extensions>
       <extension>
         <groupId>org.kohsuke</groupId>
@@ -203,15 +198,15 @@
     <defaultGoal>install</defaultGoal>
     <resources>
       <resource>
-        <directory>C:\Users\GDRB6297\git\zapkins\src\main\resources</directory>
+        <directory>src/main/resources</directory>
       </resource>
     </resources>
     <testResources>
       <testResource>
-        <directory>C:\Users\GDRB6297\git\zapkins\src\test\resources</directory>
+        <directory>src/test/resources</directory>
       </testResource>
     </testResources>
-    <directory>C:\Users\GDRB6297\git\zapkins\target</directory>
+    <directory>target</directory>
     <finalName>zapkins</finalName>
     <pluginManagement>
       <plugins>
@@ -370,7 +365,7 @@
               </goals>
               <configuration>
                 <sources>
-                  <source>C:\Users\GDRB6297\git\zapkins\target/generated-sources/localizer</source>
+                  <source>target/generated-sources/localizer</source>
                 </sources>
               </configuration>
             </execution>
@@ -523,7 +518,7 @@
               <configuration>
                 <signature>
                   <groupId>org.codehaus.mojo.signature</groupId>
-                  <artifactId>java15</artifactId>
+                  <artifactId>java17</artifactId>
                   <version>1.0</version>
                 </signature>
               </configuration>
@@ -532,7 +527,7 @@
           <configuration>
             <signature>
               <groupId>org.codehaus.mojo.signature</groupId>
-              <artifactId>java15</artifactId>
+              <artifactId>java17</artifactId>
               <version>1.0</version>
             </signature>
           </configuration>
@@ -584,7 +579,7 @@
             <configuration>
               <source>1.7</source>
               <target>1.7</target>
-              <encoding>Cp1252</encoding>
+              <encoding></encoding>
             </configuration>
           </execution>
           <execution>
@@ -719,10 +714,22 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
+<!--      <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>2.8</version>
-      </plugin>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              &lt;!&ndash;<goal>jar</goal>&ndash;&gt;
+            </goals>
+            <configuration> &lt;!&ndash; add this to disable checking &ndash;&gt;
+              <additionalparam>-Xdoclint:none</additionalparam>
+              <failOnError>false</failOnError>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>-->
       <plugin>
         <groupId>org.codehaus.gmaven</groupId>
         <artifactId>gmaven-plugin</artifactId>
@@ -906,7 +913,7 @@
               <goal>site</goal>
             </goals>
             <configuration>
-              <outputDirectory>C:\Users\GDRB6297\git\zapkins\target\site</outputDirectory>
+              <outputDirectory>target/site</outputDirectory>
               <reportPlugins>
                 <reportPlugin>
                   <groupId>org.apache.maven.plugins</groupId>
@@ -922,7 +929,7 @@
               <goal>deploy</goal>
             </goals>
             <configuration>
-              <outputDirectory>C:\Users\GDRB6297\git\zapkins\target\site</outputDirectory>
+              <outputDirectory>target/site</outputDirectory>
               <reportPlugins>
                 <reportPlugin>
                   <groupId>org.apache.maven.plugins</groupId>
@@ -933,7 +940,7 @@
           </execution>
         </executions>
         <configuration>
-          <outputDirectory>C:\Users\GDRB6297\git\zapkins\target\site</outputDirectory>
+          <outputDirectory>target/site</outputDirectory>
           <reportPlugins>
             <reportPlugin>
               <groupId>org.apache.maven.plugins</groupId>
@@ -945,6 +952,6 @@
     </plugins>
   </build>
   <reporting>
-    <outputDirectory>C:\Users\GDRB6297\git\zapkins\target\site</outputDirectory>
+    <outputDirectory>target/site</outputDirectory>
   </reporting>
 </project>

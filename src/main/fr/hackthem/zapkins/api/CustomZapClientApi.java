@@ -64,7 +64,6 @@ import fr.hackthem.zapkins.utilities.HttpUtilities;
 import fr.hackthem.zapkins.utilities.ProxyAuthenticator;
 import org.zaproxy.clientapi.core.ApiResponseList;
 import org.zaproxy.clientapi.core.ApiResponseSet;
-import org.zaproxy.clientapi.core.ClientApi;
 
 public class CustomZapClientApi implements Serializable {
 
@@ -189,7 +188,7 @@ public class CustomZapClientApi implements Serializable {
 
 			if (responseCode == 200) {
 
-				// faire des nouveaux tests pour valider la clé api
+				// faire des nouveaux tests pour valider la clÃ© api
 				Map<String, String> map = null;
 				map = new HashMap<String, String>();
 
@@ -198,7 +197,7 @@ public class CustomZapClientApi implements Serializable {
 				}
 
 				ApiResponseElement response;
-				// si la clé n'est pas correcte, une exception est lancée
+				// si la clÃ© n'est pas correcte, une exception est lancÃ©e
 
 				try {
 					response = (ApiResponseElement) sendRequest(protocol, zapProxyHost, zapProxyPort, "xml", "pscan",
@@ -207,8 +206,8 @@ public class CustomZapClientApi implements Serializable {
 					return FormValidation.error("Invalid or missing API key");
 				}
 
-				// si la clé est correcte on affiche la version de ZAP
-				// installée
+				// si la clÃ© est correcte on affiche la version de ZAP
+				// installÃ©e
 				response = (ApiResponseElement) sendRequest(protocol, zapProxyHost, zapProxyPort, "xml", "core", "view",
 						"version", null, proxy, timeoutInSec);
 
@@ -525,8 +524,8 @@ public class CustomZapClientApi implements Serializable {
 	 ******************************************************/
 
 	/**
-	 * permet de spécifier le pattern permettant à ZAP de s'assurer que
-	 * l'utilisateur est bien authentifié
+	 * permet de spÃ©cifier le pattern permettant Ã  ZAP de s'assurer que
+	 * l'utilisateur est bien authentifiÃ©
 	 * 
 	 * @param api
 	 * @param contextId
@@ -549,8 +548,8 @@ public class CustomZapClientApi implements Serializable {
 	}
 
 	/**
-	 * permet de définir le pattern permettant à ZAP de savoir que l'utilisateur
-	 * n'est pas (plus) authentiifé
+	 * permet de dÃ©finir le pattern permettant Ã  ZAP de savoir que l'utilisateur
+	 * n'est pas (plus) authentiifÃ©
 	 * 
 	 * @param api
 	 * @param contextId
@@ -573,7 +572,7 @@ public class CustomZapClientApi implements Serializable {
 	}
 
 	/**
-	 * permet de définir les paramètres d'authentification
+	 * permet de dÃ©finir les paramÃ¨tres d'authentification
 	 * 
 	 * @param api
 	 * @param contextId
@@ -700,13 +699,13 @@ public class CustomZapClientApi implements Serializable {
 //	}
 
 	/**
-	 * permet de spécifier les données d'authentification liées à l'utilisateur
+	 * permet de spÃ©cifier les donnÃ©es d'authentification liÃ©es Ã  l'utilisateur
 	 * (cas : script d'authentification)
 	 * 
 	 * @param api
 	 * @param contextId
 	 * @param user
-	 *            nom de l'utilisateur utilisé dans le test
+	 *            nom de l'utilisateur utilisÃ© dans le test
 	 * @param username
 	 * @param password
 	 * @return
@@ -755,13 +754,13 @@ public class CustomZapClientApi implements Serializable {
 	}
 
 	/**
-	 * permet de spécifier les données d'authentification liées à l'utilisateur
+	 * permet de spÃ©cifier les donnÃ©es d'authentification liÃ©es Ã  l'utilisateur
 	 * (cas : script d'authentification)
 	 * 
 	 * @param api
 	 * @param contextId
 	 * @param user
-	 *            nom de l'utilisateur utilisé dans le test
+	 *            nom de l'utilisateur utilisÃ© dans le test
 	 * @param username
 	 * @param password
 	 * @return
@@ -1262,7 +1261,7 @@ public class CustomZapClientApi implements Serializable {
 	/*************************************************** Spidering ******************************************************************/
 
 	/**
-	 * phase de spidering en mode authentifié
+	 * phase de spidering en mode authentifiÃ©
 	 * 
 	 * @param api
 	 * @param url
@@ -1382,7 +1381,7 @@ public class CustomZapClientApi implements Serializable {
 			}
 			listener.getLogger().println("Ajax Spidering complete");
 			// listener.getLogger().println("***************************************
-			// Liste des URLS trouvées
+			// Liste des URLS trouvÃ©es
 			// ***************************************");
 			// String nbrOfResults = ((ApiResponseElement)
 			// api.ajaxNumberOfResults()).getValue();
@@ -1414,7 +1413,7 @@ public class CustomZapClientApi implements Serializable {
 	}
 
 	/**
-	 * Affiche les résultats de la phase spidering
+	 * Affiche les rÃ©sultats de la phase spidering
 	 * 
 	 * @param api
 	 * @param scanId
@@ -1440,7 +1439,7 @@ public class CustomZapClientApi implements Serializable {
 	}
 	
 	/**
-	 * Affiche les résultats de la phase spidering
+	 * Affiche les rÃ©sultats de la phase spidering
 	 * 
 	 * @param api
 	 * @param scanId
@@ -1498,7 +1497,7 @@ public class CustomZapClientApi implements Serializable {
 	}
 
 	/**
-	 * Affiche les résultats de la phase spidering
+	 * Affiche les rÃ©sultats de la phase spidering
 	 * 
 	 * @param api
 	 * @param scanId
@@ -1547,7 +1546,7 @@ public class CustomZapClientApi implements Serializable {
 	
 	
 	/**
-	 * Affiche les résultats de la phase spidering
+	 * Affiche les rÃ©sultats de la phase spidering
 	 * 
 	 * @param api
 	 * @param scanId

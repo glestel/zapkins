@@ -27,7 +27,6 @@
 package fr.hackthem.zapkins;
  
 import java.io.File;
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
@@ -59,8 +58,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-import org.zaproxy.clientapi.core.ApiResponse;
-import org.zaproxy.clientapi.core.ApiResponseElement;
 import org.zaproxy.clientapi.core.ClientApiException;
 
 import fr.hackthem.zapkins.api.CustomZapClientApi;
@@ -94,7 +91,7 @@ import hudson.util.ListBoxModel;
 /**
  * Contains methods to start and execute ZAProxy. Members variables are bind to
  * the config.jelly placed to fr/novia/zaproxyplugin/ZAProxy
- * Cette classe permet de lancer ZAP, les noms des attributs de la classe doivent être identiques à ceux renseignés dans le fichier config.jelly situé à fr/hackthem/zapkins/ZAProxy
+ * Cette classe permet de lancer ZAP, les noms des attributs de la classe doivent Ãªtre identiques Ã  ceux renseignÃ©s dans le fichier config.jelly situÃ© Ã  fr/hackthem/zapkins/ZAProxy
  * 
  * @authors  Abdellah AZOUGARH
  *
@@ -238,7 +235,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	private String scanId;
 	
 	
-	//ce champ n'a pas besoin d'�tre s�rialis�, faire attention � ce point si on souhaite garder la configuration du plugin peristente
+	//ce champ n'a pas besoin d'être sérialisé, faire attention à ce point si on souhaite garder la configuration du plugin peristente
 	private transient CustomZapClientApi zapClientAPI;
 
 
@@ -773,8 +770,8 @@ public CustomZapClientApi executeZAP(AbstractBuild build, Launcher launcher, Bui
 	 * ======================================================= | USE WEB PROXY | =======================================================
 	 */
 	if (useWebProxy) {
-		// Ici on g�n�ralise l'utilisation du proxy web � tous les appels
-		// pass�s via la JVM
+		// Ici on généralise l'utilisation du proxy web à tous les appels
+		// passés via la JVM
 		listener.getLogger().println("Using web proxy");
 		System.out.println("Using web proxy");
 		CustomZapClientApi.setWebProxyDetails(webProxyHost, webProxyPort, webProxyUser, webProxyPassword);
@@ -866,7 +863,7 @@ public CustomZapClientApi executeZAP(AbstractBuild build, Launcher launcher, Bui
 	 * ======================================================= |WAIT FOR SUCCESSFUL CONNEXIONd| =======================================================
 	 */
 	
-	//ici le proxy est �gal � null car on applique une configuration g�n�rale o� tout appel r�seau provennat de la VM passe par le proxy 
+	//ici le proxy est égal à null car on applique une configuration générale où tout appel réseau provennat de la VM passe par le proxy 
 	HttpUtilities.waitForSuccessfulConnectionToZap(null,protocol, zapProxyHost, zapProxyPort,zapProxyDefaultTimeoutInSec, listener);
 	
 	listener.getLogger().println("targetURL : " + targetURL);
@@ -1365,7 +1362,7 @@ private void setUpAlertFiltersText( String textAlertFilters,CustomZapClientApi c
 		zapClientAPI.setPolicyAttackStrength("4", "HIGH", chosenPolicy);
 
 		/*********************************************************************/
-		// Ici on met le tous à OFF sinon les scanners seront activés malgé
+		// Ici on met le tous Ã  OFF sinon les scanners seront activÃ©s malgÃ©
 		// l'appel de la fonction disableAllScanners()
 		zapClientAPI.setPolicyAlertThreshold("0", "OFF", chosenPolicy);
 		zapClientAPI.setPolicyAlertThreshold("1", "OFF", chosenPolicy);
@@ -1385,7 +1382,7 @@ private void setUpAlertFiltersText( String textAlertFilters,CustomZapClientApi c
 		}
 
 		if (!allScanners) {
-			// ETAPE 1 : on désactive tous les scanners
+			// ETAPE 1 : on dÃ©sactive tous les scanners
 			zapClientAPI.disableAllScanners(chosenPolicy, listener);
 			// ETAPE 1 : on active les scans voulus
 			String scannerIds = "";
@@ -1411,7 +1408,7 @@ private void setUpAlertFiltersText( String textAlertFilters,CustomZapClientApi c
 	private void setUpContexte(CustomZapClientApi zapClientAPI, BuildListener listener) {
 
 		listener.getLogger().println(zapClientAPI.getContextList());
-		// récupère l'id du contexte si celui là est crée sinon elle le crée et
+		// rÃ©cupÃšre l'id du contexte si celui lÃ  est crÃ©e sinon elle le crÃ©e et
 		// retourne son id
 		String contextId = zapClientAPI.getContextId(contextName, listener);
 		setContextId(contextId);
@@ -1422,7 +1419,7 @@ private void setUpAlertFiltersText( String textAlertFilters,CustomZapClientApi c
 		
 		if (!excludedUrl.equals("")) {
 			zapClientAPI.excludeFromContext(excludedUrl, contextName, listener);
-			//voir � quel moment il faut appeler les deux action ci-dessous :
+			//voir à quel moment il faut appeler les deux action ci-dessous :
 			zapClientAPI.excludeFromSpider(excludedUrl, listener);
 			zapClientAPI.excludeFromActifScan(excludedUrl, listener);
 			
@@ -1480,7 +1477,7 @@ private void setUpAlertFiltersText( String textAlertFilters,CustomZapClientApi c
 
 		/*********************** Forced User **********************************/
 		// https://groups.google.com/forum/#!topic/zaproxy-users/GRtzMJ4WJzk
-		// pour que la partie ajaxSpider se fasse d'une manière authentifiée il
+		// pour que la partie ajaxSpider se fasse d'une maniÃšre authentifiÃ©e il
 		// faut activer et renseigner le ForcedUser
 		zapClientAPI.isForcedUserModeEnabled(listener);
 		zapClientAPI.setForcedUser(contextId, userid, listener);
@@ -1572,7 +1569,7 @@ private void setUpAlertFiltersText( String textAlertFilters,CustomZapClientApi c
 
 		/*********************** Forced User **********************************/
 		// https://groups.google.com/forum/#!topic/zaproxy-users/GRtzMJ4WJzk
-		// pour que la partie ajaxSpider se fasse d'une manière authentifiée il
+		// pour que la partie ajaxSpider se fasse d'une maniÃšre authentifiÃ©e il
 		// faut activer et renseigner le ForcedUser
 		zapClientAPI.isForcedUserModeEnabled(listener);
 		zapClientAPI.setForcedUser(contextId, userid, listener);
@@ -1718,7 +1715,7 @@ private void setUpAlertFiltersText( String textAlertFilters,CustomZapClientApi c
 		}
 
 		public List<String> getAllScanners() {
-			// On supprime l'élément "ALL SCANNERS" et on le remet au début.
+			// On supprime l'Ã©lÃ©ment "ALL SCANNERS" et on le remet au dÃ©but.
 			ArrayList<String> tab = new ArrayList<String>(mapScannersTypes.keySet());
 			tab.remove(tab.indexOf("ALL SCANNERS"));
 			tab.add(0, "ALL SCANNERS");
@@ -1737,7 +1734,7 @@ private void setUpAlertFiltersText( String textAlertFilters,CustomZapClientApi c
 			
 			if(!SecurityTools.isUrlAuditable(targetURL, authorizedURL)){
 				
-				return FormValidation.error("URL hors scope (non authorisée)");
+				return FormValidation.error("URL hors scope (non authorisÃ©e)");
 			}
 			
 			return FormValidation.ok();
@@ -1761,7 +1758,7 @@ private void setUpAlertFiltersText( String textAlertFilters,CustomZapClientApi c
 			if (reportName.isEmpty())
 				return FormValidation.error("Ce champ est obligatoire");
 			if (!FilenameUtils.getExtension(reportName).isEmpty())
-				return FormValidation.warning("L'extension du fichier n'est pas nécessaire !");
+				return FormValidation.warning("L'extension du fichier n'est pas nÃ©cessaire !");
 			return FormValidation.ok();
 		}
 
@@ -1973,8 +1970,8 @@ private void setUpAlertFiltersText( String textAlertFilters,CustomZapClientApi c
 			if (useWebProxy) {
 				System.out.println("Using Web Proxy");
 				Authenticator.setDefault(new ProxyAuthenticator(webProxyUser, webProxyPassword));
-				// cet appel permet de ne pas généraliser le passage par le
-				// proxy à toutes les appels issus de la même JVM
+				// cet appel permet de ne pas gÃ©nÃ©raliser le passage par le
+				// proxy Ã  toutes les appels issus de la mÃªme JVM
 				proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(webProxyHost, webProxyPort));
 			}
 			else {

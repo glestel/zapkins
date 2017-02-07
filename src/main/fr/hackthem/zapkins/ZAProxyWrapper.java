@@ -11,7 +11,6 @@ import hudson.tasks.BuildWrapperDescriptor;
 import hudson.util.FormValidation;
 import net.sf.json.JSONObject;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -25,7 +24,6 @@ import fr.hackthem.zapkins.utilities.ProxyAuthenticator;
 import fr.hackthem.zapkins.utilities.SSHConnexion;
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -408,8 +406,8 @@ public class ZAProxyWrapper extends BuildWrapper  {
 			if (useWebProxy) {
 				System.out.println("Using Web Proxy");
 				Authenticator.setDefault(new ProxyAuthenticator(webProxyUser, webProxyPassword));
-				// cet appel permet de ne pas généraliser le passage par le
-				// proxy à tous les appels issus de la même JVM
+				// cet appel permet de ne pas gÃ©nÃ©raliser le passage par le
+				// proxy Ã  tous les appels issus de la mÃªme JVM
 				proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(webProxyHost, webProxyPort));
 			}
 			else {
@@ -504,7 +502,7 @@ public class ZAProxyWrapper extends BuildWrapper  {
 				return FormValidation.ok();
 			}			
 			
-			return FormValidation.error("Le chemin d'accès doit se terminer par '/' ou '\\' selon l'environement d'installation choisi");
+			return FormValidation.error("Le chemin d'accÃ¨s doit se terminer par '/' ou '\\' selon l'environement d'installation choisi");
 			
 		}
 		
@@ -576,15 +574,15 @@ public class ZAProxyWrapper extends BuildWrapper  {
 				 
 				e.printStackTrace();
 				return FormValidation
-						.error(e.getMessage() + " : Vérifier le login et le mot de passe de connextion SSH ! ");
+						.error(e.getMessage() + " : VÃ©rifier le login et le mot de passe de connextion SSH ! ");
 			} catch (IOException e) {
 				 
 				e.printStackTrace();
 				return FormValidation
-						.error(e.getMessage() + " : Vérifier l'adresse du serveur SSH et le numéro de port !");
+						.error(e.getMessage() + " : VÃ©rifier l'adresse du serveur SSH et le numÃ©ro de port !");
 			}
 
-			return FormValidation.okWithMarkup("<br><b><font color=\"green\">Connection réussie !</font></b><br>");		}
+			return FormValidation.okWithMarkup("<br><b><font color=\"green\">Connection rÃ©ussie !</font></b><br>");		}
 	       
         
 

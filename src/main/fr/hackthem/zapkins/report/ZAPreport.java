@@ -1,3 +1,5 @@
+package fr.hackthem.zapkins.report;
+
 /*
  * The MIT License (MIT)
  *
@@ -22,7 +24,7 @@
  * SOFTWARE.
  */
 
-package fr.hackthem.zapkins.report;
+
 
 import org.zaproxy.clientapi.core.ClientApi;
 import org.zaproxy.clientapi.core.ClientApiException;
