@@ -120,7 +120,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
 	private static final String ZAP_PROG_NAME_SH = "zap.sh";
 	public static final String CMD_LINE_PORT = "-port";
 	public static final String CMD_LINE_DAEMON = "-daemon";
-	
+	public static final String CMD_LINE_WORK_DIR = "-dir";
 	
 
 	public static String FILE_SEPARATOR = "";
@@ -657,7 +657,7 @@ public class ZAProxy extends AbstractDescribableImpl<ZAProxy> implements Seriali
  * @throws IOException 
  * @throws IllegalArgumentException 
  */
-public void startZAPLocally(String zapProgram, int zapProxyPort,  AbstractBuild<?, ?> build, BuildListener listener, Launcher launcher) 
+public void startZAPLocally(String zapProgram, int zapProxyPort,  String zapWorkingDirectory, AbstractBuild<?, ?> build, BuildListener listener, Launcher launcher)
 		throws IllegalArgumentException, IOException, InterruptedException {
 	 
 	
@@ -680,8 +680,9 @@ public void startZAPLocally(String zapProgram, int zapProxyPort,  AbstractBuild<
 	cmd.add(CMD_LINE_DAEMON);
 	cmd.add(CMD_LINE_PORT);
 	cmd.add(String.valueOf(zapProxyPort));
+	cmd.add(CMD_LINE_WORK_DIR);
+	cmd.add(zapWorkingDirectory);
 
-		
 	EnvVars envVars = build.getEnvironment(listener);
 	// on Windows environment variables are converted to all upper case,
 	// but no such conversions are done on Unix, so to make this cross-platform,
@@ -708,7 +709,8 @@ public CustomZapClientApi executeZAP(AbstractBuild build, Launcher launcher, Bui
 	//#######################################################################################################
 	
 	String zapProxyDirectory=ZAProxyWrapper.DESCRIPTOR.getZapDefaultDirectory();
-	
+	String zapProxyWorkingDirectory=ZAProxyWrapper.DESCRIPTOR.getZapWorkingDirectory();
+
 	boolean startZAPFirst = ZAProxyWrapper.DESCRIPTOR.isStartZAPFirst();
 	String zapInstallationType = ZAProxyWrapper.DESCRIPTOR.getZapInstallationType();
 	String protocol=ZAProxyWrapper.DESCRIPTOR.getDefaultProtocol();
@@ -831,7 +833,7 @@ public CustomZapClientApi executeZAP(AbstractBuild build, Launcher launcher, Bui
 				listener.getLogger().println("Starting ZAP locally");	
 				System.out.println("Starting ZAP locally");
 					try {
-						startZAPLocally(zapProxyDirectory, zapProxyPort, build, listener, launcher);
+						startZAPLocally(zapProxyDirectory, zapProxyPort, zapProxyWorkingDirectory, build, listener, launcher);
 					} catch (IllegalArgumentException | IOException | InterruptedException e) {
 						
 						listener.error(ExceptionUtils.getStackTrace(e));
@@ -966,6 +968,7 @@ private  String applyMacro(AbstractBuild build, BuildListener listener, String m
 		boolean scanURL = ZAProxyWrapper.DESCRIPTOR.isScanURL();		
 		boolean debugMod = ZAProxyWrapper.DESCRIPTOR.isDebugMod();
 		String zapHomeDirectory = ZAProxyWrapper.DESCRIPTOR.getZapDefaultDirectory();
+		String zapWorkingDirectory = ZAProxyWrapper.DESCRIPTOR.getZapWorkingDirectory(); // FIXME not used ?
 		listener.getLogger().println("Skip loadSession");
 
 		/*
@@ -1945,6 +1948,7 @@ private void setUpAlertFiltersText( String textAlertFilters,CustomZapClientApi c
 			final String zapProxyDefaultHost = ZAProxyWrapper.DESCRIPTOR.getZapProxyDefaultHost();
 			final String zapProxyDefaultApiKey = ZAProxyWrapper.DESCRIPTOR.getZapProxyDefaultApiKey();
 			final String zapDefaultDirectory = ZAProxyWrapper.DESCRIPTOR.getZapDefaultDirectory();
+			final String zapWorkingDirectory = ZAProxyWrapper.DESCRIPTOR.getZapWorkingDirectory();
 
 			final int zapDefaultSSHPort = ZAProxyWrapper.DESCRIPTOR.getZapDefaultSSHPort();
 			final String zapDefaultSSHUser = ZAProxyWrapper.DESCRIPTOR.getZapDefaultSSHUser();
@@ -2017,7 +2021,7 @@ private void setUpAlertFiltersText( String textAlertFilters,CustomZapClientApi c
 				    {
 				    	try {							
 							 
-							startZAPLocally(zapDefaultDirectory, port) ;
+							startZAPLocally(zapDefaultDirectory, port, zapWorkingDirectory) ;
 						 
 						} catch (IOException e1) {
 							 
@@ -2069,7 +2073,8 @@ private void setUpAlertFiltersText( String textAlertFilters,CustomZapClientApi c
 		 * @throws InterruptedException 
 		 */
 		
-		private void startZAPLocally(String zapProxyDirectory , int zapProxyPort) throws IOException, InterruptedException{			 
+		private void startZAPLocally(String zapProxyDirectory , int zapProxyPort, String zapWorkingDirectory)
+				throws IOException, InterruptedException{
 		   
 			File pathToExecutable;
 			if (Hudson.isWindows()){ //TODO : find an other way to do that 
@@ -2086,6 +2091,8 @@ private void setUpAlertFiltersText( String textAlertFilters,CustomZapClientApi c
 			cmd.add(CMD_LINE_DAEMON);
 			cmd.add(CMD_LINE_PORT);
 			cmd.add(String.valueOf(zapProxyPort));
+			cmd.add(CMD_LINE_WORK_DIR);
+			cmd.add(zapWorkingDirectory);
 			
 			System.out.println("cmd : "+cmd.toString());
 			

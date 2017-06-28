@@ -71,6 +71,9 @@ SOFTWARE.
 		<f:entry title="${%Répertoire d'installation du serveur ZAP}" field="zapDefaultDirectory">
 			<f:textbox default="/opt/ZAP_2.4.2/"  />
 		</f:entry>
+		<f:entry title="${%Répertoire de travail de ZAP}" field="zapWorkingDirectory">
+			<f:textbox default="/home/jenkins/.ZAP/"  />
+		</f:entry>
 	</f:section>	
 	
 	<!-- <f:advanced> -->		

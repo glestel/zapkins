@@ -41,6 +41,7 @@ public class ZAProxyWrapper extends BuildWrapper  {
 	private static final String ZAP_PROG_NAME_SH = "zap.sh";
 	public static final String CMD_LINE_PORT = "-port";
 	public static final String CMD_LINE_DAEMON = "-daemon";
+	public static final String CMD_LINE_WORK_DIR = "-dir";
 	
 	//this is important "transient" if you encounter the probleme : Exception when saving the job configuration
 	//e.g : https://groups.google.com/forum/#!search/Failed$20to$20serialize$20buildWrappers/jenkinsci-issues/MiOjNXdXazg/TmyqzVWODswJ
@@ -115,6 +116,8 @@ public class ZAProxyWrapper extends BuildWrapper  {
 
 		/** ZAP default Directory configured when ZAProxy is used as proxy */
 		private String zapDefaultDirectory;
+		/** Directory ZAP will use to work and load config.xml */
+		private String zapWorkingDirectory;
 
 		private boolean useWebProxy;
 		
@@ -184,6 +187,7 @@ public class ZAProxyWrapper extends BuildWrapper  {
 			zapProxyDefaultApiKey = formData.getString("zapProxyDefaultApiKey");
 			zapProxyDefaultTimeoutInSec = formData.getInt("zapProxyDefaultTimeoutInSec");
 			zapDefaultDirectory = formData.getString("zapDefaultDirectory");
+			zapWorkingDirectory = formData.getString("zapWorkingDirectory");
 			useWebProxy = formData.getBoolean("useWebProxy");
 			webProxyHost = formData.getString("webProxyHost");
 			webProxyPort = formData.getInt("webProxyPort");
@@ -239,6 +243,14 @@ public class ZAProxyWrapper extends BuildWrapper  {
 
 		public String getZapDefaultDirectory() {
 			return zapDefaultDirectory;
+		}
+
+		/**
+		 * Directory used by ZAP to load config
+		 * @return path to working dir
+		 */
+		public String getZapWorkingDirectory() {
+			return zapWorkingDirectory;
 		}
 
 		/**
@@ -382,6 +394,7 @@ public class ZAProxyWrapper extends BuildWrapper  {
 				@QueryParameter("webProxyPassword") final String webProxyPassword,
 				
 				@QueryParameter("zapDefaultDirectory") final String zapProxyDirectory,
+				@QueryParameter("zapWorkingDirectory") final String zapWorkingDirectory,
 				@QueryParameter("zapProxyDefaultHost") final String zapProxyHost,			
 				@QueryParameter("zapProxyDefaultApiKey") final String zapProxyKey,
 				@QueryParameter("zapProxyDefaultTimeoutInSec") final int timeoutInSec,
@@ -438,7 +451,8 @@ public class ZAProxyWrapper extends BuildWrapper  {
 				 * ======================================================= | start ZAP | =======================================================
 				 * 
 				 */
-				final String sshLinuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapProxyDirectory+ "zap.sh -daemon -port " + zapProxyPort;			
+				final String sshLinuxCommand = "Xvfb :0.0 & \nexport DISPLAY=:0.0\nsh " + zapProxyDirectory+ "zap.sh -daemon -port " + zapProxyPort +
+						"-dir " + zapWorkingDirectory;
 				
  
 				switch(zapLocation){
@@ -452,7 +466,7 @@ public class ZAProxyWrapper extends BuildWrapper  {
 					    {
 					    	try {							
 								 
-								startZAPLocally(zapProxyDirectory, port) ;
+								startZAPLocally(zapProxyDirectory, port, zapWorkingDirectory) ;
 							 
 							} catch (IOException e1) {
 								 
@@ -513,7 +527,7 @@ public class ZAProxyWrapper extends BuildWrapper  {
 		 */
 		
 		@SuppressWarnings("deprecation")
-		private void startZAPLocally(String zapProxyDirectory , int zapProxyPort) throws IOException, InterruptedException{			 
+		private void startZAPLocally(String zapProxyDirectory , int zapProxyPort, String zapWorkingDirectory) throws IOException, InterruptedException{
 		   
 			File pathToExecutable;
 			if (Hudson.isWindows()){ //TODO : find an other way to do that 
@@ -530,6 +544,8 @@ public class ZAProxyWrapper extends BuildWrapper  {
 			cmd.add(CMD_LINE_DAEMON);
 			cmd.add(CMD_LINE_PORT);
 			cmd.add(String.valueOf(zapProxyPort));
+			cmd.add(CMD_LINE_WORK_DIR);
+			cmd.add(zapWorkingDirectory);
 			
 			System.out.println("cmd : "+cmd.toString());
 			
